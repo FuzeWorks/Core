@@ -32,6 +32,7 @@
 
 namespace FuzeWorks;
 use FuzeWorks\Exception\InvalidArgumentException;
+use Tracy\Debugger;
 
 /**
  * Class Configurator.
@@ -197,6 +198,13 @@ class Configurator
         else
         {
             define('ENVIRONMENT', 'PRODUCTION');
+        }
+
+        // And enable Tracy Debugger 
+        if (class_exists('Tracy\Debugger', true))
+        {
+            Debugger::enable(!$this->parameters['debugMode'], realpath($this->parameters['logDir']));
+            Logger::$useTracy = true;
         }
 
         // Then load the framework

@@ -518,7 +518,7 @@ class Output {
 
 		echo $output;
 
-		Logger::log('Final output sent to browser');
+		Logger::log('Output sent to browser');
 		Logger::logDebug('Total execution time: '.$elapsed);
 	}
 

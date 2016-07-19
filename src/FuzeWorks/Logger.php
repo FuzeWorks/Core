@@ -142,29 +142,6 @@ class Logger {
         self::$log_to_file = Config::get('error')->log_to_file;
         self::$logger_template = Config::get('error')->logger_template;
         self::newLevel('Logger Initiated');
-
-        self::loadTracy();
-    }
-
-    /**
-     * Try to load Trace Debugger when available
-     * 
-     * @return void
-     */
-    public static function loadTracy()
-    {
-        if (class_exists('\Tracy\Debugger', true))
-        {
-            if (ENVIRONMENT === 'DEVELOPMENT')
-            {
-                Debugger::enable(Debugger::DEVELOPMENT, realpath(Core::$logDir));
-            }
-            else
-            {
-                Debugger::enable(Debugger::PRODUCTION, realpath(Core::$logDir));
-            }
-            self::$useTracy = true;
-        }
     }
 
     /**
