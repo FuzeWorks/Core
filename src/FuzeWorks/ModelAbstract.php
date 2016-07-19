@@ -33,14 +33,14 @@
 namespace FuzeWorks;
 
 /**
- * Abstract class ControllerAbstract.
+ * Abstract class ModelAbstract.
  *
- * Extends all controllers to use the Factory. 
+ * Extends all models to use the Factory. 
  * Factory should in the future be replaced with a DI container
  *
  * @author    Abel Hoogeveen <abel@techfuze.net>
  * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
  */
-abstract class ControllerAbstract extends Factory
+abstract class ModelAbstract extends Factory
 {
 }

@@ -36,77 +36,165 @@ use FuzeWorks\Exception\ModelException;
 /**
  * Models Class.
  *
- * Simple loader class for MVC Models. Typically loads models from Application/Models unless otherwise specified.
- * If a model is not found, it will load a DatabaseModel type which will analyze the database and can directly be used.
+ * Simple loader class for MVC Models. 
+ * Typically loads models from Application/Models unless otherwise specified.
+ * 
+ * If a model is not found, it will load a DatabaseModel type which will 
+ * analyze the database and can directly be used.
  *
  * @author    Abel Hoogeveen <abel@techfuze.net>
  * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
  */
 class Models
 {
-    /**
-     * Array of all the loaded models.
-     *
-     * @var array
-     */
-    private static $models_array = array();
 
     /**
-     * Array of all the existing model types (classes).
-     *
-     * @var array
+     * Paths where Models can be found. 
+     * 
+     * Models will only be loaded if either a directory is supplied or it is in one of the modelPaths
+     * 
+     * @var array Array of paths where models can be found
      */
-    private static $model_types = array();
+    protected $modelPaths = array();
 
-    /**
-     * Load a model.
-     *
-     * @param string $name      Name of the model
-     * @param string $directory Optional directory of the model
-     *
-     * @return object The Model object.
-     */
-    public static function loadModel($name, $directory = null)
+    public function __construct()
     {
-        // Model load event
-        $event = Events::fireEvent('modelLoadEvent', $name, $directory);
-        $directory = ($event->directory === null ? Core::$appDir . DS . 'Models' : $event->directory);
-        $name = ($event->model === null ? $name : $event->model);
+        $this->modelPaths[] = Core::$appDir . DS . 'Models';
+    }
 
-        $file = $directory.DS.'model.'.$name.'.php';
-        if (isset(self::$model_types[$name])) {
-            Logger::log('Loading Model: '.get_class(self::$model_types[$name]), get_class(self::$model_types[$name]));
-            self::$models_array[$name] = self::$model_types[$name];
-        } elseif (file_exists($file)) {
-            include_once $file;
-            $model = "\Application\Model\\".ucfirst($name);
-            Logger::log('Loading Model: '.$model, $model);
+    /**
+     * Get a model.
+     * 
+     * Supply the name and the model will be loaded from the supplied directory,
+     * or from one of the modelPaths (which you can add).
+     * 
+     * @param string        $modelName  Name of the model
+     * @param string|null   $directory  Directory to load the model from, will ignore $modelPaths
+     * @return ModelAbstract            The Model object
+     */
+    public function get($modelName, $directory = null)
+    {
+        if (empty($modelName))
+        {
+            throw new ModelException("Could not load model. No name provided", 1);
+        }
 
-            return self::$models_array[$name] = new $model();
-        } else {
-            throw new ModelException("The requested model: \''.$name.'\' could not be found", 1);
+        // First get the directories where the model can be located
+        $directories = (is_null($directory) ? $this->modelPaths : array($directory));
+
+        // Fire a model load event
+        $event = Events::fireEvent('modelLoadEvent', $modelName, $directories);
+        $directories = $event->directories;
+        $modelName = $event->modelName;
+
+        // If the event is cancelled, stop loading
+        if ($event->isCancelled())
+        {
+            return false;
+        }
+
+        // And attempt to load the model
+        return $this->loadModel($modelName, $directories);
+    }
+
+    /**
+     * Load and return a model.
+     * 
+     * Supply the name and the model will be loaded from one of the supplied directories
+     * 
+     * @param string        $modelName   Name of the model
+     * @param array         $directories Directories to try and load the model from
+     * @return ModelAbstract             The Model object
+     */
+    protected function loadModel($modelName, $directories)
+    {
+        if (empty($directories))
+        {
+            throw new ModelException("Could not load model. No directories provided", 1);
+        }
+
+        // Now figure out the className and subdir
+        $class = trim($modelName, '/');
+        if (($last_slash = strrpos($class, '/')) !== FALSE)
+        {
+            // Extract the path
+            $subdir = substr($class, 0, ++$last_slash);
+
+            // Get the filename from the path
+            $class = substr($class, $last_slash);
+        }
+        else
+        {
+            $subdir = '';
+        }
+
+        $class = ucfirst($class);
+
+        // Search for the model file
+        foreach ($directories as $directory) {
+
+            // Determine the file
+            $file = $directory . DS . $subdir . "model." . strtolower($class) . '.php';
+            $className = '\Application\Model\\'.$class;
+
+            // If the class already exists, return a new instance directly
+            if (class_exists($className, false))
+            {
+                return new $className();
+            }
+
+            // If it doesn't, try and load the file
+            if (file_exists($file))
+            {
+                include_once($file);
+                return new $className();
+            }
+        }
+
+        // Maybe it's in a subdirectory with the same name as the class
+        if ($subdir === '')
+        {
+            return $this->loadModel($class."/".$class, $directories);
+        }
+
+        throw new ModelException("Could not load model. Model was not found", 1);
+    }
+
+    /**
+     * Add a path where models can be found
+     * 
+     * @param string $directory The directory
+     * @return void
+     */
+    public function addModelPath($directory)
+    {
+        if (!in_array($directory, $this->ModelPaths))
+        {
+            $this->modelPaths[] = $directory;
         }
     }
 
     /**
-     * Retrieve a model.
-     *
-     * @param string $name Name of the model
-     *
-     * @return object The Model object
-     */
-    public static function get($name)
+     * Remove a path where models can be found
+     * 
+     * @param string $directory The directory
+     * @return void
+     */    
+    public function removeModelPath($directory)
     {
-        // Get the name
-        $name = strtolower($name);
-
-        // Check if it already exists
-        if (isset(self::$models_array[$name])) {
-            // Return if it does
-            return self::$models_array[$name];
-        } else {
-            // If not, load and return afterwards
-            return self::loadModel($name);
+        if (($key = array_search($directory, $this->modelPaths)) !== false) 
+        {
+            unset($this->modelPaths[$key]);
         }
+    }
+
+    /**
+     * Get a list of all current ModelPaths
+     * 
+     * @return array Array of paths where models can be found
+     */
+    public function getModelPaths()
+    {
+        return $this->modelPaths;
     }
 }

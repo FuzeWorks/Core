@@ -45,22 +45,22 @@ use FuzeWorks\Event;
 class ModelLoadEvent extends Event
 {
     /**
-     * The directory the model gets loaded from.
+     * The directories the model can get loaded from.
      *
-     * @var string|null
+     * @var array
      */
-    public $directory = null;
+    public $directories = array();
 
     /**
      * The name of the model to be loaded.
      *
      * @var string|null
      */
-    public $model = null;
+    public $modelName = null;
 
-    public function init($model, $directory)
+    public function init($modelName, $directories)
     {
-        $this->model = $model;
-        $this->directory = $directory;
+        $this->modelName = $modelName;
+        $this->directories = $directories;
     }
 }
