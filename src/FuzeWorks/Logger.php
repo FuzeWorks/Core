@@ -142,6 +142,11 @@ class Logger {
         self::$log_to_file = Config::get('error')->log_to_file;
         self::$logger_template = Config::get('error')->logger_template;
         self::newLevel('Logger Initiated');
+
+        if (self::$useTracy)
+        {
+            LoggerTracy::register();
+        }
     }
 
     /**
