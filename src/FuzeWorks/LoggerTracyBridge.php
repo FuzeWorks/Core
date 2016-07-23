@@ -35,7 +35,7 @@ use Tracy\IBarPanel;
 use Tracy\Debugger;
 
 /**
- * LoggerTracy Class.
+ * LoggerTracyBridge Class.
  *
  * This class provides a bridge between FuzeWorks\Logger and Tracy Debugging tool.
  * 
@@ -45,7 +45,7 @@ use Tracy\Debugger;
  * @author    Abel Hoogeveen <abel@techfuze.net>
  * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
  */
-class LoggerTracy implements IBarPanel {
+class LoggerTracyBridge implements IBarPanel {
 
     /**
      * Register the bar and register the event which will block the screen log

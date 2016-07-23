@@ -34,8 +34,6 @@
 namespace FuzeWorks;
 
 use FuzeWorks\Exception\LayoutException;
-use Tracy\Debugger;
-
 
 /**
  * Logger Class.
@@ -48,34 +46,6 @@ use Tracy\Debugger;
  * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
  */
 class Logger {
-
-    /**
-     * Log entries which display information entries.
-     *
-     * @var array
-     */
-    public static $infoErrors = array();
-
-    /**
-     * Log entries which display debugging entries.
-     *
-     * @var array
-     */
-    public static $debugErrors = array();
-
-    /**
-     * Log entries which display critical error entries.
-     *
-     * @var array
-     */
-    public static $criticalErrors = array();
-
-    /**
-     * Log entries which display warning entries.
-     *
-     * @var array
-     */
-    public static $warningErrors = array();
 
     /**
      * All log entries, unsorted.
@@ -132,11 +102,13 @@ class Logger {
      * Registers the error and exception handler, when required to do so by configuration
      */
     public function __construct() {
-        // Register the error handler
+        // Register the error handler, Untestable
+        // @codeCoverageIgnoreStart
         if (Config::get('error')->error_reporting == true && self::$useTracy === false) {
             set_error_handler(array('\FuzeWorks\Logger', 'errorHandler'), E_ALL);
             set_Exception_handler(array('\FuzeWorks\Logger', 'exceptionHandler'));
         }
+        // @codeCoverageIgnoreEnd
 
         error_reporting(false);
 
@@ -147,12 +119,14 @@ class Logger {
 
         if (self::$useTracy)
         {
-            LoggerTracy::register();
+            LoggerTracyBridge::register();
         }
     }
 
     /**
      * Function to be run upon FuzeWorks shutdown.
+     *
+     * @codeCoverageIgnore
      *
      * Logs data to screen when requested to do so
      */
@@ -174,6 +148,8 @@ class Logger {
     /**
      * Function to be run upon FuzeWorks shutdown.
      *
+     * @codeCoverageIgnore
+     *
      * Logs a fatal error and outputs the log when configured or requested to do so
      */
     public static function shutdownError()
@@ -194,10 +170,7 @@ class Logger {
             // Log it!
             Factory::getInstance()->output->set_output('');
             self::errorHandler($errno, $errstr, $errfile, $errline);
-            if (self::$useTracy === false)
-            {
-                self::http_error('500');
-            }
+            self::http_error('500');
         }
     }
 
@@ -237,15 +210,15 @@ class Logger {
         $context = $exception->getTraceAsString();
 
         self::logError('Exception thrown: ' . $message . ' | ' . $code, null, $file, $line);
-        // And return a 500 because this error was fatal
-        if (self::$useTracy === false)
-        {
-            self::http_error('500');
-        }
+        
+         // And return a 500 because this error was fatal
+         self::http_error('500');
     }
 
     /**
      * Set the template that FuzeWorks should use to parse debug logs
+     * 
+     * @codeCoverageIgnore
      * 
      * @var string Name of the template file
      */
@@ -256,8 +229,7 @@ class Logger {
 
     /**
      * Output the entire log to the screen. Used for debugging problems with your code.
-     *
-     * @return string Output of the log
+     * @codeCoverageIgnore
      */
     public static function logToScreen() {
         // Send a screenLogEvent, allows for new screen log designs
@@ -266,43 +238,25 @@ class Logger {
             return false;
         }
 
-        Layout::reset();
-        Layout::assign('Logs', self::$Logs);
-        Layout::view(self::$logger_template, Core::$coreDir . DS . 'Views', true);
+        $logs = self::$Logs;
+        require(dirname(__DIR__) . '/views/view.' . self::$logger_template . '.php');
     }
 
+    /**
+     * Output the entire log to a file. Used for debugging problems with your code.
+     * @codeCoverageIgnore
+     */
     public static function logToFile()
     {
-        Layout::reset();
-        Layout::assign('Logs', self::$Logs);
-        $contents = Layout::get('logger_cli', Core::$coreDir . DS . 'Views');
+        ob_start(function () {});
+        $logs = self::$Logs;
+        require(dirname(__DIR__) . '/views/view.logger_cli.php');
+        $contents = ob_get_clean();
         $file = Core::$logDir .DS. 'Logs'.DS.'log_latest.php';
         if (is_writable($file))
         {
             file_put_contents($file, '<?php ' . $contents);
         }
-    }
-
-    /**
-     * Backtrace a problem to the source using the trace of an Exception.
-     *
-     * @return string HTML backtrace
-     */
-    public static function backtrace() {
-        $e = new Exception();
-        $trace = explode("\n", $e->getTraceAsString());
-        // reverse array to make steps line up chronologically
-        $trace = array_reverse($trace);
-        array_shift($trace); // remove {main}
-        array_pop($trace); // remove call to this method
-        $length = count($trace);
-        $result = array();
-
-        for ($i = 0; $i < $length; ++$i) {
-            $result[] = ($i + 1) . ')' . substr($trace[$i], strpos($trace[$i], ' ')); // replace '#someNum' with '$i)', set the right ordering
-        }
-
-        return "<b>BACKTRACE: <br/>\t" . implode('<br/>', $result) . '</b>';
     }
 
     /* =========================================LOGGING METHODS============================================================== */
@@ -317,7 +271,14 @@ class Logger {
      * @return  void
      */
     public static function mark($name) {
-        self::$markPoints[$name] = microtime(TRUE);
+        $LOG = array('type' => 'BMARK',
+            'message' => (!is_null($name) ? $name : ''),
+            'logFile' => '',
+            'logLine' => '',
+            'context' => '',
+            'runtime' => round(self::getRelativeTime(), 4),);
+
+        self::$Logs[] = $LOG;
     }
 
     /**
@@ -348,14 +309,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$infoErrors[] = $LOG;
         self::$Logs[] = $LOG;
-
-        // Use Tracy when we can
-        if (self::$useTracy === true)
-        {
-            Debugger::log($msg, 'info');
-        }
     }
 
     /**
@@ -374,14 +328,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$debugErrors[] = $LOG;
         self::$Logs[] = $LOG;
-
-        // Use Tracy when we can
-        if (self::$useTracy === true)
-        {
-            Debugger::log($msg, 'debug');
-        }
     }
 
     /**
@@ -400,14 +347,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$criticalErrors[] = $LOG;
         self::$Logs[] = $LOG;
-
-        // Use Tracy when we can
-        if (self::$useTracy === true)
-        {
-            Debugger::log($msg, 'error');
-        }
     }
 
     /**
@@ -426,14 +366,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$warningErrors[] = $LOG;
         self::$Logs[] = $LOG;
-
-        // Use Tracy when we can
-        if (self::$useTracy === true)
-        {
-            Debugger::log($msg, 'warning');
-        }
     }
 
     /**
@@ -453,12 +386,6 @@ class Logger {
             'runtime' => round(self::getRelativeTime(), 4),);
 
         self::$Logs[] = $LOG;
-
-        // Use Tracy when we can
-        if (self::$useTracy === true)
-        {
-            Debugger::log($msg, 'info');
-        }
     }
 
     /**
@@ -608,6 +535,14 @@ class Logger {
     }
 
     /**
+     * Returns whether screen logging is enabled.
+     */
+    public static function isEnabled()
+    {
+        return self::$print_to_screen;
+    }
+
+    /**
      * Get the relative time since the framework started.
      *
      * Used for debugging timings in FuzeWorks
@@ -620,39 +555,4 @@ class Logger {
 
         return $time;
     }
-
-    /**
-     * Elapsed time
-     *
-     * Calculates the time difference between two marked points.
-     *
-     * If the first parameter is empty this function instead returns the
-     * {elapsed_time} pseudo-variable. This permits the full system
-     * execution time to be shown in a template. The output class will
-     * swap the real value for this variable.
-     *
-     * @param	string	$point1		A particular marked point
-     * @param	string	$point2		A particular marked point
-     * @param	int	$decimals	Number of decimal places
-     *
-     * @return	string	Calculated elapsed time on success,
-     * 			an '{elapsed_string}' if $point1 is empty
-     * 			or an empty string if $point1 is not found.
-     */
-    public static function elapsedTime($point1 = '', $point2 = '', $decimals = 4) {
-        if ($point1 === '') {
-            return '{elapsed_time}';
-        }
-
-        if (!isset(self::$markPoints[$point1])) {
-            return '';
-        }
-
-        if (!isset(self::$markPoints[$point2])) {
-            self::$markPoints[$point2] = microtime(TRUE);
-        }
-
-        return number_format(self::$markPoints[$point2] - self::$markPoints[$point1], $decimals);
-    }
-
 }
