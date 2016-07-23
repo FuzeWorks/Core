@@ -87,6 +87,7 @@ class Factory
 		// If there is no sharedFactoryInstance, prepare it
 		if (is_null(self::$sharedFactoryInstance))
 		{
+			// @codeCoverageIgnoreStart
 			self::$sharedFactoryInstance = $this;
 	        $this->instances['Config'] = new Config();
 	        $this->instances['Logger'] = new Logger();
@@ -107,6 +108,7 @@ class Factory
 
 	        return true;
 		}
+		// @codeCoverageIgnoreEnd
 
 		// Otherwise, copy the existing instances
 		$this->instances = self::getInstance()->getClassInstances();

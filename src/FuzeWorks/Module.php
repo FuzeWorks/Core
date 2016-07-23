@@ -39,6 +39,7 @@ namespace FuzeWorks;
  *
  * @author    Abel Hoogeveen <abel@techfuze.net>
  * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @deprecated
  */
 trait Module
 {
