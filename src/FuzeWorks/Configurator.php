@@ -24,14 +24,15 @@
  * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
  * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
- * @link  http://fuzeworks.techfuze.net
+ * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 0.0.1
+ * @version Version 1.0.0
  */
 
 namespace FuzeWorks;
 use FuzeWorks\Exception\InvalidArgumentException;
+use Tracy\Debugger;
 
 /**
  * Class Configurator.
@@ -197,6 +198,13 @@ class Configurator
         else
         {
             define('ENVIRONMENT', 'PRODUCTION');
+        }
+
+        // And enable Tracy Debugger 
+        if (class_exists('Tracy\Debugger', true))
+        {
+            Debugger::enable(!$this->parameters['debugMode'], realpath($this->parameters['logDir']));
+            Logger::$useTracy = true;
         }
 
         // Then load the framework

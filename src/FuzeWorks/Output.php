@@ -24,10 +24,10 @@
  * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
  * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
- * @link  http://fuzeworks.techfuze.net
+ * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 0.0.1
+ * @version Version 1.0.0
  */
 
 namespace FuzeWorks;
@@ -435,15 +435,10 @@ class Output {
 
 		// --------------------------------------------------------------------
 
-		// Parse out the elapsed time and memory usage,
-		// then swap the pseudo-variables with the data
-
-		$elapsed = Logger::elapsedTime('total_execution_time_start', 'total_execution_time_end');
-
 		if ($this->parse_exec_vars === TRUE)
 		{
 			$memory	= round(memory_get_usage() / 1024 / 1024, 2).'MB';
-			$output = str_replace(array('{elapsed_time}', '{memory_usage}'), array($elapsed, $memory), $output);
+			$output = str_replace(array('{memory_usage}'), array($memory), $output);
 		}
 
 		// --------------------------------------------------------------------
@@ -488,7 +483,6 @@ class Output {
 
 			echo $output;
 			Logger::log('Final output sent to browser');
-			Logger::logDebug('Total execution time: '.$elapsed);
 			return;
 		}
 
@@ -518,8 +512,7 @@ class Output {
 
 		echo $output;
 
-		Logger::log('Final output sent to browser');
-		Logger::logDebug('Total execution time: '.$elapsed);
+		Logger::log('Output sent to browser');
 	}
 
 	// --------------------------------------------------------------------

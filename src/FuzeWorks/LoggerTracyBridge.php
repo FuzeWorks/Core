@@ -29,60 +29,60 @@
  *
  * @version Version 1.0.0
  */
- 
-namespace FuzeWorks\TemplateEngine;
+
+namespace FuzeWorks;
+use Tracy\IBarPanel;
+use Tracy\Debugger;
 
 /**
- * Simple Template Engine that allows for PHP templates.
+ * LoggerTracyBridge Class.
+ *
+ * This class provides a bridge between FuzeWorks\Logger and Tracy Debugging tool.
+ * 
+ * This class registers in Tracy, and creates a Bar object which contains the log. 
+ * Afterwards it blocks a screen log so that the content is not shown on the screen as well.
  *
  * @author    Abel Hoogeveen <abel@techfuze.net>
  * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
  */
-class PHPEngine implements TemplateEngine
-{
-    /**
-     * The currently used directory by the template.
-     *
-     * @var string
-     */
-    protected $directory;
+class LoggerTracyBridge implements IBarPanel {
 
     /**
-     * All the currently assigned variables.
-     *
-     * @var array
+     * Register the bar and register the event which will block the screen log
      */
-    protected $assigned_variables = array();
+	public static function register()
+	{
+		$class = new self();
+		Events::addListener(array($class, 'screenLogEventListener'), 'screenLogEvent', EventPriority::NORMAL);
+		$bar = Debugger::getBar();
+		$bar->addPanel($class);
+	}
 
-    public function setDirectory($directory)
-    {
-        $this->directory = $directory;
-    }
+    /**
+     * Listener that blocks the screen log
+     *
+     * @param Event
+     * @return Event
+     */
+	public function screenLogEventListener($event)
+	{
+		$event->setCancelled(true);
+		return $event;
+	}
 
-    public function get($file, $assigned_variables)
-    {
-        // First set all the variables
-        $this->assigned_variables = $assigned_variables;
-        $vars = $this->assigned_variables;
-        $directory = $this->directory;
+	public function getTab()
+	{
+		ob_start(function () {});
+		require dirname(__DIR__) . '/views/view.tracyloggertab.php';
+		return ob_get_clean();
+	}
 
-        // Then run the file
-        if (!is_null($file)) {
-            ob_start();
-            include $file;
+	public function getPanel()
+	{
+		ob_start(function () {});
+		$logs = Logger::$Logs;
+		require dirname(__DIR__) . '/views/view.tracyloggerpanel.php';
+		return ob_get_clean();
+	}
 
-            return ob_get_clean();
-        }
-    }
-
-    public function getFileExtensions()
-    {
-        return array('php');
-    }
-
-    public function reset()
-    {
-        $this->directory = null;
-        $this->assigned_variables = array();
-    }
 }

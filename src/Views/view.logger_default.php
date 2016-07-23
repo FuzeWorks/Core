@@ -2,7 +2,7 @@
 
 $string = '<h3>FuzeWorks debug log</h3>';
 $layer = 0;
-foreach ($this->assigned_variables['Logs'] as $log) {
+foreach ($logs as $log) {
     if ($log['type'] == 'LEVEL_START') {
         ++$layer;
         $color = 255 - ($layer * 25);

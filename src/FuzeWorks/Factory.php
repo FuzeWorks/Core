@@ -24,10 +24,10 @@
  * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
  * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
- * @link  http://fuzeworks.techfuze.net
+ * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 0.0.1
+ * @version Version 1.0.0
  */
 
 namespace FuzeWorks;
@@ -87,6 +87,7 @@ class Factory
 		// If there is no sharedFactoryInstance, prepare it
 		if (is_null(self::$sharedFactoryInstance))
 		{
+			// @codeCoverageIgnoreStart
 			self::$sharedFactoryInstance = $this;
 	        $this->instances['Config'] = new Config();
 	        $this->instances['Logger'] = new Logger();
@@ -107,6 +108,7 @@ class Factory
 
 	        return true;
 		}
+		// @codeCoverageIgnoreEnd
 
 		// Otherwise, copy the existing instances
 		$this->instances = self::getInstance()->getClassInstances();

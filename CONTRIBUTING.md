@@ -22,4 +22,4 @@ tag, you are giving permission to license the patch as GPLv3-or-later.  See
 
 You can find more information on our website:
 
-https://fuzeworks.techfuze.net/
+https://techfuze.net/fuzeworks/

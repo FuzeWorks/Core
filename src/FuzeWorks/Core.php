@@ -24,10 +24,10 @@
  * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
  * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
- * @link  http://fuzeworks.techfuze.net
+ * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 0.0.1
+ * @version Version 1.0.0
  */
 
 namespace FuzeWorks;
@@ -49,7 +49,7 @@ class Core
      *
      * @var string Framework version
      */
-    public static $version = '0.0.1';
+    public static $version = '1.0.0';
 
     /**
      * Working directory of the Framework.

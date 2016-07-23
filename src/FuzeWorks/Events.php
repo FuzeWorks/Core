@@ -24,10 +24,10 @@
  * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
  * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
- * @link  http://fuzeworks.techfuze.net
+ * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 0.0.1
+ * @version Version 1.0.0
  */
 
 namespace FuzeWorks;
@@ -91,8 +91,19 @@ class Events
      */
     public static function addListener($callback, $eventName, $priority = EventPriority::NORMAL)
     {
+        // Perform multiple checks
         if (EventPriority::getPriority($priority) == false) {
-            throw new EventException('Unknown priority '.$priority);
+            throw new EventException('Can not add listener: Unknown priority '.$priority, 1);
+        }
+
+        if (!is_callable($callback))
+        {
+            throw new EventException("Can not add listener: Callback is not callable", 1);
+        }
+
+        if (empty($eventName))
+        {
+            throw new EventException("Can not add listener: No eventname provided", 1);
         }
 
         if (!isset(self::$listeners[$eventName])) {

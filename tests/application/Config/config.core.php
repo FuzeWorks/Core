@@ -1,8 +1,7 @@
 <?php
 
 return array(
-  'enable_composer' 		=> true,
-  'enable_modules' 			=> true,
+  'enable_modules' 			=> false,
   'enable_events' 			=> true,
   'composer_autoloader' 	=> '',
   'registry_caching'		=> false,

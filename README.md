@@ -1,7 +1,7 @@
 FuzeWorks - Readme [![build status](http://10.0.0.32/fuzeworks/core/badges/master/build.svg)](http://10.0.0.32/fuzeworks/core/commits/master)
 ===================
 
-Version 0.0.1-DEV
+Version 1.0.0-DEV
 
 A versatile PHP Framework built to perform.
 
