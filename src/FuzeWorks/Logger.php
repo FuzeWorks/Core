@@ -133,11 +133,13 @@ class Logger {
      */
     public function __construct() {
         // Register the error handler
-        if (Config::get('error')->error_reporting == true) {
+        if (Config::get('error')->error_reporting == true && self::$useTracy === false) {
             set_error_handler(array('\FuzeWorks\Logger', 'errorHandler'), E_ALL);
             set_Exception_handler(array('\FuzeWorks\Logger', 'exceptionHandler'));
-            error_reporting(false);
         }
+
+        error_reporting(false);
+
         self::$debug = (ENVIRONMENT === 'DEVELOPMENT');
         self::$log_to_file = Config::get('error')->log_to_file;
         self::$logger_template = Config::get('error')->logger_template;
