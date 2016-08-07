@@ -223,20 +223,20 @@ class loggerTest extends CoreTestAbstract
         Logger::http_error(404, false);
     }
 
-    public function testEnable()
+    public function testEnableDisable()
     {
+        // First enable
         Logger::enable();
         $this->assertTrue(Logger::isEnabled());
-    }
 
-    public function testDisable()
-    {
+        // Then disable
         Logger::disable();
         $this->assertFalse(Logger::isEnabled());
     }
 
     public function tearDown()
     {
+        Logger::disable();
         Logger::$Logs = array();
     }
 }
