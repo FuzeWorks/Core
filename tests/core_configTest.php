@@ -30,7 +30,7 @@
  * @version     Version 1.0.0
  */
 
-use FuzeWorks\Factory;
+use FuzeWorks\Config;
 
 /**
  * Class ConfigTest.
@@ -43,8 +43,7 @@ class configTest extends CoreTestAbstract
 
 	public function setUp()
 	{
-		$factory = Factory::getInstance();
-		$this->config = $factory->config;
+		$this->config = new Config();
 	}
 
 	public function testGetConfigClass()
