@@ -28,7 +28,7 @@
  * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 1.0.0
+ * @version Version 1.0.1
  */
 
 namespace FuzeWorks;
@@ -516,7 +516,7 @@ class Logger {
             Layout::view($view);
         } catch (LayoutException $exception) {
             // No error page could be found, just echo the result
-            echo "<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3>';
+            Factory::getInstance()->output->set_output("<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3>');
         }
     }
 

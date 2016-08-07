@@ -27,11 +27,12 @@
  * @link        http://techfuze.net/fuzeworks
  * @since       Version 0.0.1
  *
- * @version     Version 1.0.0
+ * @version     Version 1.0.1
  */
 use FuzeWorks\Events;
 use FuzeWorks\Layout;
 use FuzeWorks\Factory;
+use FuzeWorks\LoggerTracyBridge;
 
 /**
  * Class CoreTestAbstract.
@@ -47,9 +48,19 @@ abstract class CoreTestAbstract extends PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
+        // Clear all events created by tests
         Events::$listeners = array();
+
+        // Re-register the LoggerTracyBridge to supress errors
+        LoggerTracyBridge::register();
+
+        // Reset the layout manager
         Layout::reset();
+
+        // Re-enable events, in case they have been disabled
         Events::enable();
+
+        // Clear the output
         Factory::getInstance()->output->set_output('');
     }
 }
