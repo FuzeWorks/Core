@@ -27,10 +27,10 @@
  * @link        http://techfuze.net/fuzeworks
  * @since       Version 0.0.1
  *
- * @version     Version 1.0.0
+ * @version     Version 1.0.1
  */
 
-use FuzeWorks\Factory;
+use FuzeWorks\Config;
 
 /**
  * Class ConfigTest.
@@ -43,8 +43,7 @@ class configTest extends CoreTestAbstract
 
 	public function setUp()
 	{
-		$factory = Factory::getInstance();
-		$this->config = $factory->config;
+		$this->config = new Config();
 	}
 
 	public function testGetConfigClass()

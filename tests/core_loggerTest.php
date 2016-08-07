@@ -27,11 +27,12 @@
  * @link        http://techfuze.net/fuzeworks
  * @since       Version 0.0.1
  *
- * @version     Version 1.0.0
+ * @version     Version 1.0.1
  */
 
 use FuzeWorks\Config;
 use FuzeWorks\Logger;
+use FuzeWorks\Factory;
 use FuzeWorks\Exception\LoggerException;
 
 /**
@@ -43,9 +44,12 @@ class loggerTest extends CoreTestAbstract
 {
     protected $logger;
 
+    protected $output;
+
     public function setUp()
     {
         Config::get('error')->error_reporting = false;
+        $this->output = Factory::getInstance()->output;
         Logger::$Logs = array();
     }
 
@@ -111,14 +115,11 @@ class loggerTest extends CoreTestAbstract
         // Create the exception
         $exception = new LoggerException();
 
-        // Prepare output buffering
-        ob_start(function () {});
-
         // Log the exception
         Logger::exceptionHandler($exception);
 
         // Check the output
-        $this->assertEquals('<h1>500</h1><h3>Internal Server Error</h3>', ob_get_clean());
+        $this->assertEquals('<h1>500</h1><h3>Internal Server Error</h3>', $this->output->get_output());
 
         // Check the logs
         $log = Logger::$Logs[0];
@@ -209,34 +210,31 @@ class loggerTest extends CoreTestAbstract
 
         // Test all error codes
         foreach ($http_codes as $code => $description) {
-            // Prepare output buffering
-            ob_start(function () {});
-
             // Fire the error
             Logger::http_error($code);
 
             // Check the output
-            $this->assertEquals('<h1>'.$code.'</h1><h3>'.$description.'</h3>', ob_get_clean());            
+            $this->assertEquals('<h1>'.$code.'</h1><h3>'.$description.'</h3>', $this->output->get_output());
         }
 
         // Test when not viewing
         Logger::http_error(404, false);
     }
 
-    public function testEnable()
+    public function testEnableDisable()
     {
+        // First enable
         Logger::enable();
         $this->assertTrue(Logger::isEnabled());
-    }
 
-    public function testDisable()
-    {
+        // Then disable
         Logger::disable();
         $this->assertFalse(Logger::isEnabled());
     }
 
     public function tearDown()
     {
+        Logger::disable();
         Logger::$Logs = array();
     }
 }

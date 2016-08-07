@@ -11,6 +11,7 @@ $parameters = array(
 	);
 $configurator->setParameters($parameters);
 
+$configurator->setDebugMode(true);
 $configurator->setTimeZone('Europe/Amsterdam');
 $configurator->setTempDirectory(__DIR__ . '/temp');
 $configurator->setLogDirectory(__DIR__ . '/temp');

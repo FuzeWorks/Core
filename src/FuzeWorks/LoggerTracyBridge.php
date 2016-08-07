@@ -27,7 +27,7 @@
  * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 1.0.0
+ * @version Version 1.0.1
  */
 
 namespace FuzeWorks;
@@ -79,8 +79,28 @@ class LoggerTracyBridge implements IBarPanel {
 
 	public function getPanel()
 	{
+        // If an error is thrown, log it
+        $errfile = 'Unknown file';
+        $errstr = 'shutdown';
+        $errno = E_CORE_ERROR;
+        $errline = 0;
+
+        $error = error_get_last();
+        if ($error !== null) {
+            $errno = $error['type'];
+            $errfile = $error['file'];
+            $errline = $error['line'];
+            $errstr = $error['message'];
+
+            // Log it!
+            Logger::errorHandler($errno, $errstr, $errfile, $errline);
+        }
+
+        // Reverse the logs 
+		$logs = array_reverse(Logger::$Logs, true);
+
+		// Parse the panel
 		ob_start(function () {});
-		$logs = Logger::$Logs;
 		require dirname(__DIR__) . '/views/view.tracyloggerpanel.php';
 		return ob_get_clean();
 	}

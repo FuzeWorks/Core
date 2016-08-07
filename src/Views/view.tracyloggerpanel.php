@@ -38,6 +38,7 @@
 	<table>
 	<thead>
 	<tr>
+		<th>#</th>
 		<th>Type</th>
 		<th>Message</th>
 		<th>File</th>
@@ -47,7 +48,7 @@
 	</thead>
 
 	<tbody>
-	<?php foreach ($logs as $log): ?>
+	<?php foreach ($logs as $key => $log): ?>
 		<?php if ($log['type'] === 'LEVEL_STOP')
 		{
 			continue;
@@ -58,6 +59,7 @@
 		}
 		?>
 	<tr class="<?php echo($log['type']); ?>">
+		<td><?php echo(  htmlspecialchars($key)); ?></td>
 		<td><?php echo(  htmlspecialchars ($log['type'])); ?></td>
 		<td><?php echo(  htmlspecialchars ($log['message'])); ?></td>
 		<td><?php echo( empty($log['logFile']) ? 'x' : htmlspecialchars ($log['logFile'])); ?></td>
