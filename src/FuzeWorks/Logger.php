@@ -168,9 +168,14 @@ class Logger {
             $errstr = $error['message'];
 
             // Log it!
+            $thisType = self::getType($errno);
             Factory::getInstance()->output->set_output('');
             self::errorHandler($errno, $errstr, $errfile, $errline);
-            self::http_error('500');
+
+            if ($thisType == 'ERROR')
+            {
+               self::http_error('500'); 
+            }
         }
     }
 
