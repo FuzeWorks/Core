@@ -30,7 +30,7 @@
  * @version     Version 1.0.0
  */
 use FuzeWorks\Events;
-use FuzeWorks\Layout;
+use FuzeWorks\Factory;
 use FuzeWorks\EventPriority;
 
 /**
@@ -38,18 +38,27 @@ use FuzeWorks\EventPriority;
  */
 class layoutLoadViewEventTest extends CoreTestAbstract
 {
+
+    protected $factory;
+
+    public function setUp()
+    {
+        // Load the factory first
+        $this->factory = Factory::getInstance();
+    }
+
     /**
      * Check if the event is fired when it should be.
      */
     public function test_basic()
     {
-        $mock = $this->getMock('MockEvent', array('mockMethod'));
+        $mock = $this->getMockBuilder(MockLayoutViewEventTest::class)->setMethods(['mockMethod'])->getMock();
         $mock->expects($this->once())->method('mockMethod');
 
         Events::addListener(array($mock, 'mockMethod'), 'layoutLoadViewEvent', EventPriority::NORMAL);
 
         // And run the test
-        Layout::get('home');
+        $this->factory->layout->get('home');
     }
 
     /**
@@ -60,7 +69,7 @@ class layoutLoadViewEventTest extends CoreTestAbstract
     public function test_change()
     {
         Events::addListener(array($this, 'listener_change'), 'layoutLoadViewEvent', EventPriority::NORMAL);
-        Layout::get('home');
+        $this->factory->layout->get('home');
     }
 
     // Change title from new to other
@@ -85,7 +94,7 @@ class layoutLoadViewEventTest extends CoreTestAbstract
 
         // Listen for the event and cancel it
         Events::addListener(array($this, 'listener_cancel'), 'layoutLoadViewEvent', EventPriority::NORMAL);
-        $this->assertFalse(Layout::get('home'));
+        $this->assertFalse($this->factory->layout->get('home'));
     }
 
     // Cancel all calls
@@ -93,4 +102,8 @@ class layoutLoadViewEventTest extends CoreTestAbstract
     {
         $event->setCancelled(true);
     }
+}
+
+class MockLayoutViewEventTest {
+    public function MockMethod() {}
 }

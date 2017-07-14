@@ -43,7 +43,6 @@ use FuzeWorks\Exception\LayoutException;
 use FuzeWorks\Exception\LibraryException;
 use FuzeWorks\Exception\LoggerException;
 use FuzeWorks\Exception\ModelException;
-use FuzeWorks\Exception\ModuleException;
 use FuzeWorks\Exception\RouterException;
 use FuzeWorks\Exception\SecurityException;
 use FuzeWorks\Exception\UriException;
@@ -158,14 +157,6 @@ class exceptionTestTest extends CoreTestAbstract
     public function testModelException()
     {
         throw new ModelException("Exception Test Run", 1);
-    }
-
-    /**
-     * @expectedException FuzeWorks\Exception\ModuleException
-     */
-    public function testModuleException()
-    {
-        throw new ModuleException("Exception Test Run", 1);
     }
 
     /**

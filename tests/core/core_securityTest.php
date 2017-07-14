@@ -137,7 +137,7 @@ class securityTest extends CoreTestAbstract
 
         $xss_clean_return = $this->security->xss_clean($harm_string, TRUE);
 
-//      $this->assertTrue($xss_clean_return);
+        $this->assertTrue($xss_clean_return);
     }
 
     // --------------------------------------------------------------------

@@ -12,6 +12,7 @@ $parameters = array(
 $configurator->setParameters($parameters);
 
 $configurator->setDebugMode(true);
+//$configurator->setDebugEmail('example@mail.com');
 $configurator->setTimeZone('Europe/Amsterdam');
 $configurator->setTempDirectory(__DIR__ . '/temp');
 $configurator->setLogDirectory(__DIR__ . '/temp');

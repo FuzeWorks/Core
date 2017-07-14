@@ -51,7 +51,7 @@ class uriTest extends CoreTestAbstract {
 		$this->uri->_set_permitted_uri_chars('a-z 0-9~%.:_\-');
 
 		$str = 'abc01239~%.:_-';
-		$this->uri->filter_uri($str);
+		$this->assertTrue($this->uri->filter_uri($str));
 	}
 
 	// --------------------------------------------------------------------

@@ -29,6 +29,7 @@
  *
  * @version     Version 1.0.1
  */
+use PHPUnit\Framework\TestCase;
 use FuzeWorks\Events;
 use FuzeWorks\Layout;
 use FuzeWorks\Factory;
@@ -39,7 +40,7 @@ use FuzeWorks\LoggerTracyBridge;
  *
  * Provides the event tests with some basic functionality
  */
-abstract class CoreTestAbstract extends PHPUnit_Framework_TestCase
+abstract class CoreTestAbstract extends TestCase
 {
     /**
      * Remove all listeners before the next test starts.
@@ -55,7 +56,7 @@ abstract class CoreTestAbstract extends PHPUnit_Framework_TestCase
         LoggerTracyBridge::register();
 
         // Reset the layout manager
-        Layout::reset();
+        Factory::getInstance()->layout->reset();
 
         // Re-enable events, in case they have been disabled
         Events::enable();

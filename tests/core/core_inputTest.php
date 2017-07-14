@@ -178,6 +178,7 @@ class inputTest extends CoreTestAbstract
         $this->assertEquals("Hello, i try to <script>alert('Hack');</script> your site", $harm);
         $this->assertEquals("Hello, i try to [removed]alert&#40;'Hack'&#41;;[removed] your site", $harmless);
 
+        unset($_POST['foo']);
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST['foo']['bar'] = 'baz';
         $barArray = array('bar' => 'baz');

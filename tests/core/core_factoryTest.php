@@ -70,7 +70,7 @@ class factoryTest extends CoreTestAbstract
     public function testObjectsSameInstance()
     {
         // Create mock
-        $mock = $this->getMock('MockInstance');
+        $mock = $this->getMockBuilder(MockFactory::class)->setMethods(['mockListener'])->getMock();
 
         // Test not set
         $this->assertNull(Factory::getInstance()->mock);
@@ -96,7 +96,7 @@ class factoryTest extends CoreTestAbstract
     public function testObjectsDifferentInstance()
     {
         // Create mock
-        $mock = $this->getMock('MockInstance');
+        $mock = $this->getMockBuilder(MockFactory::class)->getMock();
 
         // Test not set
         $this->assertNull(Factory::getInstance()->mock);
@@ -173,5 +173,9 @@ class factoryTest extends CoreTestAbstract
            $factory->removeInstance('Mock'); 
         }
     }
+
+}
+
+class MockFactory {
 
 }
