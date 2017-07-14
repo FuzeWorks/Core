@@ -15,7 +15,6 @@ return array(
 				'subdriver'=> '',
 				'dbprefix' => '',
 				'pconnect' => FALSE,
-				'db_debug' => FALSE,
 				'cache_on' => FALSE,
 				'cachedir' => 'Application/Cache',
 				'char_set' => 'utf8',
