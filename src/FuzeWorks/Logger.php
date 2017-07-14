@@ -216,8 +216,8 @@ class Logger {
 
         self::logError('Exception thrown: ' . $message . ' | ' . $code, null, $file, $line);
         
-         // And return a 500 because this error was fatal
-         self::http_error('500');
+        // And return a 500 because this error was fatal
+        self::http_error('500');
     }
 
     /**
@@ -244,7 +244,7 @@ class Logger {
         }
 
         $logs = self::$Logs;
-        require(dirname(__DIR__) . '/views/view.' . self::$logger_template . '.php');
+        require(dirname(__DIR__) . '/Views/view.' . self::$logger_template . '.php');
     }
 
     /**
@@ -255,7 +255,7 @@ class Logger {
     {
         ob_start(function () {});
         $logs = self::$Logs;
-        require(dirname(__DIR__) . '/views/view.logger_cli.php');
+        require(dirname(__DIR__) . '/Views/view.logger_cli.php');
         $contents = ob_get_clean();
         $file = Core::$logDir .DS. 'Logs'.DS.'log_latest.php';
         if (is_writable($file))
@@ -516,12 +516,13 @@ class Logger {
         self::log('Loading view ' . $view);
 
         // Try and load the view, if impossible, load HTTP code instead.
+        $factory = Factory::getInstance();
         try {
-            Layout::reset();
-            Layout::view($view);
+            $factory->Layout->reset();
+            $factory->Layout->view($view);
         } catch (LayoutException $exception) {
             // No error page could be found, just echo the result
-            Factory::getInstance()->output->set_output("<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3>');
+            $factory->output->set_output("<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3>');
         }
     }
 

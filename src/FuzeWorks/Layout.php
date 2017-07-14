@@ -4,7 +4,7 @@
  *
  * The FuzeWorks MVC PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2017   TechFuze
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2017, Techfuze. (http://techfuze.net)
  * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
  * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
  * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 1.0.0
+ * @version Version 1.0.4
  */
 
 namespace FuzeWorks;
@@ -43,8 +43,7 @@ use FuzeWorks\Exception\LayoutException;
  * Layout and Template Manager for FuzeWorks.
  *
  * @author    Abel Hoogeveen <abel@techfuze.net>
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- * @todo      Make Object, remove static stuff
+ * @copyright Copyright (c) 2013 - 2017, Techfuze. (http://techfuze.net)
  */
 class Layout
 {
@@ -53,53 +52,53 @@ class Layout
      *
      * @var null|string
      */
-    public static $file = null;
+    public $file = null;
 
     /**
      * The directory of the file to be loaded by the layout manager.
      *
      * @var string
      */
-    public static $directory;
+    public $directory;
 
     /**
      * All assigned currently assigned to the template.
      *
      * @var array Associative Assigned Variable Array
      */
-    private static $assigned_variables = array();
+    private $assigned_variables = array();
 
     /**
      * All engines that can be used for templates.
      *
      * @var array of engines
      */
-    private static $engines = array();
+    private $engines = array();
 
     /**
      * All file extensions that can be used and are bound to a template engine.
      *
      * @var array of names of engines
      */
-    private static $file_extensions = array();
+    private $file_extensions = array();
 
     /**
      * whether the template engines are already called.
      *
      * @var bool True if loaded
      */
-    private static $engines_loaded = false;
+    private $engines_loaded = false;
 
     /**
      * The currently selected template engine.
      *
      * @var string name of engine
      */
-    private static $current_engine;
+    private $current_engine;
 
-    public static function init()
+    public function init()
     {
-        self::$directory = Core::$appDir . DS .'Views';
+        $this->directory = Core::$appDir . DS .'Views';
     }
 
     /**
@@ -116,18 +115,18 @@ class Layout
      *
      * @throws LayoutException On error
      */
-    public static function view($file, $directory = null, $directOutput = false)
+    public function view($file, $directory = null, $directOutput = false)
     {
         $output = Factory::getInstance()->output;
-        $directory = (is_null($directory) ? self::$directory : $directory);
+        $directory = (is_null($directory) ? $this->directory : $directory);
 
         if ($directOutput === true)
         {
-            echo self::get($file, $directory);
+            echo $this->get($file, $directory);
         }
         else
         {
-            $output->append_output(self::get($file, $directory));  
+            $output->append_output($this->get($file, $directory));  
         }
         
         return;
@@ -148,37 +147,37 @@ class Layout
      *
      * @throws LayoutException On error
      */
-    public static function get($file, $directory = null)
+    public function get($file, $directory = null)
     {
-        $directory = (is_null($directory) ? self::$directory : $directory);
+        $directory = (is_null($directory) ? $this->directory : $directory);
         Logger::newLevel("Loading template file '".$file."' in '".$directory."'");
 
         // First load the template engines
-        self::loadTemplateEngines();
+        $this->loadTemplateEngines();
 
         // First retrieve the filepath
-        if (is_null(self::$current_engine)) {
-            self::setFileFromString($file, $directory, array_keys(self::$file_extensions));
+        if (is_null($this->current_engine)) {
+            $this->setFileFromString($file, $directory, array_keys($this->file_extensions));
         } else {
-            self::setFileFromString($file, $directory, self::$current_engine->getFileExtensions());
+            $this->setFileFromString($file, $directory, $this->current_engine->getFileExtensions());
         }
 
         // Then assign some basic variables for the template
-        self::$assigned_variables['wwwDir'] = Config::get('main')->base_url;
-        self::$assigned_variables['siteURL'] = Config::get('main')->base_url;
-        self::$assigned_variables['serverName'] = Config::get('main')->server_name;
-        self::$assigned_variables['adminMail'] = Config::get('main')->administrator_mail;
-        self::$assigned_variables['contact'] = Config::get('contact')->toArray();
+        $this->assigned_variables['wwwDir'] = Config::get('main')->base_url;
+        $this->assigned_variables['siteURL'] = Config::get('main')->base_url;
+        $this->assigned_variables['serverName'] = Config::get('main')->server_name;
+        $this->assigned_variables['adminMail'] = Config::get('main')->administrator_mail;
+        $this->assigned_variables['contact'] = Config::get('contact')->toArray();
 
         // Select an engine if one is not already selected
-        if (is_null(self::$current_engine)) {
-            self::$current_engine = self::getEngineFromExtension(self::getExtensionFromFile(self::$file));
+        if (is_null($this->current_engine)) {
+            $this->current_engine = $this->getEngineFromExtension($this->getExtensionFromFile($this->file));
         }
 
-        self::$current_engine->setDirectory(self::$directory);
+        $this->current_engine->setDirectory($this->directory);
 
         // And run an Event to see what other parts have to say about it
-        $event = Events::fireEvent('layoutLoadViewEvent', self::$file, self::$directory, self::$current_engine, self::$assigned_variables);
+        $event = Events::fireEvent('layoutLoadViewEvent', $this->file, $this->directory, $this->current_engine, $this->assigned_variables);
 
         // The event has been cancelled
         if ($event->isCancelled()) {
@@ -186,14 +185,14 @@ class Layout
         }
 
         // And refetch the data from the event
-        self::$current_engine = $event->engine;
-        self::$assigned_variables = $event->assigned_variables;
+        $this->current_engine = $event->engine;
+        $this->assigned_variables = $event->assigned_variables;
 
         Logger::stopLevel();
 
         // And finally run it
         if (file_exists($event->file)) {
-            return self::$current_engine->get($event->file, self::$assigned_variables);
+            return $this->current_engine->get($event->file, $this->assigned_variables);
         }
 
         throw new LayoutException('The requested file was not found', 1);
@@ -206,10 +205,10 @@ class Layout
      *
      * @return object Template Engine
      */
-    public static function getEngineFromExtension($extension)
+    public function getEngineFromExtension($extension)
     {
-        if (isset(self::$file_extensions[strtolower($extension)])) {
-            return self::$engines[ self::$file_extensions[strtolower($extension)]];
+        if (isset($this->file_extensions[strtolower($extension)])) {
+            return $this->engines[ $this->file_extensions[strtolower($extension)]];
         }
 
         throw new LayoutException('Could not get Template Engine. No engine has corresponding file extension', 1);
@@ -222,7 +221,7 @@ class Layout
      *
      * @return string Extension of the file
      */
-    public static function getExtensionFromFile($fileString)
+    public function getExtensionFromFile($fileString)
     {
         return substr($fileString, strrpos($fileString, '.') + 1);
     }
@@ -240,9 +239,9 @@ class Layout
      *
      * @throws LayoutException On error
      */
-    public static function getFileFromString($string, $directory, $extensions = array())
+    public function getFileFromString($string, $directory, $extensions = array())
     {
-        $directory = preg_replace('#/+#', '/', (!is_null($directory) ? $directory : self::$directory).'/');
+        $directory = preg_replace('#/+#', '/', (!is_null($directory) ? $directory : $this->directory).'/');
 
         if (strpbrk($directory, "\\/?%*:|\"<>") === TRUE || strpbrk($string, "\\/?%*:|\"<>") === TRUE)
         {
@@ -310,10 +309,10 @@ class Layout
      *
      * @throws LayoutException On error
      */
-    public static function setFileFromString($string, $directory, $extensions = array())
+    public function setFileFromString($string, $directory, $extensions = array())
     {
-        self::$file = self::getFileFromString($string, $directory, $extensions);
-        self::$directory = preg_replace('#/+#', '/', (!is_null($directory) ? $directory : self::$directory).'/');
+        $this->file = $this->getFileFromString($string, $directory, $extensions);
+        $this->directory = preg_replace('#/+#', '/', (!is_null($directory) ? $directory : $this->directory).'/');
     }
 
     /**
@@ -321,9 +320,9 @@ class Layout
      *
      * @return null|string Path to the file
      */
-    public static function getFile()
+    public function getFile()
     {
-        return self::$file;
+        return $this->file;
     }
 
     /**
@@ -331,9 +330,9 @@ class Layout
      *
      * @param string $file Path to the file
      */
-    public static function setFile($file)
+    public function setFile($file)
     {
-        self::$file = $file;
+        $this->file = $file;
     }
 
     /**
@@ -341,9 +340,9 @@ class Layout
      *
      * @return null|string Path to the directory
      */
-    public static function getDirectory()
+    public function getDirectory()
     {
-        return self::$directory;
+        return $this->directory;
     }
 
     /**
@@ -351,9 +350,9 @@ class Layout
      *
      * @param string $directory Path to the directory
      */
-    public static function setDirectory($directory)
+    public function setDirectory($directory)
     {
-        self::$directory = $directory;
+        $this->directory = $directory;
     }
 
     /**
@@ -362,9 +361,9 @@ class Layout
      * @param string $key   Key of the variable
      * @param mixed  $value Value of the variable
      */
-    public static function assign($key, $value)
+    public function assign($key, $value)
     {
-        self::$assigned_variables[$key] = $value;
+        $this->assigned_variables[$key] = $value;
     }
 
     /**
@@ -372,9 +371,9 @@ class Layout
      *
      * @param string $title title of the template
      */
-    public static function setTitle($title)
+    public function setTitle($title)
     {
-        self::$assigned_variables['title'] = $title;
+        $this->assigned_variables['title'] = $title;
     }
 
     /**
@@ -382,13 +381,13 @@ class Layout
      *
      * @return string title of the template
      */
-    public static function getTitle()
+    public function getTitle()
     {
-        if (!isset(self::$assigned_variables['title']))
+        if (!isset($this->assigned_variables['title']))
         {
             return false;
         }
-        return self::$assigned_variables['title'];
+        return $this->assigned_variables['title'];
     }
 
     /**
@@ -400,11 +399,11 @@ class Layout
      *
      * @throws \FuzeWorks\LayoutException on error
      */
-    public static function setEngine($name)
+    public function setEngine($name)
     {
-        self::loadTemplateEngines();
-        if (isset(self::$engines[$name])) {
-            self::$current_engine = self::$engines[$name];
+        $this->loadTemplateEngines();
+        if (isset($this->engines[$name])) {
+            $this->current_engine = $this->engines[$name];
             Logger::log('Set the Template Engine to '.$name);
 
             return true;
@@ -419,11 +418,11 @@ class Layout
      *
      * @return object Object that implements \FuzeWorks\TemplateEngine
      */
-    public static function getEngine($name)
+    public function getEngine($name)
     {
-        self::loadTemplateEngines();
-        if (isset(self::$engines[$name])) {
-            return self::$engines[$name];
+        $this->loadTemplateEngines();
+        if (isset($this->engines[$name])) {
+            return $this->engines[$name];
         }
         throw new LayoutException('Could not return engine. Engine does not exist', 1);
     }
@@ -439,17 +438,17 @@ class Layout
      *
      * @throws \FuzeWorks\LayoutException On error
      */
-    public static function registerEngine($engineClass, $engineName, $engineFileExtensions = array())
+    public function registerEngine($engineClass, $engineName, $engineFileExtensions = array())
     {
         // First check if the engine already exists
-        if (isset(self::$engines[$engineName])) {
+        if (isset($this->engines[$engineName])) {
             throw new LayoutException("Could not register engine. Engine '".$engineName."' already registered", 1);
         }
 
         // Then check if the object is correct
         if ($engineClass instanceof TemplateEngine) {
             // Install it
-            self::$engines[$engineName] = $engineClass;
+            $this->engines[$engineName] = $engineClass;
 
             // Then define for what file extensions this Template Engine will work
             if (!is_array($engineFileExtensions)) {
@@ -458,12 +457,12 @@ class Layout
 
             // Then install them
             foreach ($engineFileExtensions as $extension) {
-                if (isset(self::$file_extensions[strtolower($extension)])) {
+                if (isset($this->file_extensions[strtolower($extension)])) {
                     throw new LayoutException('Could not register engine. File extension already bound to engine', 1);
                 }
 
                 // And add it
-                self::$file_extensions[strtolower($extension)] = $engineName;
+                $this->file_extensions[strtolower($extension)] = $engineName;
             }
 
             // And log it
@@ -478,17 +477,17 @@ class Layout
     /**
      * Load the template engines by sending a layoutLoadEngineEvent.
      */
-    public static function loadTemplateEngines()
+    public function loadTemplateEngines()
     {
-        if (!self::$engines_loaded) {
+        if (!$this->engines_loaded) {
             Events::fireEvent('layoutLoadEngineEvent');
 
             // Load the engines provided in this file
-            self::registerEngine(new PHPEngine(), 'PHP', array('php'));
-            self::registerEngine(new JsonEngine(), 'JSON', array('json'));
-            self::registerEngine(new SmartyEngine(), 'Smarty', array('tpl'));
-            self::registerEngine(new LatteEngine(), 'Latte', array('latte'));
-            self::$engines_loaded = true;
+            $this->registerEngine(new PHPEngine(), 'PHP', array('php'));
+            $this->registerEngine(new JsonEngine(), 'JSON', array('json'));
+            $this->registerEngine(new SmartyEngine(), 'Smarty', array('tpl'));
+            $this->registerEngine(new LatteEngine(), 'Latte', array('latte'));
+            $this->engines_loaded = true;
         }
     }
 
@@ -503,11 +502,11 @@ class Layout
     public static function __callStatic($name, $params)
     {
         // First load the template engines
-        self::loadTemplateEngines();
+        $this->loadTemplateEngines();
 
-        if (!is_null(self::$current_engine)) {
+        if (!is_null($this->current_engine)) {
             // Call user func array here
-            return call_user_func_array(array(self::$current_engine, $name), $params);
+            return call_user_func_array(array($this->current_engine, $name), $params);
         }
         throw new LayoutException('Could not access Engine. Engine not loaded', 1);
     }
@@ -515,20 +514,20 @@ class Layout
     /**
      * Resets the layout manager to its default state.
      */
-    public static function reset()
+    public function reset()
     {
-        if (!is_null(self::$current_engine)) {
-            self::$current_engine->reset();
+        if (!is_null($this->current_engine)) {
+            $this->current_engine->reset();
         }
 
         // Unload the engines
-        self::$engines = array();
-        self::$engines_loaded = false;
-        self::$file_extensions = array();
+        $this->engines = array();
+        $this->engines_loaded = false;
+        $this->file_extensions = array();
 
-        self::$current_engine = null;
-        self::$assigned_variables = array();
-        self::$directory = Core::$appDir . DS . 'Views';
+        $this->current_engine = null;
+        $this->assigned_variables = array();
+        $this->directory = Core::$appDir . DS . 'Views';
         Logger::log('Reset the layout manager to its default state');
     }
 }

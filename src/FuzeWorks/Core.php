@@ -100,7 +100,7 @@ class Core
         register_shutdown_function(array('\FuzeWorks\Core', 'shutdown'));
 
         // Load core functionality
-        new Factory();
+        $container = new Factory();
 
         // Load the config file of the FuzeWorks core
         $config = Config::get('core');
@@ -111,15 +111,6 @@ class Core
             Events::disable();
         }
 
-        // Build all the registers for correct operation, if modules are enabled
-        if ($config->enable_modules)
-        {
-            Modules::buildRegister($config->registry_caching, 
-                $config->registry_caching_method,
-                $config->registry_caching_time
-                );
-        }
-
         // And fire the coreStartEvent
         $event = Events::fireEvent('coreStartEvent');
         if ($event->isCancelled()) {
@@ -127,7 +118,7 @@ class Core
         }
 
         // And initialize multiple classes
-        Layout::init();
+        $container->layout->init();
         Language::init();
     }
 
