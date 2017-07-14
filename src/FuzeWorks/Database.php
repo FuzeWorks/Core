@@ -31,6 +31,7 @@
  */
 
 namespace FuzeWorks;
+use FuzeWorks\Exception\DatabaseException;
 use FW_DB;
 
 /**
@@ -50,6 +51,12 @@ class Database
      * @var type FW_DB|null
      */
     protected static $defaultDB = null;
+
+    /**
+     * Array of all the non-default databases
+     * @var array FW_DB|null
+     */    
+    protected static $databases = array();
     
     /**
      * The default database forge.
@@ -58,11 +65,28 @@ class Database
     protected static $defaultForge = null;
     
     /**
+     * Array of all the non-default databases forges.
+     * @var array FW_DB_forge|null
+     */    
+    protected static $forges = array();
+
+    /**
      * The default database utility.
      * @var type FW_DB_utility|null
      */
     protected static $defaultUtil = null;
     
+    /**
+     * Register with the TracyBridge upon startup
+     */
+    public function __construct()
+    {
+        if (class_exists('Tracy\Debugger', true))
+        {
+            DatabaseTracyBridge::register();
+        }
+    }
+
     /**
      * Retrieve a database using a DSN or the default configuration.
      * 
@@ -76,7 +100,6 @@ class Database
      * default one. $newInstance will also make sure that the loaded database is not default one. 
      * This behaviour will be changed in the future. 
      * 
-     * @todo Change $newInstance behaviour related to self::$defaultDB
      * 
      * If $queryBuilder = false is provided, the database will load without a queryBuilder. 
      * By default the queryBuilder will load.
@@ -84,48 +107,88 @@ class Database
      * @param string $parameters      
      * @param bool $newInstance
      * @param bool $queryBuilder
-     * @return FW_DB
+     * @return FW_DB|bool
      */
     public static function get($parameters = '', $newInstance = false, $queryBuilder = null) 
     {
-        if (!$newInstance && is_object(self::$defaultDB) && ! empty(self::$defaultDB->conn_id))
+        // Fire the event to allow settings to be changed
+        $event = Events::fireEvent('databaseLoadDriverEvent', $parameters, $newInstance, $queryBuilder);
+        if ($event->isCancelled())
+        {
+            return false;
+        }
+
+        // If an instance already exists and is requested, return it
+        if (isset($event->database) && empty($event->parameters))
+        {
+            return self::$defaultDB = $event->database;
+        }
+        elseif (isset($event->database) && !empty($event->parameters))
+        {
+            return self::$databases[$event->parameters] = $event->database;
+        }
+        elseif (empty($event->parameters) && !$event->newInstance && is_object(self::$defaultDB) && ! empty(self::$defaultDB->conn_id))
         {
             return $reference = self::$defaultDB;
         }
+        elseif (!empty($event->parameters) && !$event->newInstance && isset(self::$databases[$event->parameters])) 
+        {
+            return $reference = self::$databases[$event->parameters];
+        }
 
+        // If a new instance is required, load it
         require_once (Core::$coreDir . DS . 'Database'.DS.'DB.php');
 
-        if ($newInstance)
+        if ($event->newInstance === TRUE)
         {
-            return DB($parameters, $queryBuilder);
+            $database = DB($event->parameters, $event->queryBuilder);
+        }
+        elseif (empty($event->parameters) && $event->newInstance === FALSE)
+        {
+            $database = self::$defaultDB = DB($event->parameters, $event->queryBuilder);
         }
         else
         {
-            return self::$defaultDB = DB($parameters, $queryBuilder);
+            $database = self::$databases[$event->parameters] = DB($event->parameters, $event->queryBuilder);
         }
+
+        // Tie it into the Tracy Bar if available
+        if (class_exists('\Tracy\Debugger', true))
+        {
+            DatabaseTracyBridge::registerDatabase($database);
+        }
+
+        return $database;
     }
     
     /**
      * Retrieves a database forge from the provided or default database.
      * 
      * If no database is provided, the default database will be used.
-     * @todo Change $newInstance behaviour with default instances.
      * 
-     * 
-     * @param FW_DB $database
-     * @param bool $newInstance
+     * @param FW_DB|null    $database
+     * @param bool          $newInstance
      * @return FW_DB_forge
      */
     public static function getForge($database = null, $newInstance = false)
     {
+        // Fire the event to allow settings to be changed
+        $event = Events::fireEvent('databaseLoadForgeEvent', $database, $newInstance);
+        if ($event->isCancelled())
+        {
+            return false;
+        }
+
         // First check if we're talking about the default forge and that one is already set
-        if (is_object($database) && $database === self::$defaultDB && is_object(self::$defaultForge))
+        if (is_object($event->forge) && ($event->forge instanceof FW_DB_forge) )
+        {
+            return $event->forge;
+        }
+        elseif (is_object($event->database) && $event->database === self::$defaultDB && is_object(self::$defaultForge))
         {
             return $reference = self::$defaultForge;
         }
-
-
-        if ( ! is_object($database) OR ! ($database instanceof FW_DB))
+        elseif ( ! is_object($event->database) OR ! ($event->database instanceof FW_DB))
         {
             isset(self::$defaultDB) OR self::get('', false);
             $database =& self::$defaultDB;
@@ -142,6 +205,10 @@ class Database
                 require_once($driver_path);
                 $class = 'FW_DB_'.$database->dbdriver.'_'.$database->subdriver.'_forge';
             }
+            else
+            {
+                throw new DatabaseException("Could not load forge. Driver file does not exist.", 1);
+            }
         }
         else
         {
@@ -149,7 +216,7 @@ class Database
         }
 
         // Create a new instance of set the default database
-        if ($newInstance)
+        if ($event->newInstance)
         {
             return new $class($database);
         }
@@ -163,23 +230,31 @@ class Database
      * Retrieves a database utility from the provided or default database.
      * 
      * If no database is provided, the default database will be used.
-     * @todo Change $newInstance behaviour with default instances.
      * 
-     * 
-     * @param FW_DB $database
+     * @param FW_DB|null $database
      * @param bool $newInstance
      * @return FW_DB_utility
      */
     public static function getUtil($database = null, $newInstance = false)
     {
-        // First check if we're talking about the default util and that one is already set
-        if (is_object($database) && $database === self::$defaultDB && is_object(self::$defaultUtil))
+        // Fire the event to allow settings to be changed
+        $event = Events::fireEvent('databaseLoadUtilEvent', $database, $newInstance);
+        if ($event->isCancelled())
         {
-            echo "CALLED";
+            return false;
+        }
+
+        // First check if we're talking about the default util and that one is already set
+        if (is_object($event->util) && ($event->util instanceof FW_DB_utility))
+        {
+            return $event->util;
+        }
+        elseif (is_object($event->database) && $event->database === self::$defaultDB && is_object(self::$defaultUtil))
+        {
             return $reference = self::$defaultUtil;
         }
 
-        if ( ! is_object($database) OR ! ($database instanceof FW_DB))
+        if ( ! is_object($event->database) OR ! ($event->database instanceof FW_DB))
         {
             isset(self::$defaultDB) OR self::get('', false);
             $database = & self::$defaultDB;
@@ -189,7 +264,7 @@ class Database
         require_once(Core::$coreDir . DS . 'Database'.DS.'drivers'.DS.$database->dbdriver.DS.$database->dbdriver.'_utility.php');
         $class = 'FW_DB_'.$database->dbdriver.'_utility';
 
-        if ($newInstance)
+        if ($event->newInstance)
         {
             return new $class($database);
         }      

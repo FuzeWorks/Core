@@ -30,8 +30,6 @@
  * @version Version 1.0.0
  */
 
-use \Exception;
-
 /**
  * PDO Result Class
  *
