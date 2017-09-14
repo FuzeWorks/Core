@@ -98,14 +98,14 @@ class Layout
 
     public function init()
     {
-        $this->directory = Core::$appDir . DS .'Views';
+        $this->directory = Core::$appDir . DS .'Layout';
     }
 
     /**
      * Retrieve a template file using a string and a directory and immediatly parse it to the output class.
      *
      * What template file gets loaded depends on the template engine that is being used.
-     * PHP for example uses .php files. Providing this function with 'home/dashboard' will load the home/view.dashboard.php file.
+     * PHP for example uses .php files. Providing this function with 'home/dashboard' will load the home/layout.dashboard.php file.
      * You can also provide no particular engine, and the manager will decide what template to load.
      * Remember that doing so will result in a LayoutException when multiple compatible files are found.
      *
@@ -115,7 +115,7 @@ class Layout
      *
      * @throws LayoutException On error
      */
-    public function view($file, $directory = null, $directOutput = false)
+    public function display($file, $directory = null, $directOutput = false)
     {
         $output = Factory::getInstance()->output;
         $directory = (is_null($directory) ? $this->directory : $directory);
@@ -136,7 +136,7 @@ class Layout
      * Retrieve a template file using a string and a directory.
      *
      * What template file gets loaded depends on the template engine that is being used.
-     * PHP for example uses .php files. Providing this function with 'home/dashboard' will load the home/view.dashboard.php file.
+     * PHP for example uses .php files. Providing this function with 'home/dashboard' will load the home/layout.dashboard.php file.
      * You can also provide no particular engine, and the manager will decide what template to load.
      * Remember that doing so will result in a LayoutException when multiple compatible files are found.
      *
@@ -177,7 +177,7 @@ class Layout
         $this->current_engine->setDirectory($this->directory);
 
         // And run an Event to see what other parts have to say about it
-        $event = Events::fireEvent('layoutLoadViewEvent', $this->file, $this->directory, $this->current_engine, $this->assigned_variables);
+        $event = Events::fireEvent('layoutLoadEvent', $this->file, $this->directory, $this->current_engine, $this->assigned_variables);
 
         // The event has been cancelled
         if ($event->isCancelled()) {
@@ -227,7 +227,7 @@ class Layout
     }
 
     /**
-     * Converts a view string to a file using the directory and the used extensions.
+     * Converts a layout string to a file using the directory and the used extensions.
      *
      * It will detect whether the file exists and choose a file according to the provided extensions
      *
@@ -253,30 +253,30 @@ class Layout
         }
 
         // Set the file name and location
-        $viewSelector = explode('/', $string);
-        if (count($viewSelector) == 1) {
-            $viewSelector = 'view.'.$viewSelector[0];
+        $layoutSelector = explode('/', $string);
+        if (count($layoutSelector) == 1) {
+            $layoutSelector = 'layout.'.$layoutSelector[0];
         } else {
             // Get last file
-            $file = end($viewSelector);
+            $file = end($layoutSelector);
 
             // Reset to start
-            reset($viewSelector);
+            reset($layoutSelector);
 
             // Remove last value
-            array_pop($viewSelector);
+            array_pop($layoutSelector);
 
-            $viewSelector[] = 'view.'.$file;
+            $layoutSelector[] = 'layout.'.$file;
 
             // And create the final value
-            $viewSelector = implode('/', $viewSelector);
+            $layoutSelector = implode('/', $layoutSelector);
         }
 
         // Then try and select a file
         $fileSelected = false;
         $selectedFile = null;
         foreach ($extensions as $extension) {
-            $file = $directory.$viewSelector.'.'.strtolower($extension);
+            $file = $directory.$layoutSelector.'.'.strtolower($extension);
             $file = preg_replace('#/+#', '/', $file);
             if (file_exists($file) && !$fileSelected) {
                 $selectedFile = $file;
@@ -296,7 +296,7 @@ class Layout
     }
 
     /**
-     * Converts a view string to a file using the directory and the used extensions.
+     * Converts a layout string to a file using the directory and the used extensions.
      * It also sets the file variable of this class.
      *
      * It will detect whether the file exists and choose a file according to the provided extensions
@@ -527,7 +527,7 @@ class Layout
 
         $this->current_engine = null;
         $this->assigned_variables = array();
-        $this->directory = Core::$appDir . DS . 'Views';
+        $this->directory = Core::$appDir . DS . 'Layout';
         Logger::log('Reset the layout manager to its default state');
     }
 }

@@ -244,7 +244,7 @@ class Logger {
         }
 
         $logs = self::$Logs;
-        require(dirname(__DIR__) . '/Views/view.' . self::$logger_template . '.php');
+        require(dirname(__DIR__) . '/Layout/layout.' . self::$logger_template . '.php');
     }
 
     /**
@@ -255,7 +255,7 @@ class Logger {
     {
         ob_start(function () {});
         $logs = self::$Logs;
-        require(dirname(__DIR__) . '/Views/view.logger_cli.php');
+        require(dirname(__DIR__) . '/Layout/layout.logger_cli.php');
         $contents = ob_get_clean();
         $file = Core::$logDir .DS. 'Logs'.DS.'log_latest.php';
         if (is_writable($file))
@@ -463,9 +463,9 @@ class Logger {
      * Calls an HTTP error, sends it as a header, and loads a template if required to do so.
      *
      * @param int  $errno HTTP error code
-     * @param bool $view  true to view error on website
+     * @param bool $layout  true to layout error on website
      */
-    public static function http_error($errno = 500, $view = true) {
+    public static function http_error($errno = 500, $layout = true) {
         $http_codes = array(
             400 => 'Bad Request',
             401 => 'Unauthorized',
@@ -506,20 +506,20 @@ class Logger {
         self::log('Sending header HTTP/1.1 ' . $errno . ' ' . $http_codes[$errno]);
         header('HTTP/1.1 ' . $errno . ' ' . $http_codes[$errno]);
 
-        // Do we want the error-view with it?
-        if ($view == false) {
+        // Do we want the error-layout with it?
+        if ($layout == false) {
             return;
         }
 
-        // Load the view
-        $view = 'errors/' . $errno;
-        self::log('Loading view ' . $view);
+        // Load the layout
+        $layout = 'errors/' . $errno;
+        self::log('Loading layout ' . $layout);
 
-        // Try and load the view, if impossible, load HTTP code instead.
+        // Try and load the layout, if impossible, load HTTP code instead.
         $factory = Factory::getInstance();
         try {
             $factory->Layout->reset();
-            $factory->Layout->view($view);
+            $factory->Layout->display($layout);
         } catch (LayoutException $exception) {
             // No error page could be found, just echo the result
             $factory->output->set_output("<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3>');

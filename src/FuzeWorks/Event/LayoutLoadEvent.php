@@ -35,24 +35,24 @@ namespace FuzeWorks\Event;
 use FuzeWorks\Event;
 
 /**
- * Event that gets loaded when a view is loaded.
+ * Event that gets loaded when a layout is loaded.
  *
- * Use this to cancel the loading of a view, or change the file or engine of a view
+ * Use this to cancel the loading of a layout, or change the file or engine of a layout
  *
  * @author    Abel Hoogeveen <abel@techfuze.net>
  * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
  */
-class LayoutLoadViewEvent extends Event
+class LayoutLoadEvent extends Event
 {
     /**
-     * The directory of the view to be loaded.
+     * The directory of the layout to be loaded.
      *
      * @var string
      */
     public $directory;
 
     /**
-     * The file of the view to be loaded.
+     * The file of the layout to be loaded.
      *
      * @var string
      */

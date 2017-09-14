@@ -75,7 +75,7 @@ class LatteEngine implements TemplateEngine
      * Handle and retrieve a template file.
      *
      * @param string $file               Template File
-     * @param array  $assigned_variables All the variables used in this view
+     * @param array  $assigned_variables All the variables used in this layout
      *
      * @return string Output of the template
      */

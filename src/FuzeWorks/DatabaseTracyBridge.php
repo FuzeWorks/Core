@@ -127,7 +127,7 @@ class DatabaseTracyBridge implements IBarPanel
 	{
 		$results = $this->getResults();
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Views/view.tracydatabasetab.php';
+		require dirname(__DIR__) . '/Layout/layout.tracydatabasetab.php';
 		return ob_get_clean();
 	}
 
@@ -136,7 +136,7 @@ class DatabaseTracyBridge implements IBarPanel
 		// Parse the panel
 		$results = $this->getResults();
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Views/view.tracydatabasepanel.php';
+		require dirname(__DIR__) . '/Layout/layout.tracydatabasepanel.php';
 		return ob_get_clean();
 	}
 }

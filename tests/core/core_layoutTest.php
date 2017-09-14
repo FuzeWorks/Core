@@ -66,17 +66,17 @@ class layoutTest extends CoreTestAbstract
 
         // Basic path
         $this->factory->layout->setFileFromString('test', 'tests/layout/testGetFilePath/', $extensions);
-        $this->assertEquals('tests/layout/testGetFilePath/view.test.php', $this->factory->layout->getFile());
+        $this->assertEquals('tests/layout/testGetFilePath/layout.test.php', $this->factory->layout->getFile());
         $this->assertEquals('tests/layout/testGetFilePath/', $this->factory->layout->getDirectory());
 
         // Alternate file extension
         $this->factory->layout->setFileFromString('JSON', 'tests/layout/testGetFilePath/', $extensions);
-        $this->assertEquals('tests/layout/testGetFilePath/view.JSON.json', $this->factory->layout->getFile());
+        $this->assertEquals('tests/layout/testGetFilePath/layout.JSON.json', $this->factory->layout->getFile());
         $this->assertEquals('tests/layout/testGetFilePath/', $this->factory->layout->getDirectory());
 
         // Complex deeper path
         $this->factory->layout->setFileFromString('Deeper/test', 'tests/layout/testGetFilePath/', $extensions);
-        $this->assertEquals('tests/layout/testGetFilePath/Deeper/view.test.php', $this->factory->layout->getFile());
+        $this->assertEquals('tests/layout/testGetFilePath/Deeper/layout.test.php', $this->factory->layout->getFile());
         $this->assertEquals('tests/layout/testGetFilePath/', $this->factory->layout->getDirectory());
     }
 
@@ -125,13 +125,13 @@ class layoutTest extends CoreTestAbstract
         $this->assertEquals('Retrieved Data', $this->factory->layout->get('test', $directory));
     }
 
-    public function testLayoutView()
+    public function testLayoutDisplay()
     {
         // Directory of these tests
         $directory = 'tests/layout/testLayoutGet/';
 
         ob_start();
-        $this->factory->layout->view('test', $directory);
+        $this->factory->layout->display('test', $directory);
         Factory::getInstance()->output->_display();
         $output = ob_get_contents();
         ob_end_clean();
@@ -154,7 +154,7 @@ class layoutTest extends CoreTestAbstract
 
         // Test for default values
         $this->assertFalse($this->factory->layout->getTitle());
-        $this->assertTrue(strpos($this->factory->layout->getDirectory(), 'application/Views') !== false);
+        $this->assertTrue(strpos($this->factory->layout->getDirectory(), 'application/Layout') !== false);
     }
 
     public function testGetEngineFromExtension()
@@ -188,7 +188,7 @@ class layoutTest extends CoreTestAbstract
         $mock->method('get')->willReturn('output');
 
         // And listen for usage
-        $mock->expects($this->once())->method('get')->with('tests/layout/testCustomEngine/view.test.test');
+        $mock->expects($this->once())->method('get')->with('tests/layout/testCustomEngine/layout.test.test');
 
         // Register the engine
         $this->factory->layout->registerEngine($mock, 'Custom', array('test'));
@@ -209,7 +209,7 @@ class layoutTest extends CoreTestAbstract
         $this->factory->layout->registerEngine($mock, 'Custom', array('test'));
     }
 
-    public function testEnginesLoadView()
+    public function testEnginesLoadLayout()
     {
         // Directory of these tests
         $directory = 'tests/layout/testEngines/'; 

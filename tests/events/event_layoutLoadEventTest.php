@@ -34,9 +34,9 @@ use FuzeWorks\Factory;
 use FuzeWorks\EventPriority;
 
 /**
- * Class LayoutLoadViewEventTest.
+ * Class LayoutLoadEventTest.
  */
-class layoutLoadViewEventTest extends CoreTestAbstract
+class layoutLoadEventTest extends CoreTestAbstract
 {
 
     protected $factory;
@@ -52,10 +52,10 @@ class layoutLoadViewEventTest extends CoreTestAbstract
      */
     public function test_basic()
     {
-        $mock = $this->getMockBuilder(MockLayoutViewEventTest::class)->setMethods(['mockMethod'])->getMock();
+        $mock = $this->getMockBuilder(MockLayoutEventTest::class)->setMethods(['mockMethod'])->getMock();
         $mock->expects($this->once())->method('mockMethod');
 
-        Events::addListener(array($mock, 'mockMethod'), 'layoutLoadViewEvent', EventPriority::NORMAL);
+        Events::addListener(array($mock, 'mockMethod'), 'layoutLoadEvent', EventPriority::NORMAL);
 
         // And run the test
         $this->factory->layout->get('home');
@@ -68,7 +68,7 @@ class layoutLoadViewEventTest extends CoreTestAbstract
      */
     public function test_change()
     {
-        Events::addListener(array($this, 'listener_change'), 'layoutLoadViewEvent', EventPriority::NORMAL);
+        Events::addListener(array($this, 'listener_change'), 'layoutLoadEvent', EventPriority::NORMAL);
         $this->factory->layout->get('home');
     }
 
@@ -77,11 +77,11 @@ class layoutLoadViewEventTest extends CoreTestAbstract
     {
 
         // This controller should not exist
-        $this->assertTrue(strpos($event->file, 'application/Views/view.home.php') !== false);
-        $this->assertTrue(strpos($event->directory, 'application/Views/') !== false);
+        $this->assertTrue(strpos($event->file, 'application/Layout/layout.home.php') !== false);
+        $this->assertTrue(strpos($event->directory, 'application/Layout/') !== false);
 
         // It should exist now
-        $event->file = $event->directory . 'view.test.not_found';
+        $event->file = $event->directory . 'layout.test.not_found';
 
         return $event;
     }
@@ -93,7 +93,7 @@ class layoutLoadViewEventTest extends CoreTestAbstract
     {
 
         // Listen for the event and cancel it
-        Events::addListener(array($this, 'listener_cancel'), 'layoutLoadViewEvent', EventPriority::NORMAL);
+        Events::addListener(array($this, 'listener_cancel'), 'layoutLoadEvent', EventPriority::NORMAL);
         $this->assertFalse($this->factory->layout->get('home'));
     }
 
@@ -104,6 +104,6 @@ class layoutLoadViewEventTest extends CoreTestAbstract
     }
 }
 
-class MockLayoutViewEventTest {
+class MockLayoutEventTest {
     public function MockMethod() {}
 }
