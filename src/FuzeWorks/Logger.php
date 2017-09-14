@@ -120,6 +120,7 @@ class Logger {
         if (self::$useTracy)
         {
             LoggerTracyBridge::register();
+            GitTracyBridge::register();
         }
     }
 

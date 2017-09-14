@@ -81,9 +81,7 @@ class LatteEngine implements TemplateEngine
      */
     public function get($file, $assigned_variables)
     {
-        ob_start(function () {});
-        $this->latte->render($file, $assigned_variables);
-        return ob_get_clean();
+        return $this->latte->renderToString($file, $assigned_variables);
     }
 
     /**
