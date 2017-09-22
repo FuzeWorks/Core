@@ -1,38 +1,11 @@
 <style class="tracy-debug">
 
-	#tracy-debug .fuzeworks-LoggerPanel table {
-		font: 9pt/1.5 Consolas, monospace;
-	}
 
-	#tracy-debug .fuzeworks-LoggerPanel .error td {
-		background: #FF3300 !important;
-	}
-
-	#tracy-debug .fuzeworks-LoggerPanel .warning td {
-		background: #FFFF66 !important;
-	}
-
-	#tracy-debug .fuzeworks-LoggerPanel .debug td {
-		background: #33CC33 !important;
-	}
-
-	#tracy-debug .fuzeworks-LoggerPanel .info td {
-		background: #BDE678 !important;
-	}
-
-	#tracy-debug .fuzeworks-LoggerPanel .cinfo td {
-		background: #BDE622 !important;
-	}
-
-	#tracy-debug .fuzeworks-LoggerPanel pre, #tracy-debug .fuzeworks-LoggerPanel code {
-		display: inline;
-		background: transparent;
-	}
 
 </style>
 
 <div class="fuzeworks-LoggerPanel">
-<h1> FuzeWorks - Logger</h1>
+<h1> Logger</h1>
 
 <div class="tracy-inner">
 	<table>
