@@ -30,12 +30,12 @@
  * @version Version 1.0.0
  */
 
-use FuzeWorks\Factory;
+use FuzeWorks\Core;
 use FuzeWorks\Logger;
-use FuzeWorks\Exception\DatabaseException;
 use FuzeWorks\Utf8;
 use FuzeWorks\Language;
-use FuzeWorks\Core;
+use FuzeWorks\DatabaseTracyBridge;
+use FuzeWorks\Exception\DatabaseException;
 
 /**
  * Database Driver Class
@@ -175,7 +175,7 @@ abstract class FW_DB_driver {
 	 *
 	 * @var	bool
 	 */
-	public $db_debug		= FALSE;
+	public $db_debug		= TRUE;
 
 	/**
 	 * Benchmark time
@@ -216,6 +216,14 @@ abstract class FW_DB_driver {
 	 * @var	string[]
 	 */
 	public $queries			= array();
+
+	/**
+	 * Data of performed queries
+	 *
+	 * @see FW_DB_driver::$save_queries
+	 * @var array
+	 */
+	public $query_data 		= array();
 
 	/**
 	 * Query times
@@ -374,8 +382,6 @@ abstract class FW_DB_driver {
 				$this->$key = $val;
 			}
 		}
-
-		$this->factory = Factory::getInstance();
 
 		Logger::log('Database Driver ' . get_class($this) . ' Initialized');
 	}
@@ -614,7 +620,6 @@ abstract class FW_DB_driver {
 	{
 		if ($sql === '')
 		{
-			Logger::logError('Invalid query: '.$sql);
 			return ($this->db_debug) ? $this->display_error('db_invalid_query') : FALSE;
 		}
 		elseif ( ! is_bool($return_object))
@@ -661,6 +666,7 @@ abstract class FW_DB_driver {
 			if ($this->save_queries === TRUE)
 			{
 				$this->query_times[] = 0;
+				$this->query_data[] = array('error' => $this->error(), 'rows' => 0);
 			}
 
 			// This will trigger a rollback if transactions are being used
@@ -671,9 +677,6 @@ abstract class FW_DB_driver {
 
 			// Grab the error now, as we might run some additional queries before displaying the error
 			$error = $this->error();
-
-			// Log errors
-			Logger::logError('Query error: '.$error['message'].' - Invalid query: '.$sql);
 
 			if ($this->db_debug)
 			{
@@ -703,11 +706,6 @@ abstract class FW_DB_driver {
 		$time_end = microtime(TRUE);
 		$this->benchmark += $time_end - $time_start;
 
-		if ($this->save_queries === TRUE)
-		{
-			$this->query_times[] = $time_end - $time_start;
-		}
-
 		// Increment the query counter
 		$this->query_count++;
 
@@ -726,6 +724,12 @@ abstract class FW_DB_driver {
 		// Load and instantiate the result driver
 		$driver		= $this->load_rdriver();
 		$RES		= new $driver($this);
+
+		if ($this->save_queries === TRUE)
+		{
+			$this->query_times[] = $time_end - $time_start;
+			$this->query_data[] = array('error' => $this->error(), 'rows' => $RES->num_rows());
+		}
 
 		// Is query caching enabled? If so, we'll serialize the
 		// result object and save it to a cache file.
@@ -1740,7 +1744,7 @@ abstract class FW_DB_driver {
 	 * @param	string	the error message
 	 * @param	string	any "swap" values
 	 * @param	bool	whether to localize the message
-	 * @return	string	sends the application/views/errors/error_db.php template
+	 * @return	string	sends the application/layout/errors/error_db.php template
 	 */
 	public function display_error($error = '', $swap = '', $native = FALSE)
 	{
@@ -1762,6 +1766,8 @@ abstract class FW_DB_driver {
 		// the backtrace until the source file is no longer in the
 		// database folder.
 		$trace = debug_backtrace();
+		$file = '';
+		$line = '';
 		foreach ($trace as $call)
 		{
 			if (isset($call['file'], $call['class']))
@@ -1775,19 +1781,16 @@ abstract class FW_DB_driver {
 				if (strpos($call['file'], Core::$coreDir . DS . 'Database') === FALSE && strpos($call['class'], 'Loader') === FALSE)
 				{
 					// Found it - use a relative path for safety
-					$message[] = 'Filename: '.str_replace(array('Application', 'Core'), '', $call['file']);
-					$message[] = 'Line Number: '.$call['line'];
+					$file = str_replace(array('Application', 'Core'), '', $call['file']);
+					$line = $call['line'];
 					break;
 				}
 			}
 		}
 
-		Logger::logError($heading);
-		foreach ($message as $message) {
-			Logger::logError($message);
-		}
-		Logger::http_error(500);
-		exit(8); // EXIT_DATABASE
+		Logger::logError($heading . " | " . implode(' | ', $message), null, $file, $line);
+		throw new DatabaseException($heading . ": " . implode(' ', $this->error()), 1);
+		
 	}
 
 	// --------------------------------------------------------------------

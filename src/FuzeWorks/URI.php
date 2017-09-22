@@ -356,6 +356,8 @@ class URI {
 		{
 			throw new UriException('The URI you submitted has disallowed characters.', 1);
 		}
+
+		return true;
 	}
 
 	// --------------------------------------------------------------------

@@ -37,8 +37,8 @@ use FuzeWorks\Exception\ModuleException;
 /**
  * Class Events.
  *
- * FuzeWorks is built in a way that almost every core-event can be manipulated by modules. This class provides various ways to hook into the core (or other modules)
- * and manipulate the outcome of the functions. Modules and core actions can 'fire' an event and modules can 'hook' into that event. Let's take a look at the example below:
+ * FuzeWorks is built in a way that almost every core-event can be manipulated. This class provides various ways to hook into the core or other components
+ * and manipulate the outcome of the functions. Components and core actions can 'fire' an event and components can 'hook' into that event. Let's take a look at the example below:
  *
  * If we want to add the current time at the end of each page title, we need to hook to the corresponding event. Those events are found in the 'events' directory in the system directory.
  * The event that will be fired when the title is changing is called layoutSetTitleEvent. So if we want our module to hook to that event, we add the following to the constructor:
@@ -70,13 +70,6 @@ class Events
      * @var array
      */
     private static $enabled = true;
-
-    /**
-     * A register with all the events and associated modules which should be loaded upon eventFire.
-     *
-     * @var array
-     */
-    public static $register;
 
     /**
      * Adds a function as listener.
@@ -134,11 +127,7 @@ class Events
             throw new EventException('Unknown priority '.$priority);
         }
 
-        if (!isset(self::$listeners[$eventName])) {
-            return;
-        }
-
-        if (!isset(self::$listeners[$eventName][$priority])) {
+        if (!isset(self::$listeners[$eventName]) || !isset(self::$listeners[$eventName][$priority])) {
             return;
         }
 
@@ -164,46 +153,55 @@ class Events
      */
     public static function fireEvent($input)
     {
-        if (is_string($input)) {
-            // If the input is a string
-            $eventClass = $input;
-            $eventName = $input;
-            if (!class_exists($eventClass)) {
-                // Check if the file even exists
-                $file = Core::$coreDir . DS . 'Events' . DS . 'event.'.$eventName.'.php';
-                if (file_exists($file)) {
-                    // Load the file
-                    $eventClass = "\FuzeWorks\Event\\".$eventClass;
-                    include_once $file;
-                } else {
-                    // No event arguments? Looks like a notify-event
-                    if (func_num_args() == 1) {
-                        // Load notify-event-class
-                        $eventClass = '\FuzeWorks\Event\NotifierEvent';
-                    } else {
-                        // No notify-event: we tried all we could
-                        throw new EventException('Event '.$eventName.' could not be found!');
-                    }
-                }
-            }
-
-            $event = new $eventClass($this);
-        } elseif (is_object($input)) {
+        // First try and see if the object is an Event
+        if (is_object($input))
+        {
             $eventName = get_class($input);
             $eventName = explode('\\', $eventName);
             $eventName = end($eventName);
             $event = $input;
-        } else {
-            // INVALID EVENT
-            return false;
+        }
+        // Otherwise try to load an event based on the input string
+        elseif (is_string($input))
+        {
+            $eventClass = ucfirst($input);
+            $eventName = $input;
+
+            // Try a direct class
+            if (class_exists($eventClass, true))
+            {
+                $event = new $eventClass();
+            }
+
+            // Try a core event
+            elseif (class_exists("\FuzeWorks\Event\\".$eventClass, true))
+            {
+                $class = "\FuzeWorks\Event\\".$eventClass;
+                $event = new $class();
+            }
+
+            // Try a notifier event
+            elseif (func_num_args() == 1)
+            {
+                $class = "\FuzeWorks\Event\NotifierEvent";
+                $event = new $class();
+            }
+
+            // Or throw an exception on failure
+            else
+            {
+                throw new EventException('Event '.$eventName.' could not be found!', 1);
+            }
+        }
+        else
+        {
+            throw new EventException('Event could not be loaded. Invalid variable provided.', 1);
         }
 
         if (self::$enabled)
         {
-            Logger::newLevel("Firing Event: '".$eventName."'");
-            Logger::log('Initializing Event');            
+            Logger::newLevel("Firing Event: '".$eventName."'");           
         }
-
 
         if (func_num_args() > 1) {
             call_user_func_array(array($event, 'init'), array_slice(func_get_args(), 1));
@@ -216,14 +214,6 @@ class Events
 
         Logger::log('Checking for Listeners');
 
-        // Read the event register for listeners
-        $register = self::$register;
-        if (isset($register[$eventName])) {
-            for ($i = 0; $i < count($register[$eventName]); ++$i) {
-                Modules::get($register[$eventName][$i]);
-            }
-        }
-
         //There are listeners for this event
         if (isset(self::$listeners[$eventName])) {
             //Loop from the highest priority to the lowest
@@ -234,6 +224,7 @@ class Events
                     Logger::newLevel('Found listeners with priority '.EventPriority::getPriority($priority));
                     //Fire the event to each listener
                     foreach ($listeners as $callback) {
+                        // @codeCoverageIgnoreStart
                         if (is_callable($callback)) {
                             Logger::newLevel('Firing function');
                         } elseif (!is_string($callback[0])) {
@@ -241,11 +232,9 @@ class Events
                         } else {
                             Logger::newLevel('Firing '.implode('->', $callback));
                         }
-                        try {
-                            call_user_func($callback, $event);
-                        } catch (ModuleException $e) {
-                            Logger::exceptionHandler($e);
-                        }
+                        // @codeCoverageIgnoreEnd
+                        
+                        call_user_func($callback, $event);
                         Logger::stopLevel();
                     }
 

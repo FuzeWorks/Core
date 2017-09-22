@@ -4,7 +4,7 @@
  *
  * The FuzeWorks MVC PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2017   TechFuze
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,37 +20,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author      TechFuze
- * @copyright   Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @copyright   Copyright (c) 2013 - 2017, Techfuze. (http://techfuze.net)
  * @copyright   Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
  * @license     http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
  * @link        http://techfuze.net/fuzeworks
- * @since       Version 0.0.1
+ * @since       Version 1.0.4
  *
- * @version     Version 1.0.0
+ * @version     Version 1.0.4
  */
-use FuzeWorks\Core;
-use FuzeWorks\Events;
-use FuzeWorks\EventPriority;
+
+use FuzeWorks\Factory;
+use FuzeWorks\Exception\DatabaseException;
 
 /**
- * Class CoreStartEventTest.
+ * Class databaseTest.
+ *
+ * Core testing suite. Will test databases, querybuilders and frequently used drivers.
  */
-class coreStartEventTest extends CoreTestAbstract
+class databaseTest extends CoreTestAbstract
 {
-    /**
-     * Check if the event is fired when it should be.
-     */
-    public function testCoreStartEvent()
+
+    protected $factory;
+
+    public function setUp()
     {
-        $mock = $this->getMockBuilder(MockStartEvent::class)->setMethods(['mockMethod'])->getMock();
-        $mock->expects($this->once())->method('mockMethod');
-
-        Events::addListener(array($mock, 'mockMethod'), 'coreStartEvent', EventPriority::NORMAL);
-        Core::init();
+        $this->factory = Factory::getInstance();
     }
-}
 
-class MockStartEvent {
-    public function mockMethod() {}
+    /**
+     * @expectedException FuzeWorks\Exception\DatabaseException
+     */
+    public function testInvalidDb()
+    {
+        $this->factory->database->get('unknown://unknown:password@unknown/database');
+    }
+
 }

@@ -152,6 +152,15 @@ class Configurator
     }
 
     /**
+     * Set the email to send logs to from Tracy
+     * @param string
+     */
+    public function setDebugEmail($email)
+    {
+        $this->parameters['debugEmail'] = $email;
+    }
+
+    /**
      * Detects debug mode by IP address.
      * @param  string|array  IP addresses or computer names whitelist detection
      * @return bool
@@ -180,7 +189,7 @@ class Configurator
      * Due to the static nature of FuzeWorks, this is not yet possible. 
      * When issue #101 is completed, this should be resolved. 
      *
-     * @return void
+     * @return FuzeWorks\Factory
      */
     public function createContainer()
     {
@@ -204,10 +213,16 @@ class Configurator
         if (class_exists('Tracy\Debugger', true))
         {
             Debugger::enable(!$this->parameters['debugMode'], realpath($this->parameters['logDir']));
+            if (isset($this->parameters['debugEmail']))
+            {
+                Debugger::$email = $this->parameters['debugEmail'];
+            }
             Logger::$useTracy = true;
         }
 
         // Then load the framework
         Core::init();
+
+        return Factory::getInstance();
     }
 }

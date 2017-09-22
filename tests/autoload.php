@@ -38,7 +38,7 @@ use FuzeWorks\Logger;
 $container = require('bootstrap.php');
 
 // Load the test abstract
-require_once 'abstract.coreTestAbstract.php';
+require_once 'core/abstract.coreTestAbstract.php';
 
 // Reset error and exception handlers
 ob_start();

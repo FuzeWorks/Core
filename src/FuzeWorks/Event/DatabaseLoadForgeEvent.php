@@ -20,52 +20,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2017, Techfuze. (http://techfuze.net)
  * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
  * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 0.0.1
+ * @since Version 1.0.4
  *
- * @version Version 1.0.0
+ * @version Version 1.0.4
  */
 
-namespace FuzeWorks\TemplateEngine;
+namespace FuzeWorks\Event;
+
+use FuzeWorks\Event;
 
 /**
- * Interface that all Template Engines must follow.
+ * Event that gets loaded when a database forge is loaded
+ *
+ * Use this to cancel the loading of a forge, or change the provided database
  *
  * @author    Abel Hoogeveen <abel@techfuze.net>
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2017, Techfuze. (http://techfuze.net)
  */
-interface TemplateEngine
+class DatabaseLoadForgeEvent extends Event
 {
     /**
-     * Set the directory of the current template.
+     * A possible forge that can be loaded. 
+     * 
+     * Provide a forge in this variable and it will be loaded.
      *
-     * @param string $directory Template Directory
+     * @var FW_DB_forge|null
      */
-    public function setDirectory($directory);
+    public $forge = null;
 
     /**
-     * Handle and retrieve a template file.
+     * Database to be used by the forge. 
+     * 
+     * If no database is provided, FuzeWorks\Database shall provide the default database
      *
-     * @param string $file               Template File
-     * @param array  $assigned_variables All the variables used in this layout
-     *
-     * @return string Output of the template
+     * @var FW_DB|null
      */
-    public function get($file, $assigned_variables);
+    public $database = null;
 
     /**
-     * Retrieve the file extensions that this template engine uses.
+     * Whether a database instance shall be cloned if existing
      *
-     * @return array All used extensions. eg: array('php')
+     * @var bool
      */
-    public function getFileExtensions();
+    public $newInstance;
 
-    /**
-     * Reset the template engine to its default state, so it can be used again clean.
-     */
-    public function reset();
+    public function init($database = null, $newInstance = false)
+    {
+        $this->database = $database;
+        $this->newInstance = $newInstance;
+    }
 }

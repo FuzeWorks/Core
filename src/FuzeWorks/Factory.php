@@ -94,7 +94,6 @@ class Factory
 	        $this->instances['Events'] = new Events();
 	        $this->instances['Models'] = new Models();
 	        $this->instances['Layout'] = new Layout();
-	        $this->instances['Modules'] = new Modules();
 	        $this->instances['Libraries'] = new Libraries();
 	        $this->instances['Helpers'] = new Helpers();
 	        $this->instances['Database'] = new Database();
