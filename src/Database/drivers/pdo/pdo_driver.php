@@ -32,7 +32,6 @@
 
 use FuzeWorks\Logger;
 use FuzeWorks\Exception\DatabaseException;
-use PDOException;
 
 /**
  * PDO Database Adapter Class

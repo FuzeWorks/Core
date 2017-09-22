@@ -16,3 +16,4 @@ vendor/
 build/
 doc
 nbproject
+._*

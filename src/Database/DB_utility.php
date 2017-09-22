@@ -33,6 +33,7 @@
 use FuzeWorks\Logger;
 use FuzeWorks\Helpers;
 use FuzeWorks\Libraries;
+use Fuzeworks\Factory;
 use FuzeWorks\Exception\DatabaseException;
 
 /**

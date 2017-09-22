@@ -27,30 +27,41 @@
  * @link        http://techfuze.net/fuzeworks
  * @since       Version 0.0.1
  *
- * @version     Version 1.0.0
+ * @version     Version 1.0.1
  */
-use FuzeWorks\Core;
+use PHPUnit\Framework\TestCase;
 use FuzeWorks\Events;
-use FuzeWorks\EventPriority;
+use FuzeWorks\Layout;
+use FuzeWorks\Factory;
+use FuzeWorks\LoggerTracyBridge;
 
 /**
- * Class CoreStartEventTest.
+ * Class CoreTestAbstract.
+ *
+ * Provides the event tests with some basic functionality
  */
-class coreStartEventTest extends CoreTestAbstract
+abstract class CoreTestAbstract extends TestCase
 {
     /**
-     * Check if the event is fired when it should be.
+     * Remove all listeners before the next test starts.
+     *
+     * Reset the layout manager
      */
-    public function testCoreStartEvent()
+    public function tearDown()
     {
-        $mock = $this->getMockBuilder(MockStartEvent::class)->setMethods(['mockMethod'])->getMock();
-        $mock->expects($this->once())->method('mockMethod');
+        // Clear all events created by tests
+        Events::$listeners = array();
 
-        Events::addListener(array($mock, 'mockMethod'), 'coreStartEvent', EventPriority::NORMAL);
-        Core::init();
+        // Re-register the LoggerTracyBridge to supress errors
+        LoggerTracyBridge::register();
+
+        // Reset the layout manager
+        Factory::getInstance()->layout->reset();
+
+        // Re-enable events, in case they have been disabled
+        Events::enable();
+
+        // Clear the output
+        Factory::getInstance()->output->set_output('');
     }
-}
-
-class MockStartEvent {
-    public function mockMethod() {}
 }

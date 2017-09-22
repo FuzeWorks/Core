@@ -73,7 +73,7 @@ class LoggerTracyBridge implements IBarPanel {
 	public function getTab()
 	{
 		ob_start(function () {});
-		require dirname(__DIR__) . '/views/view.tracyloggertab.php';
+		require dirname(__DIR__) . '/Layout/layout.tracyloggertab.php';
 		return ob_get_clean();
 	}
 
@@ -101,7 +101,7 @@ class LoggerTracyBridge implements IBarPanel {
 
 		// Parse the panel
 		ob_start(function () {});
-		require dirname(__DIR__) . '/views/view.tracyloggerpanel.php';
+		require dirname(__DIR__) . '/Layout/layout.tracyloggerpanel.php';
 		return ob_get_clean();
 	}
 

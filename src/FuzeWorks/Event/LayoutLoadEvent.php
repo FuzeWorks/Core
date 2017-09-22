@@ -30,42 +30,53 @@
  * @version Version 1.0.0
  */
 
-namespace FuzeWorks\TemplateEngine;
+namespace FuzeWorks\Event;
+
+use FuzeWorks\Event;
 
 /**
- * Interface that all Template Engines must follow.
+ * Event that gets loaded when a layout is loaded.
+ *
+ * Use this to cancel the loading of a layout, or change the file or engine of a layout
  *
  * @author    Abel Hoogeveen <abel@techfuze.net>
  * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
  */
-interface TemplateEngine
+class LayoutLoadEvent extends Event
 {
     /**
-     * Set the directory of the current template.
+     * The directory of the layout to be loaded.
      *
-     * @param string $directory Template Directory
+     * @var string
      */
-    public function setDirectory($directory);
+    public $directory;
 
     /**
-     * Handle and retrieve a template file.
+     * The file of the layout to be loaded.
      *
-     * @param string $file               Template File
-     * @param array  $assigned_variables All the variables used in this layout
-     *
-     * @return string Output of the template
+     * @var string
      */
-    public function get($file, $assigned_variables);
+    public $file;
 
     /**
-     * Retrieve the file extensions that this template engine uses.
+     * The engine the file will be loaded with.
      *
-     * @return array All used extensions. eg: array('php')
+     * @var object
      */
-    public function getFileExtensions();
+    public $engine;
 
     /**
-     * Reset the template engine to its default state, so it can be used again clean.
+     * The assigned variables to the template.
+     *
+     * @var array
      */
-    public function reset();
+    public $assigned_variables;
+
+    public function init($file, $directory, $engine, $assigned_variables)
+    {
+        $this->file = $file;
+        $this->directory = $directory;
+        $this->engine = $engine;
+        $this->assigned_variables = $assigned_variables;
+    }
 }
