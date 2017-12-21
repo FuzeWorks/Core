@@ -85,7 +85,7 @@ if ( ! function_exists('get_mimes'))
 
 		if (empty($_mimes))
 		{
-			$_mimes = FuzeWorks\Config::get('mimes');
+		    $_mimes = FuzeWorks\Factory::getInstance()->config->get('mimes');
 		}
 
 		return $_mimes;
@@ -303,7 +303,7 @@ if ( ! function_exists('html_escape'))
 			return $var;
 		}
 
-		return htmlspecialchars($var, ENT_QUOTES, FuzeWorks\Config::get('main')->charset, $double_encode);
+		return htmlspecialchars($var, ENT_QUOTES, FuzeWorks\Factory::getInstance()->config->get('main')->charset, $double_encode);
 	}
 }
 

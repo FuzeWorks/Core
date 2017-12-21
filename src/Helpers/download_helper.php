@@ -44,6 +44,8 @@
 
 // ------------------------------------------------------------------------
 
+use FuzeWorks\Factory;
+
 if ( ! function_exists('force_download'))
 {
 	/**
@@ -95,7 +97,7 @@ if ( ! function_exists('force_download'))
 			}
 
 			// Load the mime types
-			$mimes = Config::get('mimes')->toArray();
+			$mimes = Factory::getInstance()->config->get('mimes')->toArray();
 
 			// Only change the default MIME if we can find one
 			if (isset($mimes[$extension]))

@@ -50,7 +50,7 @@ class LoggerTracyBridge implements IBarPanel {
     /**
      * Register the bar and register the event which will block the screen log
      */
-	public static function register()
+	public static function register(): void
 	{
 		$class = new self();
 		Events::addListener(array($class, 'screenLogEventListener'), 'screenLogEvent', EventPriority::NORMAL);
@@ -64,20 +64,20 @@ class LoggerTracyBridge implements IBarPanel {
      * @param Event
      * @return Event
      */
-	public function screenLogEventListener($event)
+	public function screenLogEventListener($event): Event
 	{
 		$event->setCancelled(true);
 		return $event;
 	}
 
-	public function getTab()
+	public function getTab(): string
 	{
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Layout/layout.tracyloggertab.php';
+		require dirname(__DIR__) . DS . 'Layout' . DS . 'layout.tracyloggertab.php';
 		return ob_get_clean();
 	}
 
-	public function getPanel()
+	public function getPanel(): string
 	{
         // If an error is thrown, log it
         $errfile = 'Unknown file';
@@ -101,7 +101,7 @@ class LoggerTracyBridge implements IBarPanel {
 
 		// Parse the panel
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Layout/layout.tracyloggerpanel.php';
+		require dirname(__DIR__) . DS . 'Layout' . DS . 'layout.tracyloggerpanel.php';
 		return ob_get_clean();
 	}
 

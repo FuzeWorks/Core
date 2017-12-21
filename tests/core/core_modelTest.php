@@ -50,7 +50,7 @@ class modelTest extends CoreTestAbstract
 
     public function testGetModel()
     {
-        $model = $this->models->get('TestGetModel', 'tests/models/testGetModel');
+        $model = $this->models->get('TestGetModel', 'tests'.DS.'models'.DS.'testGetModel');
         $this->assertInstanceOf('\Application\Model\TestGetModel', $model);
     }
 
@@ -59,7 +59,7 @@ class modelTest extends CoreTestAbstract
      */
     public function testReloadModel()
     {
-        $model = $this->models->get('TestGetModel', 'tests/models/testGetModel');
+        $model = $this->models->get('TestGetModel', 'tests'.DS.'models'.DS.'testGetModel');
         $this->assertInstanceOf('\Application\Model\TestGetModel', $model);
     }
 
@@ -77,7 +77,7 @@ class modelTest extends CoreTestAbstract
         Events::addListener(array($this, 'listener_change'), 'modelLoadEvent', EventPriority::NORMAL);
 
         // Load wrong model
-        $model = $this->models->get('TestWrongModel', 'tests/models/testWrongDirectory');
+        $model = $this->models->get('TestWrongModel', 'tests'.DS.'models'.DS.'testWrongDirectory');
         $this->assertInstanceOf('\Application\Model\TestRightModel', $model);
     }
 
@@ -86,11 +86,11 @@ class modelTest extends CoreTestAbstract
     {
         // First test input
         $this->assertEquals('TestWrongModel', $event->modelName);
-        $this->assertContains('tests/models/testWrongDirectory', $event->directories);
+        $this->assertContains('tests'.DS.'models'.DS.'testWrongDirectory', $event->directories);
 
         // Then change variables
         $event->modelName = 'TestRightModel';
-        $event->directories = array('tests/models/testRightDirectory');
+        $event->directories = array('tests'.DS.'models'.DS.'testRightDirectory');
 
         // Return the event afterwards
         return $event;
@@ -147,7 +147,7 @@ class modelTest extends CoreTestAbstract
     public function testAddModelPath()
     {
         // Add the modelPath
-        $this->models->addModelPath('tests/models/testAddModelPath');
+        $this->models->addModelPath('tests'.DS.'models'.DS.'testAddModelPath');
 
         // And try to load it again
         $this->assertInstanceOf('Application\Model\TestAddModelPath', $this->models->get('TestAddModelPath'));
@@ -156,18 +156,18 @@ class modelTest extends CoreTestAbstract
     public function testRemoveModelPath()
     {
         // Test if the path does NOT exist
-        $this->assertFalse(in_array('tests/models/testRemoveModelPath', $this->models->getModelPaths()));
+        $this->assertFalse(in_array('tests'.DS.'models'.DS.'testRemoveModelPath', $this->models->getModelPaths()));
 
         // Add it
-        $this->models->addModelPath('tests/models/testRemoveModelPath');
+        $this->models->addModelPath('tests'.DS.'models'.DS.'testRemoveModelPath');
 
         // Assert if it's there
-        $this->assertTrue(in_array('tests/models/testRemoveModelPath', $this->models->getModelPaths()));
+        $this->assertTrue(in_array('tests'.DS.'models'.DS.'testRemoveModelPath', $this->models->getModelPaths()));
 
         // Remove it
-        $this->models->removeModelPath('tests/models/testRemoveModelPath');
+        $this->models->removeModelPath('tests'.DS.'models'.DS.'testRemoveModelPath');
 
         // And test if it's gone again
-        $this->assertFalse(in_array('tests/models/testRemoveModelPath', $this->models->getModelPaths()));
+        $this->assertFalse(in_array('tests'.DS.'models'.DS.'testRemoveModelPath', $this->models->getModelPaths()));
     }
 }

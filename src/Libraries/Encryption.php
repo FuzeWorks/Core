@@ -32,9 +32,9 @@
 
 namespace FuzeWorks\Library;
 use FuzeWorks\Core;
+use FuzeWorks\Factory;
 use FuzeWorks\Logger;
 use FuzeWorks\Exception\LibraryException;
-use FuzeWorks\Config;
 
 /**
  * FuzeWorks Encryption Class.
@@ -169,7 +169,7 @@ class FW_Encryption {
 		isset(self::$func_override) OR self::$func_override = (extension_loaded('mbstring') && ini_get('mbstring.func_override'));
 		$this->initialize($params);
 
-		if ( ! isset($this->_key) && self::strlen($key = Config::get('encryption')->encryption_key) > 0)
+		if ( ! isset($this->_key) && self::strlen($key = Factory::getInstance()->config->get('encryption')->encryption_key) > 0)
 		{
 			$this->_key = $key;
 		}

@@ -32,11 +32,7 @@
 
 namespace FuzeWorks;
 
-use FuzeWorks\TemplateEngine\JsonEngine;
-use FuzeWorks\TemplateEngine\PHPEngine;
-use FuzeWorks\TemplateEngine\SmartyEngine;
-use FuzeWorks\TemplateEngine\LatteEngine;
-use FuzeWorks\TemplateEngine\TemplateEngine;
+use FuzeWorks\TemplateEngine\{JsonEngine,PHPEngine,SmartyEngine,LatteEngine,TemplateEngine};
 use FuzeWorks\Exception\LayoutException;
 
 /**
@@ -96,7 +92,7 @@ class Layout
      */
     private $current_engine;
 
-    public function init()
+    public function init(): void
     {
         $this->directory = Core::$appDir . DS .'Layout';
     }
@@ -115,7 +111,7 @@ class Layout
      *
      * @throws LayoutException On error
      */
-    public function display($file, $directory = null, $directOutput = false)
+    public function display($file, $directory = null, $directOutput = false): void
     {
         $output = Factory::getInstance()->output;
         $directory = (is_null($directory) ? $this->directory : $directory);
@@ -147,7 +143,7 @@ class Layout
      *
      * @throws LayoutException On error
      */
-    public function get($file, $directory = null)
+    public function get($file, $directory = null): string
     {
         $directory = (is_null($directory) ? $this->directory : $directory);
         Logger::newLevel("Loading template file '".$file."' in '".$directory."'");
@@ -163,11 +159,13 @@ class Layout
         }
 
         // Then assign some basic variables for the template
-        $this->assigned_variables['wwwDir'] = Config::get('main')->base_url;
-        $this->assigned_variables['siteURL'] = Config::get('main')->base_url;
-        $this->assigned_variables['serverName'] = Config::get('main')->server_name;
-        $this->assigned_variables['adminMail'] = Config::get('main')->administrator_mail;
-        $this->assigned_variables['contact'] = Config::get('contact')->toArray();
+        $main_config = Factory::getInstance()->config->get('main');
+        $contact_config = Factory::getInstance()->config->get('contact');
+        $this->assigned_variables['wwwDir'] = $main_config->base_url;
+        $this->assigned_variables['siteURL'] = $main_config->base_url;
+        $this->assigned_variables['serverName'] = $main_config->server_name;
+        $this->assigned_variables['adminMail'] = $main_config->administrator_mail;
+        $this->assigned_variables['contact'] = $contact_config->toArray();
 
         // Select an engine if one is not already selected
         if (is_null($this->current_engine)) {
@@ -203,9 +201,9 @@ class Layout
      *
      * @param string $extension File extention to look for
      *
-     * @return object Template Engine
+     * @return TemplateEngine
      */
-    public function getEngineFromExtension($extension)
+    public function getEngineFromExtension($extension): TemplateEngine
     {
         if (isset($this->file_extensions[strtolower($extension)])) {
             return $this->engines[ $this->file_extensions[strtolower($extension)]];
@@ -221,7 +219,7 @@ class Layout
      *
      * @return string Extension of the file
      */
-    public function getExtensionFromFile($fileString)
+    public function getExtensionFromFile($fileString): string
     {
         return substr($fileString, strrpos($fileString, '.') + 1);
     }
@@ -236,12 +234,11 @@ class Layout
      * @param array  $extensions Extensions to use for this template. Eg array('php', 'tpl') etc.
      *
      * @return string Filepath of the template
-     *
      * @throws LayoutException On error
      */
-    public function getFileFromString($string, $directory, $extensions = array())
+    public function getFileFromString($string, $directory, $extensions = array()): string
     {
-        $directory = preg_replace('#/+#', '/', (!is_null($directory) ? $directory : $this->directory).'/');
+        $directory = preg_replace('#/+#', '/', (!is_null($directory) ? $directory : $this->directory).DS);
 
         if (strpbrk($directory, "\\/?%*:|\"<>") === TRUE || strpbrk($string, "\\/?%*:|\"<>") === TRUE)
         {
@@ -269,7 +266,7 @@ class Layout
             $layoutSelector[] = 'layout.'.$file;
 
             // And create the final value
-            $layoutSelector = implode('/', $layoutSelector);
+            $layoutSelector = implode(DS, $layoutSelector);
         }
 
         // Then try and select a file
@@ -306,13 +303,12 @@ class Layout
      * @param array  $extensions Extensions to use for this template. Eg array('php', 'tpl') etc.
      *
      * @return string Filepath of the template
-     *
      * @throws LayoutException On error
      */
-    public function setFileFromString($string, $directory, $extensions = array())
+    public function setFileFromString($string, $directory, $extensions = array()): void
     {
         $this->file = $this->getFileFromString($string, $directory, $extensions);
-        $this->directory = preg_replace('#/+#', '/', (!is_null($directory) ? $directory : $this->directory).'/');
+        $this->directory = preg_replace('#/+#', '/', (!is_null($directory) ? $directory : $this->directory).DS);
     }
 
     /**
@@ -330,7 +326,7 @@ class Layout
      *
      * @param string $file Path to the file
      */
-    public function setFile($file)
+    public function setFile($file): string
     {
         $this->file = $file;
     }
@@ -350,7 +346,7 @@ class Layout
      *
      * @param string $directory Path to the directory
      */
-    public function setDirectory($directory)
+    public function setDirectory($directory): void
     {
         $this->directory = $directory;
     }
@@ -361,7 +357,7 @@ class Layout
      * @param string $key   Key of the variable
      * @param mixed  $value Value of the variable
      */
-    public function assign($key, $value)
+    public function assign($key, $value): void
     {
         $this->assigned_variables[$key] = $value;
     }
@@ -371,7 +367,7 @@ class Layout
      *
      * @param string $title title of the template
      */
-    public function setTitle($title)
+    public function setTitle($title): void
     {
         $this->assigned_variables['title'] = $title;
     }
@@ -379,7 +375,7 @@ class Layout
     /**
      * Get the title of the template.
      *
-     * @return string title of the template
+     * @return string|bool title of the template
      */
     public function getTitle()
     {
@@ -396,10 +392,9 @@ class Layout
      * @param string $name Name of the template engine
      *
      * @return bool true on success
-     *
-     * @throws \FuzeWorks\LayoutException on error
+     * @throws LayoutException on error
      */
-    public function setEngine($name)
+    public function setEngine($name): bool
     {
         $this->loadTemplateEngines();
         if (isset($this->engines[$name])) {
@@ -416,9 +411,9 @@ class Layout
      *
      * @param string $name Name of the template engine
      *
-     * @return object Object that implements \FuzeWorks\TemplateEngine
+     * @return TemplateEngine
      */
-    public function getEngine($name)
+    public function getEngine($name): TemplateEngine
     {
         $this->loadTemplateEngines();
         if (isset($this->engines[$name])) {
@@ -435,10 +430,9 @@ class Layout
      * @param array  $engineFileExtensions File extensions this template engine should be used for
      *
      * @return bool true on success
-     *
-     * @throws \FuzeWorks\LayoutException On error
+     * @throws LayoutException
      */
-    public function registerEngine($engineClass, $engineName, $engineFileExtensions = array())
+    public function registerEngine($engineClass, $engineName, $engineFileExtensions = array()): bool
     {
         // First check if the engine already exists
         if (isset($this->engines[$engineName])) {
@@ -477,7 +471,7 @@ class Layout
     /**
      * Load the template engines by sending a layoutLoadEngineEvent.
      */
-    public function loadTemplateEngines()
+    public function loadTemplateEngines(): void
     {
         if (!$this->engines_loaded) {
             Events::fireEvent('layoutLoadEngineEvent');
@@ -495,7 +489,7 @@ class Layout
      * Calls a function in the current Template engine.
      *
      * @param string     $name   Name of the function to be called
-     * @param Paramaters $params Parameters to be used
+     * @param mixed      $params Parameters to be used
      *
      * @return mixed Function output
      */
@@ -514,7 +508,7 @@ class Layout
     /**
      * Resets the layout manager to its default state.
      */
-    public function reset()
+    public function reset(): void
     {
         if (!is_null($this->current_engine)) {
             $this->current_engine->reset();

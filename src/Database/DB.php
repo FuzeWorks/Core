@@ -59,7 +59,7 @@ function &DB($params = '', $query_builder_override = NULL)
 	{
 		// First retrieve the config file
 		try {
-			$config = Config::get('database');
+		    $config = Factory::getInstance()->config->get('database');
 		} catch (ConfigException $e) {
 			throw new DatabaseException($e->getMessage(), 1);
 		}
@@ -172,7 +172,7 @@ function &DB($params = '', $query_builder_override = NULL)
 	}
 
 	// Load the DB driver
-	$driver_file = Core::$coreDir . DS . 'Database'.DS.'drivers/'.$params['dbdriver'].DS.$params['dbdriver'].'_driver.php';
+	$driver_file = Core::$coreDir . DS . 'Database'.DS.'drivers'.DS.$params['dbdriver'].DS.$params['dbdriver'].'_driver.php';
 
 	if (!file_exists($driver_file))
 	{
@@ -188,7 +188,7 @@ function &DB($params = '', $query_builder_override = NULL)
 	// Check for a subdriver
 	if ( ! empty($DB->subdriver))
 	{
-		$driver_file = Core::$coreDir . DS . 'Database'.DS.'drivers'.DS.$DB->dbdriver.'/subdrivers/'.$DB->dbdriver.'_'.$DB->subdriver.'_driver.php';
+		$driver_file = Core::$coreDir . DS . 'Database'.DS.'drivers'.DS.$DB->dbdriver.DS.'subdrivers'.DS.$DB->dbdriver.'_'.$DB->subdriver.'_driver.php';
 
 		if (file_exists($driver_file))
 		{

@@ -107,7 +107,7 @@ class Libraries
 	 * @return	object
 	 * @throws 	LibraryException
 	 */ 
-	public function get($libraryName, array $parameters = null, array $directory = null, $newInstance = false) 
+	public function get($libraryName, array $parameters = null, array $directory = null, $newInstance = false)
 	{
 		if (empty($libraryName)) 
 		{
@@ -214,7 +214,7 @@ class Libraries
 
 		// Retrieve the subclass prefix
 		$corePrefix = '\FuzeWorks\Library\FW_';
-		$appPrefix = '\Application\Library\\' . Config::get('main')->application_prefix;
+		$appPrefix = '\Application\Library\\' . $this->factory->config->get('main')->application_prefix;
 		$prefix = $corePrefix;
 
 		// Perform a check to see if the library is already loaded
@@ -428,7 +428,7 @@ class Libraries
      * @param string $directory The directory
      * @return void
      */
-	public function addLibraryPath($directory)
+	public function addLibraryPath($directory): void
 	{
 		if (!in_array($directory, $this->libraryPaths))
 		{
@@ -442,7 +442,7 @@ class Libraries
      * @param string $directory The directory
      * @return void
      */  
-	public function removeLibraryPath($directory)
+	public function removeLibraryPath($directory): void
 	{
 		if (($key = array_search($directory, $this->libraryPaths)) !== false) 
 		{
@@ -455,7 +455,7 @@ class Libraries
      * 
      * @return array Array of paths where libraries can be found
      */
-	public function getLibraryPaths()
+	public function getLibraryPaths(): array
 	{
 		return $this->libraryPaths;
 	}

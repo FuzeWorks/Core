@@ -27,10 +27,11 @@
  * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 1.0.0
+ * @version Version 1.1.1
  */
 
 namespace FuzeWorks;
+use FuzeWorks\ConfigORM\ConfigORM;
 use FuzeWorks\Exception\UriException;
 
 /**
@@ -99,70 +100,63 @@ class URI {
 	 */
 	public function __construct()
 	{
-		$this->config = Config::get('routing');
-
-		// Determine the base_url
-		if (empty(Config::get('main')->base_url))
-		{
-			if (isset($_SERVER['SERVER_ADDR']))
-			{
-				if (strpos($_SERVER['SERVER_ADDR'], ':') !== FALSE)
-				{
-					$server_addr = '['.$_SERVER['SERVER_ADDR'].']';
-				}
-				else
-				{
-					$server_addr = $_SERVER['SERVER_ADDR'];
-				}
-
-				$base_url = (Core::isHttps() ? 'https' : 'http').'://'.$server_addr
-					.substr($_SERVER['SCRIPT_NAME'], 0, strpos($_SERVER['SCRIPT_NAME'], basename($_SERVER['SCRIPT_FILENAME'])));
-			}
-			else
-			{
-				$base_url = 'http://localhost/';
-			}
-
-			Config::get('main')->base_url = $base_url;
-		}
-
-
-		// If query strings are enabled, we don't need to parse any segments.
-		// However, they don't make sense under CLI.
-		if (Core::isCli() OR $this->config->enable_query_strings !== TRUE)
-		{
-			$this->_permitted_uri_chars = $this->config->permitted_uri_chars;
-
-			// If it's a CLI request, ignore the configuration
-			if ( Core::isCli() )
-			{
-				$uri = $this->_parse_argv();
-			}
-			else
-			{
-				$protocol = $this->config->uri_protocol;
-				empty($protocol) && $protocol = 'REQUEST_URI';
-
-				switch ($protocol)
-				{
-					case 'AUTO': // For BC purposes only
-					case 'REQUEST_URI':
-						$uri = $this->_parse_request_uri();
-						break;
-					case 'QUERY_STRING':
-						$uri = $this->_parse_query_string();
-						break;
-					case 'PATH_INFO':
-					default:
-						$uri = isset($_SERVER[$protocol])
-							? $_SERVER[$protocol]
-							: $this->_parse_request_uri();
-						break;
-				}
-			}
-
-			$this->_set_uri_string($uri);
-		}
+	    $this->config = Factory::getInstance()->config->get('routing');
+	    
+	    // Determine the base_url
+	    if (empty(Factory::getInstance()->config->get('main')->base_url))
+	    {
+	        if (isset($_SERVER['SERVER_ADDR']))
+	        {
+	            if (strpos($_SERVER['SERVER_ADDR'], ':') !== FALSE)
+	            {
+	                $server_addr = '['.$_SERVER['SERVER_ADDR'].']';
+	            }
+	            else
+	            {
+	                $server_addr = $_SERVER['SERVER_ADDR'];
+	            }
+	            
+	            $base_url = (Core::isHttps() ? 'https' : 'http').'://'.$server_addr
+	            .substr($_SERVER['SCRIPT_NAME'], 0, strpos($_SERVER['SCRIPT_NAME'], basename($_SERVER['SCRIPT_FILENAME'])));
+	        }
+	        else
+	        {
+	            $base_url = 'http://localhost/';
+	        }
+	        
+	        Factory::getInstance()->config->get('main')->base_url = $base_url;
+	    }
+	    
+	    // If it's a CLI request, ignore the configuration
+	    if (Core::isCli())
+	    {
+	        $this->_set_uri_string($this->_parse_argv(), TRUE);
+	    }
+	    // If query strings are enabled, we don't need to parse any segments.
+	    elseif ($this->config->enable_query_strings !== TRUE)
+	    {
+	        $this->_permitted_uri_chars = $this->config->permitted_uri_chars;
+	        $protocol = $this->config->uri_protocol;
+	        empty($protocol) && $protocol = 'REQUEST_URI';
+	        
+	        switch ($protocol)
+	        {
+	            case 'AUTO': // For BC purposes only
+	            case 'REQUEST_URI':
+	                $uri = $this->_parse_request_uri();
+	                break;
+	            case 'QUERY_STRING':
+	                $uri = $this->_parse_query_string();
+	                break;
+	            case 'PATH_INFO':
+	                $uri = isset($_SERVER[$protocol])
+	                           ? $_SERVER[$protocol]
+	                           : $this->_parse_request_uri();
+	                break;
+	        }
+	        
+	        $this->_set_uri_string($uri, FALSE);
+	    }
 	}
 
 	// --------------------------------------------------------------------
@@ -173,40 +167,61 @@ class URI {
 	 * @param 	string	$str
 	 * @return	void
 	 */
-	protected function _set_uri_string($str)
+	protected function _set_uri_string($str, $is_cli = FALSE): void
 	{
+	    if ($is_cli)
+	    {
+	        if (($this->uri_string = trim($str, '/')) === '')
+	        {
+	            return;
+	        }
+	        
+	        $this->segments[0] = NULL;
+	        foreach (explode('/', $this->uri_string) as $segment)
+	        {
+	            if (($segment = trim($segment)) !== '')
+	            {
+	                $this->segments[] = $segment;
+	            }
+	        }
+	        
+	        unset($this->segments[0]);
+	        return;
+	    }
+	    
 		// Filter out control characters and trim slashes
 		$this->uri_string = trim(Utf8::remove_invisible_characters($str, FALSE), '/');
 
-		if ($this->uri_string !== '')
+		if ($this->uri_string === '')
 		{
-			// Remove the URL suffix, if present
-			if (($suffix = (string) $this->config->url_suffix) !== '')
-			{
-				$slen = strlen($suffix);
-
-				if (substr($this->uri_string, -$slen) === $suffix)
-				{
-					$this->uri_string = substr($this->uri_string, 0, -$slen);
-				}
-			}
-
-			$this->segments[0] = NULL;
-			// Populate the segments array
-			foreach (explode('/', trim($this->uri_string, '/')) as $val)
-			{
-				$val = trim($val);
-				// Filter segments for security
-				$this->filter_uri($val);
-
-				if ($val !== '')
-				{
-					$this->segments[] = $val;
-				}
-			}
-
-			unset($this->segments[0]);
+		    return;
 		}
+		
+		// Remove the URL suffix, if present
+		if (($suffix = (string) $this->config->url_suffix) !== '')
+		{
+		    $slen = strlen($suffix);
+		    
+		    if (substr($this->uri_string, -$slen) === $suffix)
+		    {
+		        $this->uri_string = substr($this->uri_string, 0, -$slen);
+		    }
+		}
+		
+		$this->segments[0] = NULL;
+		foreach (explode('/', trim($this->uri_string, '/')) as $segment)
+		{
+		    $segment = trim($segment);
+		    // Filter segments for security
+		    $this->filter_uri($segment);
+		    
+		    if ($segment !== '')
+		    {
+		        $this->segments[] = $segment;
+		    }
+		}
+		
+		unset($this->segments[0]);
 	}
 
 	// --------------------------------------------------------------------
@@ -219,7 +234,7 @@ class URI {
 	 *
 	 * @return	string
 	 */
-	protected function _parse_request_uri()
+	protected function _parse_request_uri(): string
 	{
 		if ( ! isset($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']))
 		{
@@ -264,8 +279,6 @@ class URI {
 			return '/';
 		}
 
-
-
 		// Do some final cleaning of the URI and return it
 		return $this->_remove_relative_directory($uri);
 	}
@@ -279,7 +292,7 @@ class URI {
 	 *
 	 * @return	string
 	 */
-	protected function _parse_query_string()
+	protected function _parse_query_string(): string
 	{
 		$uri = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : @getenv('QUERY_STRING');
 
@@ -308,7 +321,7 @@ class URI {
 	 *
 	 * @return	string
 	 */
-	protected function _parse_argv()
+	protected function _parse_argv(): string
 	{
 		$args = array_slice($_SERVER['argv'], 1);
 		return $args ? implode('/', $args) : '';
@@ -324,7 +337,7 @@ class URI {
 	 * @param	string	$uri
 	 * @return	string
 	 */
-	protected function _remove_relative_directory($uri)
+	protected function _remove_relative_directory($uri): string
 	{
 		$uris = array();
 		$tok = strtok($uri, '/');
@@ -348,9 +361,9 @@ class URI {
 	 * Filters segments for malicious characters.
 	 *
 	 * @param	string	$str
-	 * @return	void
+	 * @return	bool
 	 */
-	public function filter_uri(&$str)
+	public function filter_uri(&$str): bool
 	{
 		if ( ! empty($str) && ! empty($this->_permitted_uri_chars) && ! preg_match('/^['.$this->_permitted_uri_chars.']+$/i'.(UTF8_ENABLED ? 'u' : ''), $str))
 		{
@@ -417,7 +430,7 @@ class URI {
 	 * @param	array	$default	Default values
 	 * @return	array
 	 */
-	public function uri_to_assoc($n = 3, $default = array())
+	public function uri_to_assoc($n = 3, $default = array()): array
 	{
 		return $this->_uri_to_assoc($n, $default, 'segment');
 	}
@@ -435,7 +448,7 @@ class URI {
 	 * @param 	array	$default	Default values
 	 * @return 	array
 	 */
-	public function ruri_to_assoc($n = 3, $default = array())
+	public function ruri_to_assoc($n = 3, $default = array()): array
 	{
 		return $this->_uri_to_assoc($n, $default, 'rsegment');
 	}
@@ -454,7 +467,7 @@ class URI {
 	 * @param	string	$which		Array name ('segment' or 'rsegment')
 	 * @return	array
 	 */
-	protected function _uri_to_assoc($n = 3, $default = array(), $which = 'segment')
+	protected function _uri_to_assoc($n = 3, $default = array(), $which = 'segment'): array
 	{
 		if ( ! is_numeric($n))
 		{
@@ -522,7 +535,7 @@ class URI {
 	 * @param	array	$array	Input array of key/value pairs
 	 * @return	string	URI string
 	 */
-	public function assoc_to_uri($array)
+	public function assoc_to_uri($array): string
 	{
 		$temp = array();
 		foreach ((array) $array as $key => $val)
@@ -545,7 +558,7 @@ class URI {
 	 * @param	string	$where	Where to add the slash ('trailing' or 'leading')
 	 * @return	string
 	 */
-	public function slash_segment($n, $where = 'trailing')
+	public function slash_segment($n, $where = 'trailing'): string
 	{
 		return $this->_slash_segment($n, $where, 'segment');
 	}
@@ -561,7 +574,7 @@ class URI {
 	 * @param	string	$where	Where to add the slash ('trailing' or 'leading')
 	 * @return	string
 	 */
-	public function slash_rsegment($n, $where = 'trailing')
+	public function slash_rsegment($n, $where = 'trailing'): string
 	{
 		return $this->_slash_segment($n, $where, 'rsegment');
 	}
@@ -581,7 +594,7 @@ class URI {
 	 * @param	string	$which	Array name ('segment' or 'rsegment')
 	 * @return	string
 	 */
-	protected function _slash_segment($n, $where = 'trailing', $which = 'segment')
+	protected function _slash_segment($n, $where = 'trailing', $which = 'segment'): string
 	{
 		$leading = $trailing = '/';
 
@@ -604,7 +617,7 @@ class URI {
 	 *
 	 * @return	array	URI::$segments
 	 */
-	public function segment_array()
+	public function segment_array(): array
 	{
 		return $this->segments;
 	}
@@ -616,7 +629,7 @@ class URI {
 	 *
 	 * @return	array	URI::$rsegments
 	 */
-	public function rsegment_array()
+	public function rsegment_array(): array
 	{
 		return $this->rsegments;
 	}
@@ -628,7 +641,7 @@ class URI {
 	 *
 	 * @return	int
 	 */
-	public function total_segments()
+	public function total_segments(): int
 	{
 		return count($this->segments);
 	}
@@ -640,7 +653,7 @@ class URI {
 	 *
 	 * @return	int
 	 */
-	public function total_rsegments()
+	public function total_rsegments(): int
 	{
 		return count($this->rsegments);
 	}
@@ -652,7 +665,7 @@ class URI {
 	 *
 	 * @return	string	URI::$uri_string
 	 */
-	public function uri_string()
+	public function uri_string(): string
 	{
 		return $this->uri_string;
 	}

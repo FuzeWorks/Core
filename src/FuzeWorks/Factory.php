@@ -60,7 +60,7 @@ class Factory
 	/**
 	 * The Factory instance that is shared by default when calling Factory::getInstance();
 	 * 
-	 * @var FuzeWorks\Factory Default shared instance
+	 * @var Factory Default shared instance
 	 */
 	private static $sharedFactoryInstance;
 
@@ -72,12 +72,95 @@ class Factory
 	protected static $cloneInstances = false;
 
 	/**
-	 * Array of all the classes loaded by this specific instance of the Factory
-	 * 
-	 * @var array Array of all loaded classes in THIS Factory
+	 * Config Object
+	 * @var Config
 	 */
-	protected $instances = array();
-
+	public $config;
+	
+	/**
+	 * Logger Object
+	 * @var Logger
+	 */
+	public $logger;
+	
+	/**
+	 * Events Object
+	 * @var Events
+	 */
+	public $events;
+	
+	/**
+	 * Models Object
+	 * @var Models
+	 */
+	public $models;
+	   
+	/**
+	 * Layout Object
+	 * @var Layout
+	 */
+	public $layout;
+	
+	/**
+	 * Libraries Object
+	 * @var Libraries
+	 */
+	public $libraries;
+	
+	/**
+	 * Helpers Object
+	 * @var Helpers
+	 */
+	public $helpers;
+	
+	/**
+	 * Database Object
+	 * @var Database
+	 */
+	public $database;
+	
+	/**
+	 * Language Object
+	 * @var Language
+	 */
+	public $language;
+	
+	/**
+	 * Utf8 Object
+	 * @var Utf8
+	 */
+	public $utf8;
+	
+	/**
+	 * URI Object
+	 * @var URI
+	 */
+	public $uri;
+	
+	/**
+	 * Security Object
+	 * @var Security
+	 */
+	public $security;
+	
+	/**
+	 * Input Object
+	 * @var Input
+	 */
+	public $input;
+	
+	/**
+	 * Output Object
+	 * @var Output
+	 */
+	public $output;
+	
+	/**
+	 * Router Object
+	 * @var Router
+	 */
+	public $router;
+	
 	/**
 	 * Factory instance constructor. Should only really be called once
 	 * @return void
@@ -89,28 +172,32 @@ class Factory
 		{
 			// @codeCoverageIgnoreStart
 			self::$sharedFactoryInstance = $this;
-	        $this->instances['Config'] = new Config();
-	        $this->instances['Logger'] = new Logger();
-	        $this->instances['Events'] = new Events();
-	        $this->instances['Models'] = new Models();
-	        $this->instances['Layout'] = new Layout();
-	        $this->instances['Libraries'] = new Libraries();
-	        $this->instances['Helpers'] = new Helpers();
-	        $this->instances['Database'] = new Database();
-	        $this->instances['Language'] = new Language();
-	        $this->instances['Utf8'] = new Utf8();
-	        $this->instances['Uri'] = new URI();
-	        $this->instances['Security'] = new Security();
-	        $this->instances['Input'] = new Input();
-	        $this->instances['Output'] = new Output();
-	        $this->instances['Router'] = new Router();
+	        $this->config = new Config();
+	        $this->logger = new Logger();
+	        $this->events = new Events();
+	        $this->models = new Models();
+	        $this->layout = new Layout();
+	        $this->libraries = new Libraries();
+	        $this->helpers = new Helpers();
+	        $this->database = new Database();
+	        $this->language = new Language();
+	        $this->utf8 = new Utf8();
+	        $this->uri = new URI();
+	        $this->security = new Security();
+	        $this->input = new Input();
+	        $this->output = new Output();
+	        $this->router = new Router();
 
 	        return true;
 		}
 		// @codeCoverageIgnoreEnd
 
 		// Otherwise, copy the existing instances
-		$this->instances = self::getInstance()->getClassInstances();
+		$x = self::getInstance();
+		foreach ($x as $key => $value)
+		{
+		    $this->{$key} = $value;
+		}
 
 		return true;
 	}
@@ -119,9 +206,9 @@ class Factory
 	 * Get a new instance of the Factory class. 
 	 * 
 	 * @param bool $cloneInstance Whether to get a cloned instance (true) or exactly the same instance (false)
-	 * @return FuzeWorks\Factory Factory Instance
+	 * @return Factory Instance
 	 */
-	public static function getInstance($cloneInstance = false)
+	public static function getInstance($cloneInstance = false): Factory
 	{	
 		if ($cloneInstance === true || self::$cloneInstances === true)
 		{
@@ -136,7 +223,7 @@ class Factory
 	 * 
 	 * @return void
 	 */
-	public static function enableCloneInstances()
+	public static function enableCloneInstances(): void
 	{
 		self::$cloneInstances = true;
 	}
@@ -146,19 +233,9 @@ class Factory
 	 * 
 	 * @return void
 	 */
-	public static function disableCloneInstances()
+	public static function disableCloneInstances(): void
 	{
 		self::$cloneInstances = false;
-	}
-
-	/**
-	 * Return the instance array where all the instances are loaded
-	 * 
-	 * @return array Array of all loaded classes in THIS Factory
-	 */
-	public function getClassInstances() 
-	{
-		return $this->instances;
 	}
 
 	/**
@@ -167,15 +244,15 @@ class Factory
 	 * 
 	 * @param string $className The name of the loaded class, WITHOUT the namespace
 	 * @param string $namespace Optional namespace. Defaults to 'FuzeWorks\'
-	 * @return FuzeWorks\Factory Factory Instance
+	 * @return Factory Instance
 	 */
-	public function newInstance($className, $namespace = 'FuzeWorks\\')
+	public function newInstance($className, $namespace = 'FuzeWorks\\'): self
 	{
 		// Determine the class to load
-		$instanceName = ucfirst($className);
-		$className = $namespace.$instanceName;
+		$instanceName = strtolower($className);
+		$className = $namespace.ucfirst($className);
 
-		if (!isset($this->instances[$instanceName]))
+		if (!isset($this->{$instanceName}))
 		{
 			throw new FactoryException("Could not load new instance of '".$instanceName."'. Instance was not found.", 1);
 		}
@@ -185,10 +262,10 @@ class Factory
 		}
 
 		// Remove the current instance
-		unset($this->instances[$instanceName]);
+		unset($this->{$instanceName});
 
 		// And set the new one
-		$this->instances[$instanceName] = new $className();
+		$this->{$instanceName} = new $className();
 
 		// Return itself
 		return $this;
@@ -199,20 +276,20 @@ class Factory
 	 * It clones the class. It does NOT re-create it. 
 	 * 
 	 * @param string $className The name of the loaded class, WITHOUT the namespace
-	 * @return FuzeWorks\Factory Factory Instance
+	 * @return Factory Instance
 	 */
-	public function cloneInstance($className)
+	public function cloneInstance($className): self
 	{
 		// Determine the class to load
-		$instanceName = ucfirst($className);
+		$instanceName = strtolower($className);
 
-		if (!isset($this->instances[$instanceName]))
+		if (!isset($this->{$instanceName}))
 		{
 			throw new FactoryException("Could not clone instance of '".$instanceName."'. Instance was not found.", 1);
 		}
 
 		// Clone the instance
-		$this->instances[$instanceName] = clone $this->instances[$instanceName];
+		$this->{$instanceName} = clone $this->{$instanceName};
 
 		// Return itself
 		return $this;
@@ -224,16 +301,16 @@ class Factory
 	 * 
 	 * @param string $className The name of the loaded class, WITHOUT the namespace
 	 * @param mixed  $object    Object to replace the class with
-	 * @return FuzeWorks\Factory Factory Instance
+	 * @return Factory Instance
 	 */
-	public function setInstance($className, $object)
+	public function setInstance($className, $object): self
 	{
 		// Determine the instance name
-		$instanceName = ucfirst($className);
+		$instanceName = strtolower($className);
 
 		// Unset and set
-		unset($this->instances[$instanceName]);
-		$this->instances[$instanceName] = $object;
+		unset($this->{$instanceName});
+		$this->{$instanceName} = $object;
 
 		// Return itself
 		return $this;
@@ -243,60 +320,22 @@ class Factory
 	 * Remove an instance of one of the loaded classes. 
 	 * 
 	 * @param string $className The name of the loaded class, WITHOUT the namespace
-	 * @return FuzeWorks\Factory Factory Instance
+	 * @return Factory Factory Instance
 	 */
-	public function removeInstance($className)
+	public function removeInstance($className): self
 	{
 		// Determine the instance name
-		$instanceName = ucfirst($className);
+		$instanceName = strtolower($className);
 
-		if (!isset($this->instances[$instanceName]))
+		if (!isset($this->{$instanceName}))
 		{
 			throw new FactoryException("Could not remove instance of '".$instanceName."'. Instance was not found.", 1);
 		}
 
 		// Unset
-		unset($this->instances[$instanceName]);
+		unset($this->{$instanceName});
 
 		// Return itself
 		return $this;
-	}
-
-	/**
-	 * Get one of the loaded classes. Overloading method.
-	 * 
-	 * @param string $objectName Name of the class to get
-	 * @return mixed The class requested
-	 */
-	public function __get($objectName)
-	{
-		if (isset($this->instances[ucfirst($objectName)]))
-		{
-			return $this->instances[ucfirst($objectName)];
-		}
-
-		return null;
-	}
-
-	/**
-	 * Test if a class is set to the Factory instance
-	 * 
-	 * @param string $objectName Name of the class to get
-	 * @return bool  Whether the class is set
-	 */
-	public function __isset($objectName)
-	{
-		return isset($this->instances[ucfirst($objectName)]);
-	}
-
-	/**
-	 * Unset a class set to the Factory instance
-	 * 
-	 * @param string $objectName Name of the class to get
-	 * @return void
-	 */
-	public function __unset($objectName)
-	{
-		unset($this->instances[ucfirst($objectName)]);
 	}
 }

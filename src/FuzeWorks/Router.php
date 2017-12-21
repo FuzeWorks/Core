@@ -32,8 +32,6 @@
 
 namespace FuzeWorks;
 
-use Application\Init;
-
 /**
  * Class Router.
  *
@@ -177,7 +175,7 @@ class Router
      * 
      * @return void
      */
-    protected function parseRouting()
+    protected function parseRouting(): void
     {
         // Get routing routes
         $routes = $this->config->routes;
@@ -215,7 +213,7 @@ class Router
      *
      * @return array
      */
-    public function getRoutes()
+    public function getRoutes(): array
     {
         return $this->routes;
     }
@@ -259,7 +257,7 @@ class Router
      * @param bool     $prepend  Whether or not to insert at the beginning of the routing table
      * @return void
      */
-    public function addRoute($route, $callable, $prepend = true)
+    public function addRoute($route, $callable, $prepend = true): void
     {
         if ($prepend) {
             $this->routes = array($route => $callable) + $this->routes;
@@ -275,7 +273,7 @@ class Router
      *
      * @param $route string The route to remove
      */
-    public function removeRoute($route)
+    public function removeRoute($route): void
     {
         unset($this->routes[$route]);
 
@@ -289,7 +287,7 @@ class Router
      *
      * @param bool $performLoading Immediate process the route after it has been determined
      */
-    public function route($performLoading = true)
+    public function route($performLoading = true): bool
     {
         // Turn the segment array into a URI string
         $uri = implode('/', $this->uri->segments);
@@ -300,7 +298,7 @@ class Router
         // The event has been cancelled
         if ($event->isCancelled()) 
         {
-            return;
+            return false;
         }
 
         // Assign everything to the object to make it accessible, but let modules check it first
@@ -335,7 +333,7 @@ class Router
                     // If the callable is satisfied, break away
                     if (!$performLoading || !$this->loadCallable($matches, $route))
                     {
-                        return;
+                        return false;
                     }
 
                     // Otherwise try other routes
@@ -356,7 +354,7 @@ class Router
 
                 // Now run the defaultRouter for when something is not a callable
                 $this->routeDefault(explode('/', $value), $route);
-                return;
+                return false;
             }
         }
 
@@ -370,21 +368,13 @@ class Router
     }
 
     /**
-     * @todo Implement validateRequest
-     */
-    protected function validateRequest($segments)
-    {
-        $c = count($segments);
-    }
-
-    /**
      * Converts a routing string into parameters for the defaultCallable.
      * 
      * @param array $segments Segments of the controller,method,parameters to open
      * @param string @route   The route which was matched
      * @return void
      */
-    protected function routeDefault($segments = array(), $route)
+    protected function routeDefault($segments = array(), $route): void
     {
         // If we don't have any segments left - try the default controller;
         // WARNING: Directories get shifted out of the segments array!
@@ -435,7 +425,7 @@ class Router
      *
      * @return bool Whether or not the callable was satisfied
      */
-    public function loadCallable($matches = array(), $route)
+    public function loadCallable($matches = array(), $route): bool
     {
         $this->logger->newLevel('Loading callable');
 
@@ -495,7 +485,7 @@ class Router
      * This callable will do the 'old skool' routing. It will load the controllers from the controller-directory
      * in the application-directory.
      */
-    public function defaultCallable($arguments = array())
+    public function defaultCallable($arguments = array()): void
     {
         $this->logger->log('Default callable called!');
 

@@ -51,19 +51,19 @@ class DatabaseTracyBridge implements IBarPanel
 	public static $databases = array();
 	protected $results = array();
 
-	public static function register()
+	public static function register(): void
 	{
 		$class = new self();
 		$bar = Debugger::getBar();
 		$bar->addPanel($class);
 	}
 
-	public static function registerDatabase($database)
+	public static function registerDatabase($database): void
 	{
 		self::$databases[] = $database;
 	}
 
-	protected function getResults()
+	protected function getResults(): array
 	{
 		if (!empty($this->results))
 		{
@@ -123,20 +123,20 @@ class DatabaseTracyBridge implements IBarPanel
 		return $this->results = $results;
 	}
 
-	public function getTab()
+	public function getTab(): string
 	{
 		$results = $this->getResults();
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Layout/layout.tracydatabasetab.php';
+		require dirname(__DIR__) . DS . 'Layout' . DS . 'layout.tracydatabasetab.php';
 		return ob_get_clean();
 	}
 
-	public function getPanel()
+	public function getPanel(): string
 	{
 		// Parse the panel
 		$results = $this->getResults();
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Layout/layout.tracydatabasepanel.php';
+		require dirname(__DIR__) . DS . 'Layout' . DS . 'layout.tracydatabasepanel.php';
 		return ob_get_clean();
 	}
 }

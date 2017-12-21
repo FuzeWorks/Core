@@ -52,7 +52,7 @@ class Utf8 {
      */
     public function __construct()
     {
-        $charset = strtoupper(Config::get('main')->charset);
+        $charset = strtoupper(Factory::getInstance()->config->get('main')->charset);
         ini_set('default_charset', $charset);
 
         /*
@@ -135,7 +135,7 @@ class Utf8 {
      * @param   string  $str    String to clean
      * @return  string
      */
-    public function clean_string($str)
+    public function clean_string($str): string
     {
         if ($this->is_ascii($str) === FALSE)
         {
@@ -164,7 +164,7 @@ class Utf8 {
      * @param   string  $str    String to clean
      * @return  string
      */
-    public function safe_ascii_for_xml($str)
+    public function safe_ascii_for_xml($str): string
     {
         return $this->remove_invisible_characters($str, FALSE);
     }
@@ -180,7 +180,7 @@ class Utf8 {
      * @param   string  $encoding   Input encoding
      * @return  string  $str encoded in UTF-8 or FALSE on failure
      */
-    public function convert_to_utf8($str, $encoding)
+    public function convert_to_utf8($str, $encoding): string
     {
         if (MB_ENABLED)
         {
@@ -204,7 +204,7 @@ class Utf8 {
      * @param   string  $str    String to check
      * @return  bool
      */
-    public function is_ascii($str)
+    public function is_ascii($str): bool
     {
         return (preg_match('/[^\x00-\x7F]/S', $str) === 0);
     }
@@ -219,7 +219,7 @@ class Utf8 {
      * @param   bool
      * @return  string
      */
-    public static function remove_invisible_characters($str, $url_encoded = TRUE)
+    public static function remove_invisible_characters($str, $url_encoded = TRUE): string
     {
         $non_displayables = array();
 

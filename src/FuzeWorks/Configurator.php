@@ -62,7 +62,6 @@ class Configurator
      * Constructs the Configurator class. 
      * 
      * Loads the default parameters
-     * @return void
      */
     public function __construct()
     {
@@ -72,7 +71,7 @@ class Configurator
     /**
      * @return array
      */
-    protected function getDefaultParameters()
+    protected function getDefaultParameters(): array
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         $last = end($trace);
@@ -88,7 +87,7 @@ class Configurator
      * Sets path to temporary directory.
      * @return self
      */
-    public function setLogDirectory($path)
+    public function setLogDirectory($path): self
     {
         $this->parameters['logDir'] = $path;
         return $this;
@@ -98,7 +97,7 @@ class Configurator
      * Sets the default timezone.
      * @return self
      */
-    public function setTimeZone($timezone)
+    public function setTimeZone($timezone): self
     {
         date_default_timezone_set($timezone);
         @ini_set('date.timezone', $timezone); // @ - function may be disabled
@@ -109,7 +108,7 @@ class Configurator
      * Adds new parameters. The %params% will be expanded.
      * @return self
      */
-    public function setParameters(array $params)
+    public function setParameters(array $params): self
     {
         foreach ($params as $key => $value) {
             $this->parameters[$key] = $value;
@@ -121,7 +120,7 @@ class Configurator
      * Sets path to temporary directory.
      * @return self
      */
-    public function setTempDirectory($path)
+    public function setTempDirectory($path): self
     {
         $this->parameters['tempDir'] = $path;
         return $this;
@@ -130,7 +129,7 @@ class Configurator
     /**
      * @return bool
      */
-    public function isDebugMode()
+    public function isDebugMode(): bool
     {
         return $this->parameters['debugMode'];
     }
@@ -140,7 +139,7 @@ class Configurator
      * @param  bool|string|array
      * @return self
      */
-    public function setDebugMode($value)
+    public function setDebugMode($value): self
     {
         if (is_string($value) || is_array($value)) {
             $value = static::detectDebugMode($value);
@@ -155,9 +154,10 @@ class Configurator
      * Set the email to send logs to from Tracy
      * @param string
      */
-    public function setDebugEmail($email)
+    public function setDebugEmail($email): self
     {
         $this->parameters['debugEmail'] = $email;
+        return $this;
     }
 
     /**
@@ -165,7 +165,7 @@ class Configurator
      * @param  string|array  IP addresses or computer names whitelist detection
      * @return bool
      */
-    public static function detectDebugMode($list = NULL)
+    public static function detectDebugMode($list = NULL): bool
     {
         $addr = isset($_SERVER['REMOTE_ADDR'])
             ? $_SERVER['REMOTE_ADDR']
@@ -189,9 +189,9 @@ class Configurator
      * Due to the static nature of FuzeWorks, this is not yet possible. 
      * When issue #101 is completed, this should be resolved. 
      *
-     * @return FuzeWorks\Factory
+     * @return Factory
      */
-    public function createContainer()
+    public function createContainer(): Factory
     {
         // First set all the directories
         Core::$appDir = $this->parameters['appDir'];

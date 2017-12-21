@@ -89,7 +89,7 @@ class Helpers
      * @param string|null   $directory  Directory to load the helper from, will ignore $helperPaths
      * @return bool                     Whether the helper was succesfully loaded (true if yes)
      */
-    public function load($helperName, $directory = null)
+    public function load($helperName, $directory = null): bool
     {
         // First determine the name of the helper
         $helperName = strtolower(str_replace(array('_helper', '.php'), '', $helperName).'_helper');
@@ -105,7 +105,7 @@ class Helpers
         }
 
         // First check if there is an 'extension' class
-        $extendedHelper = Config::get('main')->application_prefix . $helperName;
+        $extendedHelper = Factory::getInstance()->config->get('main')->application_prefix . $helperName;
         $extendedHelperLoaded = false;
         foreach ($directories as $helperPath) 
         {
@@ -168,13 +168,13 @@ class Helpers
 
     /**
      * Alias for load
-     * @see load
+     * @see load() for more details
      * 
      * @param string        $helperName Name of the helper
      * @param string|null   $directory  Directory to load the helper from, will ignore $helperPaths
      * @return bool                     Whether the helper was succesfully loaded (true if yes)
      */
-    public function get($helperName, $directory = null)
+    public function get($helperName, $directory = null): bool
     {
         return $this->load($helperName, $directory);
     }
@@ -185,7 +185,7 @@ class Helpers
      * @param string $directory The directory
      * @return void
      */
-    public function addHelperPath($directory)
+    public function addHelperPath($directory): void
     {
         if (!in_array($directory, $this->helperPaths))
         {
@@ -199,7 +199,7 @@ class Helpers
      * @param string $directory The directory
      * @return void
      */    
-    public function removeHelperPath($directory)
+    public function removeHelperPath($directory): void
     {
         if (($key = array_search($directory, $this->helperPaths)) !== false) 
         {
@@ -212,7 +212,7 @@ class Helpers
      * 
      * @return array Array of paths where helpers can be found
      */
-    public function getHelperPaths()
+    public function getHelperPaths(): array
     {
         return $this->helperPaths;
     }

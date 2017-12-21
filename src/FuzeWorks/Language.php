@@ -77,7 +77,7 @@ class Language
      */
     protected static $is_loaded = array();
     
-    public static function init()
+    public static function init(): void
     {
         self::$languagePaths[] = Core::$appDir . DS . 'Language';
     }
@@ -89,10 +89,10 @@ class Language
      * @param string $idiom
      * @param boolean $add_suffix
      * @param string $alt_path
-     * @return type
+     * @return array
      * @throws LanguageException
      */
-    public static function get($langfile, $idiom = '', $add_suffix = TRUE, $alt_path = '')
+    public static function get($langfile, $idiom = '', $add_suffix = TRUE, $alt_path = ''): array
     {
         // First we determine the file that should be loaded
         $langfile = str_replace('.php', '', $langfile);
@@ -107,7 +107,7 @@ class Language
         // Then we determine the idiom
         if (empty($idiom) OR ! preg_match('/^[a-z_-]+$/i', $idiom))
         {
-            $config = Config::get('main');
+            $config = Factory::getInstance()->config->get('main');
             $idiom = empty($config->language) ? 'english' : $config->language;
         }
 
@@ -180,7 +180,7 @@ class Language
      * @param boolean $log_errors
      * @return string
      */
-    public static function line($line, $log_errors = TRUE)
+    public static function line($line, $log_errors = TRUE): string
     {
         $value = isset(self::$language[$line]) ? self::$language[$line] : FALSE;
 
@@ -198,7 +198,7 @@ class Language
      * 
      * @param string $directory
      */
-    public static function addLanguagePath($directory)
+    public static function addLanguagePath($directory): string
     {
         if (!in_array($directory, self::$languagePaths))
         {
@@ -211,7 +211,7 @@ class Language
      * 
      * @param string $directory
      */
-    public static function removeLanguagePath($directory)
+    public static function removeLanguagePath($directory): string
     {
         if (($key = array_search($directory, self::$languagePaths)) !== false) 
         {
@@ -224,7 +224,7 @@ class Language
      * 
      * @return array
      */
-    public static function getLanguagePaths()
+    public static function getLanguagePaths(): array
     {
         return self::$languagePaths;
     }

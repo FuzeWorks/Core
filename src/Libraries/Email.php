@@ -32,7 +32,7 @@
 
 namespace FuzeWorks\Library;
 use FuzeWorks\Core;
-use FuzeWorks\Config;
+use FuzeWorks\Factory;
 use FuzeWorks\Logger;
 use FuzeWorks\Language;
 
@@ -409,7 +409,7 @@ class FW_Email {
 	 */
 	public function __construct(array $config = array())
 	{
-		$this->charset = Config::get('main')->charset;
+	    $this->charset = Factory::getInstance()->config->get('main')->charset;
 
 		if (count($config) > 0)
 		{
@@ -2331,7 +2331,7 @@ class FW_Email {
 	{
 		$ext = strtolower($ext);
 
-		$mimes = Config::get('mimes')->toArray();
+		$mimes = Factory::getInstance()->config->get('mimes')->toArray();
 
 		if (isset($mimes[$ext]))
 		{

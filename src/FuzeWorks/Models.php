@@ -70,7 +70,7 @@ class Models
      * 
      * @param string        $modelName  Name of the model
      * @param string|null   $directory  Directory to load the model from, will ignore $modelPaths
-     * @return ModelAbstract            The Model object
+     * @return ModelAbstract|bool       The Model object
      */
     public function get($modelName, $directory = null)
     {
@@ -106,7 +106,7 @@ class Models
      * @param array         $directories Directories to try and load the model from
      * @return ModelAbstract             The Model object
      */
-    protected function loadModel($modelName, $directories)
+    protected function loadModel($modelName, $directories): ModelAbstract
     {
         if (empty($directories))
         {
@@ -166,7 +166,7 @@ class Models
      * @param string $directory The directory
      * @return void
      */
-    public function addModelPath($directory)
+    public function addModelPath($directory): void
     {
         if (!in_array($directory, $this->ModelPaths))
         {
@@ -180,7 +180,7 @@ class Models
      * @param string $directory The directory
      * @return void
      */    
-    public function removeModelPath($directory)
+    public function removeModelPath($directory): void
     {
         if (($key = array_search($directory, $this->modelPaths)) !== false) 
         {
@@ -193,7 +193,7 @@ class Models
      * 
      * @return array Array of paths where models can be found
      */
-    public function getModelPaths()
+    public function getModelPaths(): array
     {
         return $this->modelPaths;
     }

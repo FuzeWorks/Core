@@ -31,7 +31,7 @@
  */
 
 namespace FuzeWorks\Library;
-use FuzeWorks\Config;
+use FuzeWorks\Factory;
 use FuzeWorks\Logger;
 use Memcached;
 use Memcache;
@@ -84,7 +84,7 @@ class FW_Cache_memcached extends FW_Driver {
 		// Try to load memcached server info from the config file.
 		$defaults = $this->_config['default'];
 
-		$this->_config = Config::get('cache')->memcached;
+		$this->_config = Factory::getInstance()->config->get('cache')->memcached;
 
 		if (class_exists('Memcached', FALSE))
 		{

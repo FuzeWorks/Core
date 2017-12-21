@@ -30,7 +30,6 @@
  * @version     Version 1.0.1
  */
 
-use FuzeWorks\Config;
 use FuzeWorks\Logger;
 use FuzeWorks\Factory;
 use FuzeWorks\Exception\LoggerException;
@@ -48,7 +47,7 @@ class loggerTest extends CoreTestAbstract
 
     public function setUp()
     {
-        Config::get('error')->error_reporting = false;
+        Factory::getInstance()->config->get('error')->error_reporting = false;
         $this->output = Factory::getInstance()->output;
         Logger::$Logs = array();
     }

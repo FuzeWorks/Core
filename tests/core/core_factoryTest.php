@@ -73,7 +73,7 @@ class factoryTest extends CoreTestAbstract
         $mock = $this->getMockBuilder(MockFactory::class)->setMethods(['mockListener'])->getMock();
 
         // Test not set
-        $this->assertNull(Factory::getInstance()->mock);
+        $this->assertFalse(isset(Factory::getInstance()->mock));
 
         // Same instance factories
         $factory1 = Factory::getInstance()->setInstance('Mock', $mock);
@@ -97,9 +97,6 @@ class factoryTest extends CoreTestAbstract
     {
         // Create mock
         $mock = $this->getMockBuilder(MockFactory::class)->getMock();
-
-        // Test not set
-        $this->assertNull(Factory::getInstance()->mock);
 
         // Same instance factories
         $factory1 = Factory::getInstance()->setInstance('Mock', $mock);
@@ -149,14 +146,22 @@ class factoryTest extends CoreTestAbstract
         // Test if the objects are different factory instances
         $this->assertNotSame($factory, $factory2);
 
-        // Fetch the instances
-        $instances1 = $factory->getClassInstances();
-        $instances2 = $factory2->getClassInstances();
-
         // And test if all ClassInstances are the same
-        foreach ($instances1 as $className => $object) {
-            $this->assertSame($object, $instances2[$className]);
-        }
+        $this->assertSame($factory->config, $factory2->config);
+        $this->assertSame($factory->logger, $factory2->logger);
+        $this->assertSame($factory->events, $factory2->events);
+        $this->assertSame($factory->models, $factory2->models);
+        $this->assertSame($factory->layout, $factory2->layout);
+        $this->assertSame($factory->libraries, $factory2->libraries);
+        $this->assertSame($factory->helpers, $factory2->helpers);
+        $this->assertSame($factory->database, $factory2->database);
+        $this->assertSame($factory->language, $factory2->language);
+        $this->assertSame($factory->utf8, $factory2->utf8);
+        $this->assertSame($factory->uri, $factory2->uri);
+        $this->assertSame($factory->security, $factory2->security);
+        $this->assertSame($factory->input, $factory2->input);
+        $this->assertSame($factory->output, $factory2->output);
+        $this->assertSame($factory->router, $factory2->router);
 
         // And test when changing one classInstance
         $factory->newInstance('Layout');
