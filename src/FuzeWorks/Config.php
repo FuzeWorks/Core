@@ -127,6 +127,14 @@ class Config
             }
         }
 
+        // Try fallback
+        $file = Core::$coreDir . DS . 'Config' . DS . 'config.' . $configName . '.php';
+        if (file_exists($file))
+        {
+            // Load object
+            return new ConfigORM($file);
+        }
+
         throw new ConfigException("Could not load config. File $configName not found", 1);
     }
 
