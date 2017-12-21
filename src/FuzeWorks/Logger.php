@@ -133,7 +133,7 @@ class Logger {
      *
      * Logs data to screen when requested to do so
      */
-    public static function shutdown(): void
+    public static function shutdown()
     {
         // And finally stop the Logging
         self::stopLevel();
@@ -156,7 +156,7 @@ class Logger {
      *
      * Logs a fatal error and outputs the log when configured or requested to do so
      */
-    public static function shutdownError(): void
+    public static function shutdownError()
     {
         // Load last error if thrown
         $errfile = 'Unknown file';
@@ -192,7 +192,7 @@ class Logger {
      * @param int Line. The line on which the error occured.
      * @param array context. Some of the error's relevant variables
      */
-    public static function errorHandler($type = E_USER_NOTICE, $error = 'Undefined Error', $errFile = null, $errLine = null, $context = null): void 
+    public static function errorHandler($type = E_USER_NOTICE, $error = 'Undefined Error', $errFile = null, $errLine = null, $context = null) 
     {
         // Check type
         $thisType = self::getType($type);
@@ -212,7 +212,7 @@ class Logger {
      *
      * @param Exception $exception The occured exception.
      */
-    public static function exceptionHandler($exception): void 
+    public static function exceptionHandler($exception) 
     {
         $message = $exception->getMessage();
         $code = $exception->getCode();
@@ -233,7 +233,7 @@ class Logger {
      * 
      * @var string Name of the template file
      */
-    public static function setLoggerTemplate($templateName): void
+    public static function setLoggerTemplate($templateName)
     {
         self::$logger_template = $templateName;
     }
@@ -258,7 +258,7 @@ class Logger {
      * Output the entire log to a file. Used for debugging problems with your code.
      * @codeCoverageIgnore
      */
-    public static function logToFile(): void
+    public static function logToFile()
     {
         ob_start(function () {});
         $logs = self::$Logs;
@@ -282,7 +282,7 @@ class Logger {
      * @param   string    $name   Marker name
      * @return  void
      */
-    public static function mark($name): void
+    public static function mark($name)
     {
         $LOG = array('type' => 'BMARK',
             'message' => (!is_null($name) ? $name : ''),
@@ -302,7 +302,7 @@ class Logger {
      * @param string $file The file where the log occured
      * @param int    $line The line where the log occured
      */
-    public static function log($msg, $mod = null, $file = 0, $line = 0): void
+    public static function log($msg, $mod = null, $file = 0, $line = 0)
     {
         self::logInfo($msg, $mod, $file, $line);
     }
@@ -315,7 +315,7 @@ class Logger {
      * @param string $file The file where the log occured
      * @param int    $line The line where the log occured
      */
-    public static function logInfo($msg, $mod = null, $file = 0, $line = 0): void
+    public static function logInfo($msg, $mod = null, $file = 0, $line = 0)
     {
         $LOG = array('type' => 'INFO',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -335,7 +335,7 @@ class Logger {
      * @param string $file The file where the log occured
      * @param int    $line The line where the log occured
      */
-    public static function logDebug($msg, $mod = null, $file = 0, $line = 0): void
+    public static function logDebug($msg, $mod = null, $file = 0, $line = 0)
     {
         $LOG = array('type' => 'DEBUG',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -355,7 +355,7 @@ class Logger {
      * @param string $file The file where the log occured
      * @param int    $line The line where the log occured
      */
-    public static function logError($msg, $mod = null, $file = 0, $line = 0): void
+    public static function logError($msg, $mod = null, $file = 0, $line = 0)
     {
         $LOG = array('type' => 'ERROR',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -375,7 +375,7 @@ class Logger {
      * @param string $file The file where the log occured
      * @param int    $line The line where the log occured
      */
-    public static function logWarning($msg, $mod = null, $file = 0, $line = 0): void
+    public static function logWarning($msg, $mod = null, $file = 0, $line = 0)
     {
         $LOG = array('type' => 'WARNING',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -395,7 +395,7 @@ class Logger {
      * @param string $file The file where the log occured
      * @param int    $line The line where the log occured
      */
-    public static function newLevel($msg, $mod = null, $file = null, $line = null): void
+    public static function newLevel($msg, $mod = null, $file = null, $line = null)
     {
         $LOG = array('type' => 'LEVEL_START',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -415,7 +415,7 @@ class Logger {
      * @param string $file The file where the log occured
      * @param int    $line The line where the log occured
      */
-    public static function stopLevel($msg = null, $mod = null, $file = null, $line = null): void
+    public static function stopLevel($msg = null, $mod = null, $file = null, $line = null)
     {
         $LOG = array('type' => 'LEVEL_STOP',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -548,7 +548,7 @@ class Logger {
     /**
      * Enable error to screen logging.
      */
-    public static function enable(): void
+    public static function enable()
     {
         self::$print_to_screen = true;
     }
@@ -556,7 +556,7 @@ class Logger {
     /**
      * Disable error to screen logging.
      */
-    public static function disable(): void
+    public static function disable()
     {
         self::$print_to_screen = false;
     }

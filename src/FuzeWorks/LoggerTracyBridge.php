@@ -50,7 +50,7 @@ class LoggerTracyBridge implements IBarPanel {
     /**
      * Register the bar and register the event which will block the screen log
      */
-	public static function register(): void
+	public static function register()
 	{
 		$class = new self();
 		Events::addListener(array($class, 'screenLogEventListener'), 'screenLogEvent', EventPriority::NORMAL);

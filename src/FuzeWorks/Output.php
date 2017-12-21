@@ -406,7 +406,7 @@ class Output {
 	 * @param	string	$output	Output data override
 	 * @return	void
 	 */
-	public function _display($output = ''): void
+	public function _display($output = '')
 	{
 		$router = $this->factory->router;
 		// Grab the super object if we can.
@@ -527,7 +527,7 @@ class Output {
 	 * @param	string	$output	Output data to cache
 	 * @return	void
 	 */
-	public function _write_cache($output): void
+	public function _write_cache($output)
 	{
 		$cache_path = Core::$tempDir . DS . 'Output' . DS;
 
@@ -770,7 +770,7 @@ class Output {
 	 * @param	int	$expiration	Timestamp of when should the requested page expire from cache
 	 * @return	void
 	 */
-	public function set_cache_header($last_modified, $expiration): void
+	public function set_cache_header($last_modified, $expiration)
 	{
 		$max_age = $expiration - $_SERVER['REQUEST_TIME'];
 

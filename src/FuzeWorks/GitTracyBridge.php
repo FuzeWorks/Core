@@ -49,7 +49,7 @@ class GitTracyBridge implements IBarPanel {
     /**
      * Register the bar
      */
-	public static function register(): void
+	public static function register()
 	{
 		$class = new self();
 		$bar = Debugger::getBar();

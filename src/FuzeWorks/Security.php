@@ -288,7 +288,7 @@ class Security {
 	 *
 	 * @return	void
 	 */
-	public function csrf_show_error(): void
+	public function csrf_show_error()
 	{
 		throw new SecurityException('The action you have requested is not allowed.', 1);
 	}

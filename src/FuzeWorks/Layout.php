@@ -92,7 +92,7 @@ class Layout
      */
     private $current_engine;
 
-    public function init(): void
+    public function init()
     {
         $this->directory = Core::$appDir . DS .'Layout';
     }
@@ -111,7 +111,7 @@ class Layout
      *
      * @throws LayoutException On error
      */
-    public function display($file, $directory = null, $directOutput = false): void
+    public function display($file, $directory = null, $directOutput = false)
     {
         $output = Factory::getInstance()->output;
         $directory = (is_null($directory) ? $this->directory : $directory);
@@ -305,7 +305,7 @@ class Layout
      * @return string Filepath of the template
      * @throws LayoutException On error
      */
-    public function setFileFromString($string, $directory, $extensions = array()): void
+    public function setFileFromString($string, $directory, $extensions = array())
     {
         $this->file = $this->getFileFromString($string, $directory, $extensions);
         $this->directory = preg_replace('#/+#', '/', (!is_null($directory) ? $directory : $this->directory).DS);
@@ -346,7 +346,7 @@ class Layout
      *
      * @param string $directory Path to the directory
      */
-    public function setDirectory($directory): void
+    public function setDirectory($directory)
     {
         $this->directory = $directory;
     }
@@ -357,7 +357,7 @@ class Layout
      * @param string $key   Key of the variable
      * @param mixed  $value Value of the variable
      */
-    public function assign($key, $value): void
+    public function assign($key, $value)
     {
         $this->assigned_variables[$key] = $value;
     }
@@ -367,7 +367,7 @@ class Layout
      *
      * @param string $title title of the template
      */
-    public function setTitle($title): void
+    public function setTitle($title)
     {
         $this->assigned_variables['title'] = $title;
     }
@@ -471,7 +471,7 @@ class Layout
     /**
      * Load the template engines by sending a layoutLoadEngineEvent.
      */
-    public function loadTemplateEngines(): void
+    public function loadTemplateEngines()
     {
         if (!$this->engines_loaded) {
             Events::fireEvent('layoutLoadEngineEvent');
@@ -508,7 +508,7 @@ class Layout
     /**
      * Resets the layout manager to its default state.
      */
-    public function reset(): void
+    public function reset()
     {
         if (!is_null($this->current_engine)) {
             $this->current_engine->reset();

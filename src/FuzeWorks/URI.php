@@ -167,7 +167,7 @@ class URI {
 	 * @param 	string	$str
 	 * @return	void
 	 */
-	protected function _set_uri_string($str, $is_cli = FALSE): void
+	protected function _set_uri_string($str, $is_cli = FALSE)
 	{
 	    if ($is_cli)
 	    {

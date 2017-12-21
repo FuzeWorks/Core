@@ -349,7 +349,7 @@ class Input {
 	 * @param	bool		$httponly	Whether to only makes the cookie accessible via HTTP (no javascript)
 	 * @return	void
 	 */
-	public function set_cookie($name, $value = '', $expire = '', $domain = '', $path = '/', $prefix = '', $secure = FALSE, $httponly = FALSE): void
+	public function set_cookie($name, $value = '', $expire = '', $domain = '', $path = '/', $prefix = '', $secure = FALSE, $httponly = FALSE)
 	{
 		if (is_array($name))
 		{
@@ -592,7 +592,7 @@ class Input {
 	 *
 	 * @return	void
 	 */
-	protected function _sanitize_globals(): void
+	protected function _sanitize_globals()
 	{
 		// Is $_GET data allowed? If not we'll set the $_GET to an empty array
 		if ($this->_allow_get_array === FALSE)

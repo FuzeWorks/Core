@@ -144,7 +144,7 @@ class Config
      * @param string $directory The directory
      * @return void
      */
-    public function addConfigPath($directory): void
+    public function addConfigPath($directory)
     {
         if (!in_array($directory, $this->configPaths))
         {
@@ -158,7 +158,7 @@ class Config
      * @param string $directory The directory
      * @return void
      */    
-    public function removeConfigPath($directory): void
+    public function removeConfigPath($directory)
     {
         if (($key = array_search($directory, $this->configPaths)) !== false) 
         {

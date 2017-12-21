@@ -51,14 +51,14 @@ class DatabaseTracyBridge implements IBarPanel
 	public static $databases = array();
 	protected $results = array();
 
-	public static function register(): void
+	public static function register()
 	{
 		$class = new self();
 		$bar = Debugger::getBar();
 		$bar->addPanel($class);
 	}
 
-	public static function registerDatabase($database): void
+	public static function registerDatabase($database)
 	{
 		self::$databases[] = $database;
 	}

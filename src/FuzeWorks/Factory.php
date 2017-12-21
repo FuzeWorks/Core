@@ -223,7 +223,7 @@ class Factory
 	 * 
 	 * @return void
 	 */
-	public static function enableCloneInstances(): void
+	public static function enableCloneInstances()
 	{
 		self::$cloneInstances = true;
 	}
@@ -233,7 +233,7 @@ class Factory
 	 * 
 	 * @return void
 	 */
-	public static function disableCloneInstances(): void
+	public static function disableCloneInstances()
 	{
 		self::$cloneInstances = false;
 	}

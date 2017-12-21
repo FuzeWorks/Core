@@ -185,7 +185,7 @@ class Helpers
      * @param string $directory The directory
      * @return void
      */
-    public function addHelperPath($directory): void
+    public function addHelperPath($directory)
     {
         if (!in_array($directory, $this->helperPaths))
         {
@@ -199,7 +199,7 @@ class Helpers
      * @param string $directory The directory
      * @return void
      */    
-    public function removeHelperPath($directory): void
+    public function removeHelperPath($directory)
     {
         if (($key = array_search($directory, $this->helperPaths)) !== false) 
         {

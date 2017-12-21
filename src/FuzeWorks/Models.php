@@ -166,7 +166,7 @@ class Models
      * @param string $directory The directory
      * @return void
      */
-    public function addModelPath($directory): void
+    public function addModelPath($directory)
     {
         if (!in_array($directory, $this->ModelPaths))
         {
@@ -180,7 +180,7 @@ class Models
      * @param string $directory The directory
      * @return void
      */    
-    public function removeModelPath($directory): void
+    public function removeModelPath($directory)
     {
         if (($key = array_search($directory, $this->modelPaths)) !== false) 
         {

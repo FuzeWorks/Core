@@ -77,7 +77,7 @@ class Language
      */
     protected static $is_loaded = array();
     
-    public static function init(): void
+    public static function init()
     {
         self::$languagePaths[] = Core::$appDir . DS . 'Language';
     }

@@ -127,7 +127,7 @@ class Core
      *
      * Afterwards run the Logger shutdown function in order to possibly display the log
      */
-    public static function shutdown(): void
+    public static function shutdown()
     {
         // Fix Apache bug where CWD is changed upon shutdown
         chdir(self::$cwd);
@@ -245,7 +245,7 @@ class Core
      * @param   string
      * @return  void
      */
-    public static function setStatusHeader($code = 200, $text = ''): void
+    public static function setStatusHeader($code = 200, $text = '')
     {
         if (self::isCli())
         {

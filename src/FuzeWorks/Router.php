@@ -175,7 +175,7 @@ class Router
      * 
      * @return void
      */
-    protected function parseRouting(): void
+    protected function parseRouting()
     {
         // Get routing routes
         $routes = $this->config->routes;
@@ -257,7 +257,7 @@ class Router
      * @param bool     $prepend  Whether or not to insert at the beginning of the routing table
      * @return void
      */
-    public function addRoute($route, $callable, $prepend = true): void
+    public function addRoute($route, $callable, $prepend = true)
     {
         if ($prepend) {
             $this->routes = array($route => $callable) + $this->routes;
@@ -273,7 +273,7 @@ class Router
      *
      * @param $route string The route to remove
      */
-    public function removeRoute($route): void
+    public function removeRoute($route)
     {
         unset($this->routes[$route]);
 
@@ -374,7 +374,7 @@ class Router
      * @param string @route   The route which was matched
      * @return void
      */
-    protected function routeDefault($segments = array(), $route): void
+    protected function routeDefault($segments = array(), $route)
     {
         // If we don't have any segments left - try the default controller;
         // WARNING: Directories get shifted out of the segments array!
@@ -485,7 +485,7 @@ class Router
      * This callable will do the 'old skool' routing. It will load the controllers from the controller-directory
      * in the application-directory.
      */
-    public function defaultCallable($arguments = array()): void
+    public function defaultCallable($arguments = array())
     {
         $this->logger->log('Default callable called!');
 

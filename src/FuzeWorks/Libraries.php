@@ -428,7 +428,7 @@ class Libraries
      * @param string $directory The directory
      * @return void
      */
-	public function addLibraryPath($directory): void
+	public function addLibraryPath($directory)
 	{
 		if (!in_array($directory, $this->libraryPaths))
 		{
@@ -442,7 +442,7 @@ class Libraries
      * @param string $directory The directory
      * @return void
      */  
-	public function removeLibraryPath($directory): void
+	public function removeLibraryPath($directory)
 	{
 		if (($key = array_search($directory, $this->libraryPaths)) !== false) 
 		{

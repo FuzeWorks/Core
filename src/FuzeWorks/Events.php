@@ -81,7 +81,7 @@ class Events
      *
      * @throws EventException
      */
-    public static function addListener($callback, $eventName, $priority = EventPriority::NORMAL): void
+    public static function addListener($callback, $eventName, $priority = EventPriority::NORMAL)
     {
         // Perform multiple checks
         if (EventPriority::getPriority($priority) == false) {
@@ -120,7 +120,7 @@ class Events
      *
      * @throws EventException
      */
-    public static function removeListener($callback, $eventName, $priority = EventPriority::NORMAL): void
+    public static function removeListener($callback, $eventName, $priority = EventPriority::NORMAL)
     {
         if (EventPriority::getPriority($priority) == false) {
             throw new EventException('Unknown priority '.$priority);
@@ -250,7 +250,7 @@ class Events
     /**
      * Enables the event system.
      */
-    public static function enable(): void
+    public static function enable()
     {
         Logger::log('Enabled the Event system');
         self::$enabled = true;
@@ -259,7 +259,7 @@ class Events
     /**
      * Disables the event system.
      */
-    public static function disable(): void
+    public static function disable()
     {
         Logger::log('Disabled the Event system');
         self::$enabled = false;
