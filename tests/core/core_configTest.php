@@ -83,7 +83,7 @@ class configTest extends CoreTestAbstract
     public function testAddConfigPath()
     {
     	// Add the configPath
-    	$this->config->addConfigPath('tests/config/testAddConfigPath');
+    	$this->config->addConfigPath('tests'.DS.'config'.DS.'testAddConfigPath');
 
     	// And try to load it again
     	$this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $this->config->getConfig('testAddConfigPath'));
@@ -92,25 +92,25 @@ class configTest extends CoreTestAbstract
     public function testRemoveConfigPath()
     {
     	// Test if the path does NOT exist
-    	$this->assertFalse(in_array('tests/config/testRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertFalse(in_array('tests'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
 
     	// Add it
-    	$this->config->addConfigPath('tests/config/testRemoveConfigPath');
+    	$this->config->addConfigPath('tests'.DS.'config'.DS.'testRemoveConfigPath');
 
     	// Assert if it's there
-    	$this->assertTrue(in_array('tests/config/testRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertTrue(in_array('tests'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
 
     	// Remove it
-    	$this->config->removeConfigPath('tests/config/testRemoveConfigPath');
+    	$this->config->removeConfigPath('tests'.DS.'config'.DS.'testRemoveConfigPath');
 
     	// And test if it's gone again
-    	$this->assertFalse(in_array('tests/config/testRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertFalse(in_array('tests'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
     }
 
     public function testSameConfigObject()
     {
-        $config = $this->config->getConfig('testsameconfigobject', array('tests/config/testSameConfigObject'));
-        $config2 = $this->config->getConfig('testsameconfigobject', array('tests/config/testSameConfigObject'));
+        $config = $this->config->getConfig('testsameconfigobject', array('tests'.DS.'config'.DS.'testSameConfigObject'));
+        $config2 = $this->config->getConfig('testsameconfigobject', array('tests'.DS.'config'.DS.'testSameConfigObject'));
 
         // First test if the objects are the same instance
         $this->assertSame($config, $config2);

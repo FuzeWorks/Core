@@ -77,8 +77,8 @@ class layoutLoadEventTest extends CoreTestAbstract
     {
 
         // This controller should not exist
-        $this->assertTrue(strpos($event->file, 'application/Layout/layout.home.php') !== false);
-        $this->assertTrue(strpos($event->directory, 'application/Layout/') !== false);
+        $this->assertTrue(strpos($event->file, 'application'.DS.'Layout'.DS.'layout.home.php') !== false);
+        $this->assertTrue(strpos($event->directory, 'application'.DS.'Layout'.DS) !== false);
 
         // It should exist now
         $event->file = $event->directory . 'layout.test.not_found';
@@ -94,13 +94,14 @@ class layoutLoadEventTest extends CoreTestAbstract
 
         // Listen for the event and cancel it
         Events::addListener(array($this, 'listener_cancel'), 'layoutLoadEvent', EventPriority::NORMAL);
-        $this->assertFalse($this->factory->layout->get('home'));
+        $this->assertFalse($this->factory->layout->get('home') === true);
     }
 
     // Cancel all calls
     public function listener_cancel($event)
     {
         $event->setCancelled(true);
+        return $event;
     }
 }
 

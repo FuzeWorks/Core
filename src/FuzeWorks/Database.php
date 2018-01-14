@@ -33,6 +33,8 @@
 namespace FuzeWorks;
 use FuzeWorks\Exception\DatabaseException;
 use FW_DB;
+use FW_DB_forge;
+use FW_DB_utility;
 
 /**
  * Database loading class
@@ -48,7 +50,7 @@ class Database
     
     /**
      * The default database forge.
-     * @var type FW_DB|null
+     * @var FW_DB|null
      */
     protected static $defaultDB = null;
 
@@ -60,7 +62,7 @@ class Database
     
     /**
      * The default database forge.
-     * @var type FW_DB_forge|null
+     * @var FW_DB_forge|null
      */
     protected static $defaultForge = null;
     
@@ -72,7 +74,7 @@ class Database
 
     /**
      * The default database utility.
-     * @var type FW_DB_utility|null
+     * @var FW_DB_utility|null
      */
     protected static $defaultUtil = null;
     
@@ -109,7 +111,7 @@ class Database
      * @param bool $queryBuilder
      * @return FW_DB|bool
      */
-    public static function get($parameters = '', $newInstance = false, $queryBuilder = null) 
+    public static function get($parameters = '', $newInstance = false, $queryBuilder = null)
     {
         // Fire the event to allow settings to be changed
         $event = Events::fireEvent('databaseLoadDriverEvent', $parameters, $newInstance, $queryBuilder);

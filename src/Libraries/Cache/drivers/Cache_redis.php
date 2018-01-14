@@ -31,8 +31,8 @@
  */
 
 namespace FuzeWorks\Library;
+use FuzeWorks\Factory;
 use FuzeWorks\Logger;
-use FuzeWorks\Config;
 use Redis;
 use RedisException;
 
@@ -99,7 +99,7 @@ class FW_Cache_redis extends FW_Driver
 			return;
 		}
 
-		$config = array_merge(self::$_default_config, Config::get('cache')->redis);
+		$config = array_merge(self::$_default_config, Factory::getInstance()->config->get('cache')->redis);
 
 		$this->_redis = new Redis();
 

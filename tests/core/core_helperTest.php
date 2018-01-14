@@ -59,7 +59,7 @@ class helperTest extends CoreTestAbstract
     	$this->assertFalse(function_exists('testHelperFunction'));
 
     	// Test if the helper is properly loaded
-    	$this->assertTrue($this->helpers->load('test', 'tests/helpers/testLoadHelper/'));
+    	$this->assertTrue($this->helpers->load('test', 'tests'.DS.'helpers'.DS.'testLoadHelper'.DS));
 
     	// Test if the function exists now
     	$this->assertTrue(function_exists('testHelperFunction'));
@@ -83,7 +83,7 @@ class helperTest extends CoreTestAbstract
     public function testAddHelperPath()
     {
     	// Add the helperPath
-    	$this->helpers->addHelperPath('tests/helpers/testAddHelperPath');
+    	$this->helpers->addHelperPath('tests'.DS.'helpers'.DS.'testAddHelperPath');
 
     	// And try to load it again
     	$this->assertTrue($this->helpers->load('testAddHelperPath'));
@@ -95,18 +95,18 @@ class helperTest extends CoreTestAbstract
     public function testRemoveHelperPath()
     {
     	// Test if the path does NOT exist
-    	$this->assertFalse(in_array('tests/helpers/testRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertFalse(in_array('tests'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
 
     	// Add it
-    	$this->helpers->addHelperPath('tests/helpers/testRemoveHelperPath');
+    	$this->helpers->addHelperPath('tests'.DS.'helpers'.DS.'testRemoveHelperPath');
 
     	// Assert if it's there
-    	$this->assertTrue(in_array('tests/helpers/testRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertTrue(in_array('tests'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
 
     	// Remove it
-    	$this->helpers->removeHelperPath('tests/helpers/testRemoveHelperPath');
+    	$this->helpers->removeHelperPath('tests'.DS.'helpers'.DS.'testRemoveHelperPath');
 
     	// And test if it's gone again
-    	$this->assertFalse(in_array('tests/helpers/testRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertFalse(in_array('tests'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
     }
 }

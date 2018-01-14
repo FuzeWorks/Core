@@ -31,8 +31,8 @@
  */
 
 namespace FuzeWorks;
-use FuzeWorks\Exception\SecurityException;
-use FuzeWorks\Exception\Exception;
+use FuzeWorks\ConfigORM\ConfigORM;
+use FuzeWorks\Exception\{SecurityException,Exception};
 
 /**
  * Security Class
@@ -170,7 +170,7 @@ class Security {
 	 */
 	public function __construct()
 	{
-		$this->config = Config::get('security');
+		$this->config = Factory::getInstance()->config->get('security');
 
 		// Is CSRF protection enabled?
 		if ($this->config->csrf_protection)
@@ -185,7 +185,7 @@ class Security {
 			}
 
 			// Append application specific cookie prefix
-			if ($cookie_prefix = Config::get('main')->cookie_prefix)
+			if ($cookie_prefix = Factory::getInstance()->config->get('main')->cookie_prefix)
 			{
 				$this->_csrf_cookie_name = $cookie_prefix.$this->_csrf_cookie_name;
 			}
@@ -194,7 +194,7 @@ class Security {
 			$this->_csrf_set_hash();
 		}
 
-		$this->charset = strtoupper(Config::get('main')->charset);
+		$this->charset = strtoupper(Factory::getInstance()->config->get('main')->charset);
 	}
 
 	// --------------------------------------------------------------------
@@ -202,9 +202,9 @@ class Security {
 	/**
 	 * CSRF Verify
 	 *
-	 * @return	Security
+	 * @return	self
 	 */
-	public function csrf_verify()
+	public function csrf_verify(): self
 	{
 		// If it's not a POST request we will set the CSRF cookie
 		if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST')
@@ -255,12 +255,12 @@ class Security {
 	 * CSRF Set Cookie
 	 *
 	 * @codeCoverageIgnore
-	 * @return	Security
+	 * @return	self
 	 */
 	public function csrf_set_cookie()
 	{
 		$expire = time() + $this->_csrf_expire;
-		$cfg = Config::get('main');
+		$cfg = Factory::getInstance()->config->get('main');
 		$secure_cookie = (bool) $cfg->cookie_secure;
 
 		if ($secure_cookie && ! is_https())
@@ -301,7 +301,7 @@ class Security {
 	 * @see		Security::$_csrf_hash
 	 * @return 	string	CSRF hash
 	 */
-	public function get_csrf_hash()
+	public function get_csrf_hash(): string
 	{
 		return $this->_csrf_hash;
 	}
@@ -314,7 +314,7 @@ class Security {
 	 * @see		Security::$_csrf_token_name
 	 * @return	string	CSRF token name
 	 */
-	public function get_csrf_token_name()
+	public function get_csrf_token_name(): string
 	{
 		return $this->_csrf_token_name;
 	}
@@ -345,7 +345,7 @@ class Security {
 	 *
 	 * @param	string|string[]	$str		Input data
 	 * @param 	bool		$is_image	Whether the input is an image
-	 * @return	string
+	 * @return	string|array
 	 */
 	public function xss_clean($str, $is_image = FALSE)
 	{
@@ -566,7 +566,7 @@ class Security {
 	 * @see		Security::$_xss_hash
 	 * @return	string	XSS hash
 	 */
-	public function xss_hash()
+	public function xss_hash(): string
 	{
 		if ($this->_xss_hash === NULL)
 		{
@@ -587,7 +587,7 @@ class Security {
 	 * @param	int	$length	Output length
 	 * @return	string
 	 */
-	public function get_random_bytes($length)
+	public function get_random_bytes($length): string
 	{
 		if (empty($length) OR ! ctype_digit((string) $length))
 		{
@@ -656,7 +656,7 @@ class Security {
 	 * @param	string	$charset	Character set
 	 * @return	string
 	 */
-	public function entity_decode($str, $charset = NULL)
+	public function entity_decode($str, $charset = NULL): string
 	{
 		if (strpos($str, '&') === FALSE)
 		{
@@ -731,7 +731,7 @@ class Security {
 	 * @param 	bool	$relative_path	Whether to preserve paths
 	 * @return	string
 	 */
-	public function sanitize_filename($str, $relative_path = FALSE)
+	public function sanitize_filename($str, $relative_path = FALSE): string
 	{
 		$bad = $this->filename_bad_chars;
 
@@ -761,7 +761,7 @@ class Security {
 	 * @param	string	$str
 	 * @return	string
 	 */
-	public function strip_image_tags($str)
+	public function strip_image_tags($str): string
 	{
 		return preg_replace(
 			array(
@@ -785,7 +785,7 @@ class Security {
 	 * @param	array	$matches
 	 * @return	string
 	 */
-	protected function _compact_exploded_words($matches)
+	protected function _compact_exploded_words($matches): string
 	{
 		return preg_replace('/\s+/s', '', $matches[1]).$matches[2];
 	}
@@ -801,7 +801,7 @@ class Security {
 	 * @param	array	$matches
 	 * @return	string
 	 */
-	protected function _sanitize_naughty_html($matches)
+	protected function _sanitize_naughty_html($matches): string
 	{
 		static $naughty_tags    = array(
 			'alert', 'prompt', 'confirm', 'applet', 'audio', 'basefont', 'base', 'behavior', 'bgsound',
@@ -896,7 +896,7 @@ class Security {
 	 * @param	array	$match
 	 * @return	string
 	 */
-	protected function _js_link_removal($match)
+	protected function _js_link_removal($match): string
 	{
 		return str_replace(
 			$match[1],
@@ -924,7 +924,7 @@ class Security {
 	 * @param	array	$match
 	 * @return	string
 	 */
-	protected function _js_img_removal($match)
+	protected function _js_img_removal($match): string
 	{
 		return str_replace(
 			$match[1],
@@ -946,7 +946,7 @@ class Security {
 	 * @param	array	$match
 	 * @return	string
 	 */
-	protected function _convert_attribute($match)
+	protected function _convert_attribute($match): string
 	{
 		return str_replace(array('>', '<', '\\'), array('&gt;', '&lt;', '\\\\'), $match[0]);
 	}
@@ -963,7 +963,7 @@ class Security {
 	 * @param	string	$str
 	 * @return	string
 	 */
-	protected function _filter_attributes($str)
+	protected function _filter_attributes($str): string
 	{
 		$out = '';
 		if (preg_match_all('#\s*[a-z\-]+\s*=\s*(\042|\047)([^\\1]*?)\\1#is', $str, $matches))
@@ -986,7 +986,7 @@ class Security {
 	 * @param	array	$match
 	 * @return	string
 	 */
-	protected function _decode_entity($match)
+	protected function _decode_entity($match): string
 	{
 		// Protect GET variables in URLs
 		// 901119URL5918AMP18930PROTECT8198
@@ -1009,7 +1009,7 @@ class Security {
 	 * @param 	string
 	 * @return 	string
 	 */
-	protected function _do_never_allowed($str)
+	protected function _do_never_allowed($str): string
 	{
 		$str = str_replace(array_keys($this->_never_allowed_str), $this->_never_allowed_str, $str);
 
@@ -1028,7 +1028,7 @@ class Security {
 	 *
 	 * @return	string
 	 */
-	protected function _csrf_set_hash()
+	protected function _csrf_set_hash(): string
 	{
 		if ($this->_csrf_hash === NULL)
 		{

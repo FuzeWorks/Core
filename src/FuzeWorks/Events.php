@@ -32,7 +32,6 @@
 
 namespace FuzeWorks;
 use FuzeWorks\Exception\EventException;
-use FuzeWorks\Exception\ModuleException;
 
 /**
  * Class Events.
@@ -149,9 +148,9 @@ class Events
      * @todo  Implement Application Events
      * @todo  Implement Directory input for Events from other locations (like Modules)
      *
-     * @return \FuzeWorks\Event The Event
+     * @return Event The Event
      */
-    public static function fireEvent($input)
+    public static function fireEvent($input): Event
     {
         // First try and see if the object is an Event
         if (is_object($input))

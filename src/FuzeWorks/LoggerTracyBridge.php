@@ -64,20 +64,20 @@ class LoggerTracyBridge implements IBarPanel {
      * @param Event
      * @return Event
      */
-	public function screenLogEventListener($event)
+	public function screenLogEventListener($event): Event
 	{
 		$event->setCancelled(true);
 		return $event;
 	}
 
-	public function getTab()
+	public function getTab(): string
 	{
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Layout/layout.tracyloggertab.php';
+		require dirname(__DIR__) . DS . 'Layout' . DS . 'layout.tracyloggertab.php';
 		return ob_get_clean();
 	}
 
-	public function getPanel()
+	public function getPanel(): string
 	{
         // If an error is thrown, log it
         $errfile = 'Unknown file';
@@ -101,7 +101,7 @@ class LoggerTracyBridge implements IBarPanel {
 
 		// Parse the panel
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Layout/layout.tracyloggerpanel.php';
+		require dirname(__DIR__) . DS . 'Layout' . DS . 'layout.tracyloggerpanel.php';
 		return ob_get_clean();
 	}
 

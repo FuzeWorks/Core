@@ -114,7 +114,12 @@ class Output {
 	 * @var	bool
 	 */
 	public $parse_exec_vars = TRUE;
-
+    
+	/**
+	 * Factory Object
+	 * @var Factory
+	 */
+	protected $factory;
 	protected $config;
 	protected $uri;
 	protected $router;
@@ -128,10 +133,9 @@ class Output {
 	 */
 	public function __construct()
 	{
-		$factory = Factory::getInstance();
-		$this->config = $factory->config;
-		$this->uri = $factory->uri;
-		$this->router = $factory->router;
+		$this->factory = Factory::getInstance();
+		$this->config = $this->factory->config;
+		$this->uri = $this->factory->uri;
 
 		$this->_zlib_oc = (bool) ini_get('zlib.output_compression');
 		$this->_compress_output = (
@@ -153,7 +157,7 @@ class Output {
 	 *
 	 * @return	string
 	 */
-	public function get_output()
+	public function get_output(): string
 	{
 		return $this->final_output;
 	}
@@ -166,9 +170,9 @@ class Output {
 	 * Sets the output string.
 	 *
 	 * @param	string	$output	Output data
-	 * @return	Output
+	 * @return	self
 	 */
-	public function set_output($output)
+	public function set_output($output): self
 	{
 		$this->final_output = $output;
 		return $this;
@@ -182,9 +186,9 @@ class Output {
 	 * Appends data onto the output string.
 	 *
 	 * @param	string	$output	Data to append
-	 * @return	Output
+	 * @return	self
 	 */
-	public function append_output($output)
+	public function append_output($output): self
 	{
 		$this->final_output .= $output;
 		return $this;
@@ -202,9 +206,9 @@ class Output {
 	 *
 	 * @param	string	$header		Header
 	 * @param	bool	$replace	Whether to replace the old header value, if already set
-	 * @return	Output
+	 * @return	self
 	 */
-	public function set_header($header, $replace = TRUE)
+	public function set_header($header, $replace = TRUE): self
 	{
 		// If zlib.output_compression is enabled it will compress the output,
 		// but it will not modify the content-length header to compensate for
@@ -226,9 +230,9 @@ class Output {
 	 *
 	 * @param	string	$mime_type	Extension of the file we're outputting
 	 * @param	string	$charset	Character set (default: NULL)
-	 * @return	Output
+	 * @return	self
 	 */
-	public function set_content_type($mime_type, $charset = NULL)
+	public function set_content_type($mime_type, $charset = NULL): self
 	{
 		if (strpos($mime_type, '/') === FALSE)
 		{
@@ -267,7 +271,7 @@ class Output {
 	 *
 	 * @return	string	'text/html', if not already set
 	 */
-	public function get_content_type()
+	public function get_content_type(): string
 	{
 		for ($i = 0, $c = count($this->headers); $i < $c; $i++)
 		{
@@ -286,7 +290,7 @@ class Output {
 	 * Get Header
 	 *
 	 * @param	string	$header_name
-	 * @return	string
+	 * @return	string|null
 	 */
 	public function get_header($header)
 	{
@@ -323,9 +327,9 @@ class Output {
 	 *
 	 * @param	int	$code	Status code (default: 200)
 	 * @param	string	$text	Optional message
-	 * @return	Output
+	 * @return	self
 	 */
-	public function set_status_header($code = 200, $text = '')
+	public function set_status_header($code = 200, $text = ''): self
 	{
 		Core::setStatusHeader($code, $text);
 		return $this;
@@ -337,9 +341,9 @@ class Output {
 	 * Enable/disable Profiler
 	 *
 	 * @param	bool	$val	TRUE to enable or FALSE to disable
-	 * @return	Output
+	 * @return	self
 	 */
-	public function enable_profiler($val = TRUE)
+	public function enable_profiler($val = TRUE): self
 	{
 		$this->enable_profiler = is_bool($val) ? $val : TRUE;
 		return $this;
@@ -354,9 +358,9 @@ class Output {
 	 * Profiler section display.
 	 *
 	 * @param	array	$sections	Profiler sections
-	 * @return	Output
+	 * @return	self
 	 */
-	public function set_profiler_sections($sections)
+	public function set_profiler_sections($sections): self
 	{
 		if (isset($sections['query_toggle_count']))
 		{
@@ -378,9 +382,9 @@ class Output {
 	 * Set Cache
 	 *
 	 * @param	int	$time	Cache expiration time in minutes
-	 * @return	Output
+	 * @return	self
 	 */
-	public function cache($time)
+	public function cache($time): self
 	{
 		$this->cache_expiration = is_numeric($time) ? $time : 0;
 		return $this;
@@ -404,7 +408,7 @@ class Output {
 	 */
 	public function _display($output = '')
 	{
-		$router = Factory::getInstance()->router;
+		$router = $this->factory->router;
 		// Grab the super object if we can.
 		if ($router->getCallable() === null)
 		{
@@ -636,7 +640,7 @@ class Output {
 	 *
 	 * @return	bool	TRUE on success or FALSE on failure
 	 */
-	public function _display_cache()
+	public function _display_cache(): bool
 	{
 		$cache_path = Core::$tempDir . DS . 'Output' . DS;
 
@@ -716,7 +720,7 @@ class Output {
 	 * @param	string	$uri	URI string
 	 * @return	bool
 	 */
-	public function delete_cache($uri = '')
+	public function delete_cache($uri = ''): bool
 	{
 		$cache_path = Core::$tempDir . DS . 'Output' . DS;
 
