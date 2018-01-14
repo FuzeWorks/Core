@@ -770,7 +770,7 @@ abstract class FW_DB_driver {
 		if ( ! class_exists($driver, FALSE))
 		{
 			require_once(Core::$coreDir . DS . 'Database'.DS.'DB_result.php');
-			require_once(Core::$coreDir . DS . 'Database'.DS.'drivers'.DS.$this->dbdriver.'/'.$this->dbdriver.'_result.php');
+			require_once(Core::$coreDir . DS . 'Database'.DS.'drivers'.DS.$this->dbdriver.DS.$this->dbdriver.'_result.php');
 		}
 
 		return $driver;

@@ -137,16 +137,16 @@ class Input {
 		// First load the factory so contact can be made with everything in FuzeWorks
 		$this->factory = Factory::getInstance();
 
-		$this->_allow_get_array		= (Config::get('routing')->allow_get_array === TRUE);
-		$this->_enable_xss		= (Config::get('security')->global_xss_filtering === TRUE);
-		$this->_enable_csrf		= (Config::get('security')->csrf_protection === TRUE);
-		$this->_standardize_newlines	= (bool) Config::get('security')->standardize_newlines;
+		$this->_allow_get_array		= ($this->factory->config->get('routing')->allow_get_array === TRUE);
+		$this->_enable_xss		= ($this->factory->config->get('security')->global_xss_filtering === TRUE);
+		$this->_enable_csrf		= ($this->factory->config->get('security')->csrf_protection === TRUE);
+		$this->_standardize_newlines	= (bool) $this->factory->config->get('security')->standardize_newlines;
 
 		// Sanitize global arrays
 		$this->_sanitize_globals();
 
 		// CSRF Protection check
-		if ($this->_enable_csrf === TRUE && ! $this->is_cli_request())
+		if ($this->_enable_csrf === TRUE && ! Core::isCli())
 		{
 			$this->factory->security->csrf_verify();
 		}
@@ -364,7 +364,7 @@ class Input {
 		}
 
 		// Get the variables
-		$cfg = Config::get('main');
+		$cfg = $this->factory->config->get('main');
 
 		if ($prefix === '' && $cfg->cookie_prefix !== '')
 		{
@@ -412,14 +412,14 @@ class Input {
 	 *
 	 * @return	string	IP address
 	 */
-	public function ip_address()
+	public function ip_address(): string
 	{
 		if ($this->ip_address !== FALSE)
 		{
 			return $this->ip_address;
 		}
 
-		$proxy_ips = Config::get('security')->proxy_ips;
+		$proxy_ips = $this->factory->config->get('security')->proxy_ips;
 		if ( ! empty($proxy_ips) && ! is_array($proxy_ips))
 		{
 			$proxy_ips = explode(',', str_replace(' ', '', $proxy_ips));
@@ -549,7 +549,7 @@ class Input {
 	 * @param	string	$which	IP protocol: 'ipv4' or 'ipv6'
 	 * @return	bool
 	 */
-	public function valid_ip($ip, $which = '')
+	public function valid_ip($ip, $which = ''): bool
 	{
 		switch (strtolower($which))
 		{
@@ -658,7 +658,7 @@ class Input {
 	 * standardizing newline characters to PHP_EOL.
 	 *
 	 * @param	string|string[]	$str	Input string(s)
-	 * @return	string
+	 * @return	string|array
 	 */
 	protected function _clean_input_data($str)
 	{
@@ -748,7 +748,7 @@ class Input {
 	 * @param	bool	$xss_clean	Whether to apply XSS filtering
 	 * @return	array
 	 */
-	public function request_headers($xss_clean = FALSE)
+	public function request_headers($xss_clean = FALSE): array
 	{
 		// If header is already defined, return it immediately
 		if ( ! empty($this->headers))
@@ -824,24 +824,9 @@ class Input {
 	 *
 	 * @return 	bool
 	 */
-	public function is_ajax_request()
+	public function is_ajax_request(): bool
 	{
 		return ( ! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
-	}
-
-	// --------------------------------------------------------------------
-
-	/**
-	 * Is CLI request?
-	 *
-	 * Test to see if a request was made from the command line.
-	 *
-	 * @deprecated	3.0.0	Use is_cli() instead
-	 * @return	bool
-	 */
-	public function is_cli_request()
-	{
-		return (PHP_SAPI === 'cli' OR defined('STDIN'));
 	}
 
 	// --------------------------------------------------------------------
@@ -855,7 +840,7 @@ class Input {
 	 *				(default: FALSE)
 	 * @return 	string
 	 */
-	public function method($upper = FALSE)
+	public function method($upper = FALSE): string
 	{
 		return ($upper)
 			? strtoupper($this->server('REQUEST_METHOD'))

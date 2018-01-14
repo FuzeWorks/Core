@@ -63,7 +63,7 @@ class DatabaseTracyBridge implements IBarPanel
 		self::$databases[] = $database;
 	}
 
-	protected function getResults()
+	protected function getResults(): array
 	{
 		if (!empty($this->results))
 		{
@@ -123,20 +123,20 @@ class DatabaseTracyBridge implements IBarPanel
 		return $this->results = $results;
 	}
 
-	public function getTab()
+	public function getTab(): string
 	{
 		$results = $this->getResults();
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Layout/layout.tracydatabasetab.php';
+		require dirname(__DIR__) . DS . 'Layout' . DS . 'layout.tracydatabasetab.php';
 		return ob_get_clean();
 	}
 
-	public function getPanel()
+	public function getPanel(): string
 	{
 		// Parse the panel
 		$results = $this->getResults();
 		ob_start(function () {});
-		require dirname(__DIR__) . '/Layout/layout.tracydatabasepanel.php';
+		require dirname(__DIR__) . DS . 'Layout' . DS . 'layout.tracydatabasepanel.php';
 		return ob_get_clean();
 	}
 }

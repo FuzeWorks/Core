@@ -32,7 +32,7 @@
 
 namespace FuzeWorks;
 use FuzeWorks\Exception\Exception;
-use FuzeWorks\Expectation\CoreException;
+use FuzeWorks\Exception\CoreException;
 
 /**
  * FuzeWorks Core.
@@ -103,7 +103,7 @@ class Core
         $container = new Factory();
 
         // Load the config file of the FuzeWorks core
-        $config = Config::get('core');
+        $config = $container->config->get('core');
 
         // Disable events if requested to do so
         if (!$config->enable_events)
@@ -150,7 +150,7 @@ class Core
      * @param   string
      * @return  bool    true if running higher than input string
      */
-    public static function isPHP($version)
+    public static function isPHP($version): bool
     {
         static $_is_php;
         $version = (string) $version;
@@ -163,7 +163,7 @@ class Core
         return $_is_php[$version];
     }
 
-    public static function isCli()
+    public static function isCli(): bool
     {
         return (PHP_SAPI === 'cli' OR defined('STDIN'));
     }
@@ -176,7 +176,7 @@ class Core
      *
      * @return  bool
      */
-    public static function isHttps()
+    public static function isHttps(): bool
     {
         if ( ! empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
         {
@@ -205,10 +205,10 @@ class Core
      * @param   string
      * @return  bool
      */
-    public static function isReallyWritable($file)
+    public static function isReallyWritable($file): bool
     {
         // If we're on a Unix server with safe_mode off we call is_writable
-        if (DIRECTORY_SEPARATOR === '/' && (self::isPHP('5.4') OR ! ini_get('safe_mode')))
+        if (DIRECTORY_SEPARATOR === '/' && ! ini_get('safe_mode'))
         {
             return is_writable($file);
         }

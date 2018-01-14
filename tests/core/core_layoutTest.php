@@ -65,19 +65,19 @@ class layoutTest extends CoreTestAbstract
         $extensions = array('php', 'json');
 
         // Basic path
-        $this->factory->layout->setFileFromString('test', 'tests/layout/testGetFilePath/', $extensions);
-        $this->assertEquals('tests/layout/testGetFilePath/layout.test.php', $this->factory->layout->getFile());
-        $this->assertEquals('tests/layout/testGetFilePath/', $this->factory->layout->getDirectory());
+        $this->factory->layout->setFileFromString('test', 'tests'.DS.'layout'.DS.'testGetFilePath', $extensions);
+        $this->assertEquals('tests'.DS.'layout'.DS.'testGetFilePath'.DS.'layout.test.php', $this->factory->layout->getFile());
+        $this->assertEquals('tests'.DS.'layout'.DS.'testGetFilePath'.DS, $this->factory->layout->getDirectory());
 
         // Alternate file extension
-        $this->factory->layout->setFileFromString('JSON', 'tests/layout/testGetFilePath/', $extensions);
-        $this->assertEquals('tests/layout/testGetFilePath/layout.JSON.json', $this->factory->layout->getFile());
-        $this->assertEquals('tests/layout/testGetFilePath/', $this->factory->layout->getDirectory());
+        $this->factory->layout->setFileFromString('JSON', 'tests'.DS.'layout'.DS.'testGetFilePath', $extensions);
+        $this->assertEquals('tests'.DS.'layout'.DS.'testGetFilePath'.DS.'layout.JSON.json', $this->factory->layout->getFile());
+        $this->assertEquals('tests'.DS.'layout'.DS.'testGetFilePath'.DS, $this->factory->layout->getDirectory());
 
         // Complex deeper path
-        $this->factory->layout->setFileFromString('Deeper/test', 'tests/layout/testGetFilePath/', $extensions);
-        $this->assertEquals('tests/layout/testGetFilePath/Deeper/layout.test.php', $this->factory->layout->getFile());
-        $this->assertEquals('tests/layout/testGetFilePath/', $this->factory->layout->getDirectory());
+        $this->factory->layout->setFileFromString('Deeper/test', 'tests'.DS.'layout'.DS.'testGetFilePath', $extensions);
+        $this->assertEquals('tests'.DS.'layout'.DS.'testGetFilePath'.DS.'Deeper'.DS.'layout.test.php', $this->factory->layout->getFile());
+        $this->assertEquals('tests'.DS.'layout'.DS.'testGetFilePath'.DS, $this->factory->layout->getDirectory());
     }
 
     /**
@@ -98,7 +98,7 @@ class layoutTest extends CoreTestAbstract
     public function testMissingDirectory()
     {
         // Directory that does not exist
-        $this->factory->layout->setFileFromString('test', 'tests/layout/doesNotExist/', array('php'));
+        $this->factory->layout->setFileFromString('test', 'tests'.DS.'layout'.DS.'doesNotExist'.DS, array('php'));
     }
 
     /**
@@ -106,7 +106,7 @@ class layoutTest extends CoreTestAbstract
      */
     public function testMissingFile()
     {
-        $this->factory->layout->setFileFromString('test', 'tests/layout/testMissingFile/', array('php'));
+        $this->factory->layout->setFileFromString('test', 'tests'.DS.'layout'.DS.'testMissingFile'.DS, array('php'));
     }
 
     /**
@@ -114,13 +114,13 @@ class layoutTest extends CoreTestAbstract
      */
     public function testUnknownFileExtension()
     {
-        $this->factory->layout->setFileFromString('test', 'tests/layout/testUnknownFileExtension/', array('php'));
+        $this->factory->layout->setFileFromString('test', 'tests'.DS.'layout'.DS.'testUnknownFileExtension'.DS, array('php'));
     }
 
     public function testLayoutGet()
     {
         // Directory of these tests
-        $directory = 'tests/layout/testLayoutGet/';
+        $directory = 'tests'.DS.'layout'.DS.'testLayoutGet'.DS;
 
         $this->assertEquals('Retrieved Data', $this->factory->layout->get('test', $directory));
     }
@@ -128,7 +128,7 @@ class layoutTest extends CoreTestAbstract
     public function testLayoutDisplay()
     {
         // Directory of these tests
-        $directory = 'tests/layout/testLayoutGet/';
+        $directory = 'tests'.DS.'layout'.DS.'testLayoutGet'.DS;
 
         ob_start();
         $this->factory->layout->display('test', $directory);
@@ -143,18 +143,18 @@ class layoutTest extends CoreTestAbstract
     {
         // First the the variables
         $this->factory->layout->setTitle('Test Title');
-        $this->factory->layout->setDirectory('tests/layout/testLayoutGet');
+        $this->factory->layout->setDirectory('tests'.DS.'layout'.DS.'testLayoutGet');
 
         // Test if they are actually set
         $this->assertEquals('Test Title', $this->factory->layout->getTitle());
-        $this->assertEquals('tests/layout/testLayoutGet', $this->factory->layout->getDirectory());
+        $this->assertEquals('tests'.DS.'layout'.DS.'testLayoutGet', $this->factory->layout->getDirectory());
 
         // Reset the layout system
         $this->factory->layout->reset();
 
         // Test for default values
         $this->assertFalse($this->factory->layout->getTitle());
-        $this->assertTrue(strpos($this->factory->layout->getDirectory(), 'application/Layout') !== false);
+        $this->assertTrue(strpos($this->factory->layout->getDirectory(), 'application' . DS . 'Layout') !== false);
     }
 
     public function testGetEngineFromExtension()
@@ -188,13 +188,13 @@ class layoutTest extends CoreTestAbstract
         $mock->method('get')->willReturn('output');
 
         // And listen for usage
-        $mock->expects($this->once())->method('get')->with('tests/layout/testCustomEngine/layout.test.test');
+        $mock->expects($this->once())->method('get')->with('tests'.DS.'layout'.DS.'testCustomEngine'.DS.'layout.test.test');
 
         // Register the engine
         $this->factory->layout->registerEngine($mock, 'Custom', array('test'));
 
         // And run the engine
-        $this->assertEquals('output', $this->factory->layout->get('test', 'tests/layout/testCustomEngine/'));
+        $this->assertEquals('output', $this->factory->layout->get('test', 'tests'.DS.'layout'.DS.'testCustomEngine'));
     }
 
     /**
@@ -212,7 +212,7 @@ class layoutTest extends CoreTestAbstract
     public function testEnginesLoadLayout()
     {
         // Directory of these tests
-        $directory = 'tests/layout/testEngines/'; 
+        $directory = 'tests'.DS.'layout'.DS.'testEngines'.DS; 
         
         // First the PHP Engine
         $this->assertEquals('PHP Template Check', $this->factory->layout->get('php', $directory));
@@ -229,7 +229,7 @@ class layoutTest extends CoreTestAbstract
     public function testEngineVariables()
     {
         // Directory of these tests
-        $directory = 'tests/layout/testEngineVariables/'; 
+        $directory = 'tests'.DS.'layout'.DS.'testEngineVariables'.DS; 
         
         // First the PHP Engine
         $this->factory->layout->assign('key', 'value');

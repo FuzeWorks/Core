@@ -119,7 +119,7 @@ class utf8Test extends CoreTestAbstract
      */
     public function test_convert_to_utf8()
     {
-        $this->markTestSkipped("Does not work properly yet. See issue #95");
+        $this->markTestSkipped("Fails to work in the current condition");
         if (MB_ENABLED OR ICONV_ENABLED)
         {
             $this->assertEquals('тест', $this->utf8->convert_to_utf8('����', 'WINDOWS-1251'));

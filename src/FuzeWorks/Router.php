@@ -32,8 +32,6 @@
 
 namespace FuzeWorks;
 
-use Application\Init;
-
 /**
  * Class Router.
  *
@@ -215,7 +213,7 @@ class Router
      *
      * @return array
      */
-    public function getRoutes()
+    public function getRoutes(): array
     {
         return $this->routes;
     }
@@ -289,7 +287,7 @@ class Router
      *
      * @param bool $performLoading Immediate process the route after it has been determined
      */
-    public function route($performLoading = true)
+    public function route($performLoading = true): bool
     {
         // Turn the segment array into a URI string
         $uri = implode('/', $this->uri->segments);
@@ -300,7 +298,7 @@ class Router
         // The event has been cancelled
         if ($event->isCancelled()) 
         {
-            return;
+            return false;
         }
 
         // Assign everything to the object to make it accessible, but let modules check it first
@@ -335,7 +333,7 @@ class Router
                     // If the callable is satisfied, break away
                     if (!$performLoading || !$this->loadCallable($matches, $route))
                     {
-                        return;
+                        return false;
                     }
 
                     // Otherwise try other routes
@@ -356,7 +354,7 @@ class Router
 
                 // Now run the defaultRouter for when something is not a callable
                 $this->routeDefault(explode('/', $value), $route);
-                return;
+                return false;
             }
         }
 
@@ -367,14 +365,6 @@ class Router
         {
             $this->routeDefault(array_values($this->uri->segments), '.*$');
         }
-    }
-
-    /**
-     * @todo Implement validateRequest
-     */
-    protected function validateRequest($segments)
-    {
-        $c = count($segments);
     }
 
     /**
@@ -435,7 +425,7 @@ class Router
      *
      * @return bool Whether or not the callable was satisfied
      */
-    public function loadCallable($matches = array(), $route)
+    public function loadCallable($matches = array(), $route): bool
     {
         $this->logger->newLevel('Loading callable');
 

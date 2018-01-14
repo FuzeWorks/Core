@@ -62,14 +62,6 @@ class Config
      */
     protected $configPaths = array();
 
-    /**
-     * Temporary variable to remain compatible with old FuzeWorks code
-     * 
-     * @deprecated
-     * @var FuzeWorks\Factory Shared Factory instance
-     */
-    protected static $factory;
-
     public function __construct()
     {
         $this->configPaths[] = Core::$appDir . DS. 'Config';
@@ -80,10 +72,10 @@ class Config
      * 
      * @param string $configName  Name of the config file. Eg. 'main'
      * @param array  $configPaths Optional array of where to look for the config files
-     * @return FuzeWorks\ConfigORM\ConfigORM ORM of the config file. Allows for easy reading and editing of the file
+     * @return  ConfigORM of the config file. Allows for easy reading and editing of the file
      * @throws  ConfigException
      */
-    public function getConfig($configName, array $configPaths = array())
+    public function getConfig($configName, array $configPaths = array()): ConfigORM
     {
         // First determine what directories to use
         $directories = (empty($configPaths) ? $this->configPaths : $configPaths);
@@ -101,8 +93,13 @@ class Config
         $this->cfg[$configName] = $this->loadConfigFile($configName, $directories);
         return $this->cfg[$configName];
     }
+    
+    public function get($configName): ConfigORM
+    {
+        return $this->getConfig($configName);
+    }
 
-    public function __get($configName)
+    public function __get($configName): ConfigORM
     {
         return $this->getConfig($configName);
     }
@@ -112,10 +109,10 @@ class Config
      * 
      * @param string $configName  Name of the config file. Eg. 'main'
      * @param array  $configPaths Required array of where to look for the config files
-     * @return FuzeWorks\ConfigORM\ConfigORM ORM of the config file. Allows for easy reading and editing of the file
+     * @return  ConfigORM of the config file. Allows for easy reading and editing of the file
      * @throws  ConfigException
      */
-    protected function loadConfigFile($configName, array $configPaths)
+    protected function loadConfigFile($configName, array $configPaths): ConfigORM
     {
         // Cycle through all directories
         foreach ($configPaths as $directory) 
@@ -130,28 +127,15 @@ class Config
             }
         }
 
-        throw new ConfigException("Could not load config. File not found", 1);
-    }
-
-    /**
-     * Load a config file in a static environment.
-     * 
-     * @deprecated
-     * @param string $configName  Name of the config file. Eg. 'main'
-     * @return FuzeWorks\ConfigORM\ConfigORM ORM of the config file. Allows for easy reading and editing of the file
-     * @throws  ConfigException
-     */
-    public static function get($configName)
-    {
-        if (!is_object(self::$factory))
+        // Try fallback
+        $file = Core::$coreDir . DS . 'Config' . DS . 'config.' . $configName . '.php';
+        if (file_exists($file))
         {
-            // @codeCoverageIgnoreStart
-            self::$factory = Factory::getInstance();
-
+            // Load object
+            return new ConfigORM($file);
         }
-        // @codeCoverageIgnoreEnd
-        $config = self::$factory->config;
-        return $config->getConfig($configName);
+
+        throw new ConfigException("Could not load config. File $configName not found", 1);
     }
 
     /**
@@ -187,7 +171,7 @@ class Config
      * 
      * @return array Array of paths where config files can be found
      */
-    public function getConfigPaths()
+    public function getConfigPaths(): array
     {
         return $this->configPaths;
     }

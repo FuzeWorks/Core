@@ -1,10 +1,10 @@
 <?php
 /**
- * FuzeWorks.
+ * FuzeWorks Application Skeleton.
  *
  * The FuzeWorks MVC PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2016   TechFuze
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,42 +25,11 @@
  * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 0.0.1
+ * @since Version 1.1.1
  *
- * @version Version 1.0.0
+ * @version Version 1.1.1
  */
 
-namespace FuzeWorks;
-
-/**
- * Class Event.
- *
- * A simple class for events. The only current purpose is to be able to cancel events, but it can be easily extended.
- *
- * @author    Abel Hoogeveen <abel@techfuze.net>
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- */
-class Event
-{
-    private $cancelled = false;
-
-    /**
-     * @return bool True if the event is cancelled, false if the event is not cancelled
-     */
-    public function isCancelled(): bool
-    {
-        return $this->cancelled;
-    }
-
-    /**
-     * @param bool $cancelled True if the event is cancelled, false if the event is not cancelled
-     */
-    public function setCancelled($cancelled)
-    {
-        if ($cancelled == true) {
-            $this->cancelled = true;
-        } else {
-            $this->cancelled = false;
-        }
-    }
-}
+return array(
+  'encryption_key' => '',
+);

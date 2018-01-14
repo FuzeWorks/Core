@@ -31,8 +31,6 @@
  */
 
 namespace FuzeWorks\Library;
-use FuzeWorks\Config;
-use FuzeWorks\Logger;
 use FuzeWorks\Exception\LibraryException;
 use FuzeWorks\Factory;
 use FuzeWorks\Core;
@@ -95,7 +93,7 @@ class FW_Driver_Library {
 	public function load_driver($child)
 	{
 		// Get the subclass prefix
-		$prefix = Config::get('main')->application_prefix;
+	    $prefix = Factory::getInstance()->config->get('main')->application_prefix;
 
 		if ( ! isset($this->lib_name))
 		{

@@ -61,7 +61,7 @@ class GitTracyBridge implements IBarPanel {
      *
      * @return string
      */
-    public function getTab()
+    public function getTab(): string
     {
         $style = '';
         if ($this->getBranchName() === 'master' || $this->getBranchName() === 'staging') {
@@ -78,7 +78,7 @@ class GitTracyBridge implements IBarPanel {
      *
      * @return string
      */
-    public function getPanel()
+    public function getPanel(): string
     {
         if ($this->isUnderVersionControl()) {
             $title = '<h1>GIT</h1>';
@@ -115,9 +115,11 @@ class GitTracyBridge implements IBarPanel {
 
             return $title.$warning.$content;
         }
+        
+        return "";
     }
 
-    protected function getBranchName()
+    protected function getBranchName(): string
     {
         $dir = $this->getDirectory();
 
@@ -220,7 +222,7 @@ class GitTracyBridge implements IBarPanel {
         return null;
     }
 
-    private function getDirectory()
+    private function getDirectory(): string
     {
         $scriptPath = $_SERVER['SCRIPT_FILENAME'];
 
@@ -240,7 +242,7 @@ class GitTracyBridge implements IBarPanel {
         return $dir;
     }
 
-    private function isUnderVersionControl()
+    private function isUnderVersionControl(): bool
     {
         $dir = $this->getDirectory();
         $head = $dir.'/.git/HEAD';

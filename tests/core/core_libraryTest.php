@@ -60,7 +60,7 @@ class libraryTest extends CoreTestAbstract
     {
         // Simple test of loading a library and checking if it exists
         $this->assertInstanceOf('Application\Library\TestLoadBasicLibrary', 
-            $this->libraries->get('TestLoadBasicLibrary', null, array('tests/libraries/testLoadBasicLibrary')));
+            $this->libraries->get('TestLoadBasicLibrary', null, array('tests'.DS.'libraries'.DS.'testLoadBasicLibrary')));
     }
 
     /**
@@ -69,7 +69,7 @@ class libraryTest extends CoreTestAbstract
     public function testLoadExtendedLibrary()
     {
         // Load an extended library Zip class
-        $library = $this->libraries->get('Zip', null, array('tests/libraries/testLoadExtendedLibrary'));
+        $library = $this->libraries->get('Zip', null, array('tests'.DS.'libraries'.DS.'testLoadExtendedLibrary'));
         $this->assertInstanceOf('Application\Library\MY_Zip', $library);
 
         // Test if it's also an instance of the parent class
@@ -94,7 +94,7 @@ class libraryTest extends CoreTestAbstract
         Factory::getInstance()->config->getConfig('main')->application_prefix = 'unit_test_';
 
         // Let's extend the Encryption class
-        $library = $this->libraries->get('Encryption', null, array('tests/libraries/testDifferentPrefix'));
+        $library = $this->libraries->get('Encryption', null, array('tests'.DS.'libraries'.DS.'testDifferentPrefix'));
 
         // Test if it has both instances
         $this->assertInstanceOf('FuzeWorks\Library\FW_Encryption', $library);
@@ -119,7 +119,7 @@ class libraryTest extends CoreTestAbstract
     public function testAddLibraryPath()
     {
         // Add the libraryPath
-        $this->libraries->addLibraryPath('tests/libraries/testAddLibraryPath');
+        $this->libraries->addLibraryPath('tests'.DS.'libraries'.DS.'testAddLibraryPath');
 
         // And try to load it again
         $this->assertInstanceOf('Application\Library\TestAddLibraryPath', $this->libraries->get('TestAddLibraryPath'));
@@ -128,19 +128,19 @@ class libraryTest extends CoreTestAbstract
     public function testRemoveLibraryPath()
     {
         // Test if the path does NOT exist
-        $this->assertFalse(in_array('tests/libraries/testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
+        $this->assertFalse(in_array('tests'.DS.'libraries'.DS.'testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
 
         // Add it
-        $this->libraries->addLibraryPath('tests/libraries/testRemoveLibraryPath');
+        $this->libraries->addLibraryPath('tests'.DS.'libraries'.DS.'testRemoveLibraryPath');
 
         // Assert if it's there
-        $this->assertTrue(in_array('tests/libraries/testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
+        $this->assertTrue(in_array('tests'.DS.'libraries'.DS.'testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
 
         // Remove it
-        $this->libraries->removeLibraryPath('tests/libraries/testRemoveLibraryPath');
+        $this->libraries->removeLibraryPath('tests'.DS.'libraries'.DS.'testRemoveLibraryPath');
 
         // And test if it's gone again
-        $this->assertFalse(in_array('tests/libraries/testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
+        $this->assertFalse(in_array('tests'.DS.'libraries'.DS.'testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
     }
 
     public function tearDown()
