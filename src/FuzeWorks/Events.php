@@ -140,7 +140,7 @@ class Events
         }
 
         foreach (self::$listeners[$eventName][$priority] as $i => $_callback) {
-            if ($_callback == $callback) {
+            if ($_callback[0] == $callback) {
                 unset(self::$listeners[$eventName][$priority][$i]);
 
                 return;
