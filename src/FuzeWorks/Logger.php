@@ -478,9 +478,9 @@ class Logger {
     /**
      * Calls an HTTP error, sends it as a header, and loads a template if required to do so.
      *
-     * @param int  $errno           HTTP error code
-     * @param string $message       Additional message to the error
-     * @param bool $layout          true to layout error on website
+     * @param int       $errno      HTTP error code
+     * @param string    $message    Message describing the reason for the HTTP error
+     * @param bool      $layout     true to layout error on website
      */
     public static function http_error($errno = 500, $message = '', $layout = true): bool
     {
@@ -537,11 +537,11 @@ class Logger {
         $factory = Factory::getInstance();
         try {
             $factory->layout->reset();
-            $factory->layout->assign('errorMessage', $message);
+            $factory->layout->assign('httpErrorMessage', $message);
             $factory->layout->display($layout);
         } catch (LayoutException $exception) {
             // No error page could be found, just echo the result
-            $factory->output->set_output("<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3><h4>' . $message . '</h4>');
+            $factory->output->set_output("<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3><p>' . $message . '</p>');
         }
         
         return true;
