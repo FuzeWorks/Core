@@ -263,7 +263,7 @@ class Security {
 		$cfg = Factory::getInstance()->config->get('main');
 		$secure_cookie = (bool) $cfg->cookie_secure;
 
-		if ($secure_cookie && ! is_https())
+		if ($secure_cookie && ! Core::isHttps())
 		{
 			return $this;
 		}

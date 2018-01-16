@@ -33,6 +33,9 @@
         <exclude>
           <directory suffix=".php">../vendor/</directory>
           <directory suffix=".php">../tests/</directory>
+          <directory suffix=".php">../src/Layout/</directory>
+          <directory suffix=".php">../src/Config/</directory>
+          <directory suffix=".php">../src/Language/</directory>
         </exclude>
       </whitelist>
     </filter>
