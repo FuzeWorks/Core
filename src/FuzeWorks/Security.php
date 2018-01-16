@@ -120,7 +120,7 @@ class Security {
 	 *
 	 * @var	string
 	 */
-	protected $_csrf_cookie_name =	'fw_csrf_token';
+	protected $_csrf_cookie_name =	'fw_csrf_cookie';
 
 	/**
 	 * List of never allowed strings
