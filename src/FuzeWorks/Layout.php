@@ -166,6 +166,8 @@ class Layout
         $this->assigned_variables['serverName'] = $main_config->server_name;
         $this->assigned_variables['adminMail'] = $main_config->administrator_mail;
         $this->assigned_variables['contact'] = $contact_config->toArray();
+        $this->assigned_variables['csrfTokenName'] = Factory::getInstance()->security->get_csrf_token_name();
+        $this->assigned_variables['csrfHash'] = Factory::getInstance()->security->get_csrf_hash();
 
         // Select an engine if one is not already selected
         if (is_null($this->current_engine)) {

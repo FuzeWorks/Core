@@ -118,7 +118,7 @@ class loggerTest extends CoreTestAbstract
         Logger::exceptionHandler($exception);
 
         // Check the output
-        $this->assertEquals('<h1>500</h1><h3>Internal Server Error</h3>', $this->output->get_output());
+        $this->assertEquals('<h1>500</h1><h3>Internal Server Error</h3><p></p>', $this->output->get_output());
 
         // Check the logs
         $log = Logger::$Logs[0];
@@ -213,11 +213,19 @@ class loggerTest extends CoreTestAbstract
             Logger::http_error($code);
 
             // Check the output
-            $this->assertEquals('<h1>'.$code.'</h1><h3>'.$description.'</h3>', $this->output->get_output());
+            $this->assertEquals('<h1>'.$code.'</h1><h3>'.$description.'</h3><p></p>', $this->output->get_output());
         }
 
         // Test when not viewing
         Logger::http_error(404, false);
+    }
+
+    /**
+     * @depends testHttpError
+     */
+    public function testHttpErrorWithoutLayout()
+    {
+        $this->assertFalse(Logger::http_error(500, '', false));
     }
 
     public function testEnableDisable()

@@ -364,6 +364,7 @@ class Router
         if ($performLoading === true)
         {
             $this->routeDefault(array_values($this->uri->segments), '.*$');
+            return false;
         }
     }
 
@@ -532,8 +533,15 @@ class Router
 
             // Check if method exists or if there is a caller function
             if (method_exists($this->callable, $event->function) || method_exists($this->callable, '__call')) {
+                // Run the routerCallMethodEvent
+                $methodEvent = Events::fireEvent('routerCallMethodEvent');
+                if ($methodEvent->isCancelled())
+                {
+                    return;
+                }
+
                 // Execute the function on the controller
-                echo $this->callable->{$event->function}($event->parameters);
+                $this->output->append_output($this->callable->{$event->function}($event->parameters));
             } else {
                 // Function could not be found
                 $this->logger->log('Could not find function '.$event->function.' on controller '.$event->className);
