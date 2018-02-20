@@ -162,6 +162,12 @@ class Factory
 	public $router;
 	
 	/**
+	 * Plugins Object
+	 * @var Plugins
+	 */
+	public $plugins;
+
+	/**
 	 * Factory instance constructor. Should only really be called once
 	 * @return void
 	 */
@@ -187,6 +193,7 @@ class Factory
 	        $this->security = new Security();
 	        $this->input = new Input();
 	        $this->router = new Router();
+	        $this->plugins = new Plugins();
 
 	        return true;
 		}

@@ -524,6 +524,9 @@ class Logger {
         self::log('Sending header HTTP/1.1 ' . $errno . ' ' . $http_codes[$errno]);
         header('HTTP/1.1 ' . $errno . ' ' . $http_codes[$errno]);
 
+        // Set the status code
+        Core::$http_status_code = $errno;
+
         // Do we want the error-layout with it?
         if ($layout == false) {
             return false;
