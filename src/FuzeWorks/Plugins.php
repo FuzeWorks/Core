@@ -170,6 +170,7 @@ class Plugins
 		$directories = (is_null($directory) ? $this->pluginPaths : $directory);
 
 		// Determine the name of the plugin
+		$pluginFolder = $pluginName;
 		$pluginName = ucfirst($pluginName);
 
 		// Check if the plugin is already loaded and return directly
@@ -205,7 +206,7 @@ class Plugins
 		// Find the correct file
 		$pluginFile = '';
 		foreach ($directories as $pluginPath) {
-			$file = $pluginPath . DS . $pluginName . DS . $classFile;
+			$file = $pluginPath . DS . $pluginFolder . DS . $classFile;
 			if (file_exists($file))
 			{
 				$pluginFile = $file;
