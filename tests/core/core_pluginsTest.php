@@ -143,7 +143,7 @@ class pluginTest extends CoreTestAbstract
 
         // And try to load it again
         $this->plugins->loadHeaders();
-        $this->assertInstanceOf('Application\Plugin\ActualPlugin', $this->plugins->get('actualPlugin'));
+        $this->assertInstanceOf('Application\Plugin\ActualPlugin', $this->plugins->get('ActualPlugin'));
     }
 
     /**
