@@ -100,7 +100,7 @@ class Plugins
     /**
      * Load the header files of all plugins. 
      */
-	public function loadHeaders(): void
+	public function loadHeaders()
 	{
 		// Cycle through all pluginPaths
 		$this->headers = array();
