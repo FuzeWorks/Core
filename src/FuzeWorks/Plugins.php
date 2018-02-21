@@ -100,7 +100,7 @@ class Plugins
     /**
      * Load the header files of all plugins. 
      */
-	public function loadHeaders()
+	public function loadHeaders(): void
 	{
 		// Cycle through all pluginPaths
 		$this->headers = array();
@@ -172,6 +172,21 @@ class Plugins
 		// Determine the name of the plugin
 		$pluginFolder = $pluginName;
 		$pluginName = ucfirst($pluginName);
+
+		// Fire pluginGetEvent, and cancel or return custom plugin if required
+		$event = Events::fireEvent('pluginGetEvent', $pluginName, $directories);
+		if ($event->isCancelled())
+		{
+			return false;
+		}
+		elseif ($event->getPlugin() != null)
+		{
+			return $event->getPlugin();
+		}
+
+		// Otherwise just set the variables
+		$pluginName = $event->pluginName;
+		$directories = $event->directories;
 
 		// Check if the plugin is already loaded and return directly
 		if (isset($this->plugins[$pluginName]))
