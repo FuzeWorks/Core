@@ -478,10 +478,11 @@ class Logger {
     /**
      * Calls an HTTP error, sends it as a header, and loads a template if required to do so.
      *
-     * @param int  $errno HTTP error code
-     * @param bool $layout  true to layout error on website
+     * @param int       $errno      HTTP error code
+     * @param string    $message    Message describing the reason for the HTTP error
+     * @param bool      $layout     true to layout error on website
      */
-    public static function http_error($errno = 500, $layout = true): bool
+    public static function http_error($errno = 500, $message = '', $layout = true): bool
     {
         $http_codes = array(
             400 => 'Bad Request',
@@ -523,6 +524,9 @@ class Logger {
         self::log('Sending header HTTP/1.1 ' . $errno . ' ' . $http_codes[$errno]);
         header('HTTP/1.1 ' . $errno . ' ' . $http_codes[$errno]);
 
+        // Set the status code
+        Core::$http_status_code = $errno;
+
         // Do we want the error-layout with it?
         if ($layout == false) {
             return false;
@@ -536,10 +540,11 @@ class Logger {
         $factory = Factory::getInstance();
         try {
             $factory->layout->reset();
+            $factory->layout->assign('httpErrorMessage', $message);
             $factory->layout->display($layout);
         } catch (LayoutException $exception) {
             // No error page could be found, just echo the result
-            $factory->output->set_output("<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3>');
+            $factory->output->set_output("<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3><p>' . $message . '</p>');
         }
         
         return true;

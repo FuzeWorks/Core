@@ -63,6 +63,7 @@ return array(
 	'function_trigger' => 'm',
 	'directory_trigger' => 'd',
 
+
 	/*
 	|--------------------------------------------------------------------------
 	| Allowed URL Characters
@@ -84,6 +85,16 @@ return array(
 	|
 	*/
 	'permitted_uri_chars' => 'a-z 0-9~%.:_\-',
+
+	/* 
+	|--------------------------------------------------------------------------
+	| Translate URI Dashes
+	|--------------------------------------------------------------------------
+    | Determines whether dashes in controller & method segments
+    | should be automatically replaced by underscores.
+    |
+    */
+	'translate_uri_dashes' => FALSE,
 
 	/*
 	|--------------------------------------------------------------------------

@@ -73,9 +73,10 @@ class Events
     /**
      * Adds a function as listener.
      *
-     * @param mixed callback The callback when the events get fired, see {@link http://php.net/manual/en/language.types.callable.php PHP.net}
-     * @param string $eventName The name of the event
-     * @param int    $priority  The priority, even though integers are valid, please use EventPriority (for example EventPriority::Lowest)
+     * @param   mixed   $callback           The callback when the events get fired, see {@link http://php.net/manual/en/language.types.callable.php PHP.net}
+     * @param   string  $eventName          The name of the event
+     * @param   int     $priority           The priority, even though integers are valid, please use EventPriority (for example EventPriority::Lowest)
+     * @param   mixed   $parameters,...     Parameters for the listener
      *
      * @see EventPriority
      *
@@ -106,7 +107,15 @@ class Events
             self::$listeners[$eventName][$priority] = array();
         }
 
-        self::$listeners[$eventName][$priority][] = $callback;
+        if (func_num_args() > 3) {
+            $args = array_slice(func_get_args(), 3);
+        }
+        else
+        {
+            $args = array();
+        }
+
+        self::$listeners[$eventName][$priority][] = array($callback, $args);
     }
 
     /**
@@ -131,7 +140,7 @@ class Events
         }
 
         foreach (self::$listeners[$eventName][$priority] as $i => $_callback) {
-            if ($_callback == $callback) {
+            if ($_callback[0] == $callback) {
                 unset(self::$listeners[$eventName][$priority][$i]);
 
                 return;
@@ -144,9 +153,10 @@ class Events
      *
      * The Event gets created, passed around and then returned to the issuer.
      *
-     * @param mixed $input Object for direct event, string for system event or notifierEvent
-     * @todo  Implement Application Events
-     * @todo  Implement Directory input for Events from other locations (like Modules)
+     * @param   mixed $input            Object for direct event, string for system event or notifierEvent
+     * @param   mixed $parameters,...   Parameters for the event
+     * @todo    Implement Application Events
+     * @todo    Implement Directory input for Events from other locations (like Modules)
      *
      * @return Event The Event
      */
@@ -222,8 +232,9 @@ class Events
                     $listeners = self::$listeners[$eventName][$priority];
                     Logger::newLevel('Found listeners with priority '.EventPriority::getPriority($priority));
                     //Fire the event to each listener
-                    foreach ($listeners as $callback) {
+                    foreach ($listeners as $callbackArray) {
                         // @codeCoverageIgnoreStart
+                        $callback = $callbackArray[0];
                         if (is_callable($callback)) {
                             Logger::newLevel('Firing function');
                         } elseif (!is_string($callback[0])) {
@@ -232,8 +243,9 @@ class Events
                             Logger::newLevel('Firing '.implode('->', $callback));
                         }
                         // @codeCoverageIgnoreEnd
-                        
-                        call_user_func($callback, $event);
+
+                        $args = array_merge(array($event), $callbackArray[1]);
+                        call_user_func_array($callback, $args);
                         Logger::stopLevel();
                     }
 

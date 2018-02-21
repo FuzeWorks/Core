@@ -30,9 +30,7 @@
  * @version Version 1.0.0
  */
 
-use FuzeWorks\Logger;
-use FuzeWorks\Config;
-use FuzeWorks\Exception\ConfigException;
+use FuzeWorks\Factory;
 use FuzeWorks\Database;
 use FuzeWorks\Exception\DatabaseException;
 use FuzeWorks\Core;

@@ -4,7 +4,7 @@
  *
  * The FuzeWorks MVC PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2018   TechFuze
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,40 +20,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
  * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
  * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 0.0.1
+ * @since Version 1.1.4
  *
- * @version Version 1.0.0
+ * @version Version 1.1.4
  */
 
-namespace Application\Controller;
+namespace FuzeWorks;
 
-use FuzeWorks\ControllerAbstract;
 
-/**
- * The default controller of FuzeWorks.
- *
- * This controller gets loaded when the '/' path is provided, eg. the home page.
- * By default, the index function gets loaded.
- *
- * @author    Abel Hoogeveen <abel@techfuze.net>
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- */
-class Standard extends ControllerAbstract
+interface PluginInterface
 {
-    /**
-     * The default function of FuzeWorks.
-     *
-     * This code gets loaded for the Home page
-     *
-     * @param array $path The path provided by the HTTP Server
-     */
-    public function index($path = null)
-    {
-        $this->layout->display('home');
-    }
+    public function init();
 }

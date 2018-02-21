@@ -105,6 +105,14 @@ class Config
     }
 
     /**
+     * Clears all the config files and discards all changes not committed
+     */
+    public function discardConfigFiles()
+    {
+        $this->cfg = array();
+    }
+
+    /**
      * Determine whether the file exists and, if so, load the ConfigORM
      * 
      * @param string $configName  Name of the config file. Eg. 'main'

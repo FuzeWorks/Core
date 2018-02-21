@@ -725,7 +725,7 @@ class Input {
 			}
 			else
 			{
-				set_status_header(503);
+				Core::setStatusHeader(503);
 				echo 'Disallowed Key Characters.';
 				exit(7); // EXIT_USER_INPUT
 			}

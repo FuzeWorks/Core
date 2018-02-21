@@ -202,6 +202,24 @@ class eventsTest extends CoreTestAbstract
         $this->assertNull(Events::removeListener(function($x) {echo "Called"; }, 'mockEvent', EventPriority::NORMAL));
     }
 
+    /**
+     * @depends testAddAndRemoveListener
+     */
+    public function testListenerVariablePass()
+    {
+        $event = $this->getMockBuilder(MockEvent::class)->getMock();
+        $passVariable = 'value';
+
+        $eventName = get_class($event);
+
+        Events::addListener(function($event, $passVariable) {
+            $this->assertEquals('value', $passVariable);
+
+        }, $eventName, EventPriority::NORMAL, $passVariable);
+
+        Events::fireEvent($event);
+    }
+
     public function testDisable()
     {
         // First add the listener, expect it to be never called

@@ -47,8 +47,8 @@ return array(
 	| 'csrf_exclude_uris' = Array of URIs which ignore CSRF checks
 	*/
 	'csrf_protection' => true,
-	'csrf_token_name' => 'csrf_test_name',
-	'csrf_cookie_name' => 'csrf_cookie_name',
+	'csrf_token_name' => 'fw_csrf_token',
+	'csrf_cookie_name' => 'fw_csrf_cookie',
 	'csrf_expire' => 7200,
 	'csrf_regenerate' => TRUE,
 	'csrf_exclude_uris' => array(),
