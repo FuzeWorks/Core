@@ -82,7 +82,6 @@ namespace FuzeWorks;
  * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
  * 
  * @todo Implement Query Strings
- * @todo Implement Unit tests
  */
 class Router
 {
@@ -102,14 +101,11 @@ class Router
     protected $matches = null;
 
     /**
-     * Translate URI dashes
+     * Directory from which to load the controllers
      *
-     * Determines whether dashes in controller & method segments
-     * should be automatically replaced by underscores.
-     *
-     * @var bool
+     * @var string Controller directory
      */
-    protected $translate_uri_dashes = false;
+    protected $controller_directory;
 
     /**
      * The Config class used to get configurations
@@ -162,6 +158,7 @@ class Router
         $this->logger = $factory->logger;
         $this->events = $factory->events;
         $this->output = $factory->output;
+        $this->controller_directory = Core::$appDir . DS . 'Controller';
 
         // Start parsing the routing
         $this->parseRouting();
@@ -188,12 +185,17 @@ class Router
         foreach ($routes as $route => $value) 
         {
             // Check if the route format is using HTTP verbs
-            if (is_array($value))
+            if (is_int($route))
+            {
+                $route = $value;
+                $value = array($this, 'defaultCallable');
+            }
+            elseif (is_array($value))
             {
                 $value = array_change_key_case($value, CASE_LOWER);
                 if (isset($value[$http_verb]))
                 {
-                    $value = $value['http_verb'];
+                    $value = $value[$http_verb];
                 }
                 else
                 {
@@ -206,6 +208,26 @@ class Router
 
             $this->addRoute($route, $value, false);
         }
+    }
+
+    /**
+     * Returns the directory from which all controllers shall be loaded
+     *
+     * @return string
+     */
+    public function getControllerDirectory(): string
+    {
+        return $this->controller_directory;
+    }
+
+    /**
+     * Sets the directory from which all controllers shall be loaded
+     *
+     * @param string Controller directory
+     */
+    public function setControllerDirectory($directory)
+    {
+        $this->controller_directory = $directory;
     }
 
     /**
@@ -331,15 +353,15 @@ class Router
                     }
 
                     // If the callable is satisfied, break away
-                    if (!$performLoading || !$this->loadCallable($matches, $route))
+                    if (!$performLoading || $this->loadCallable($matches, $route))
                     {
-                        return false;
+                        return true;
                     }
 
                     // Otherwise try other routes
                     continue;
                 }
-                elseif ( ! is_string($value) && is_callable($value))
+                elseif ( is_callable($value) )
                 {
                     // Prepare the callable
                     array_shift($matches);
@@ -351,9 +373,14 @@ class Router
                 {
                     $value = preg_replace('#^'.$route.'$#', $value, $event->path);
                 }
+                
+                if ($performLoading === true)
+                {
+                    // Now run the defaultRouter for when something is not a callable
+                    $this->routeDefault(explode('/', $value), $route);
+                    return true;                 
+                }
 
-                // Now run the defaultRouter for when something is not a callable
-                $this->routeDefault(explode('/', $value), $route);
                 return false;
             }
         }
@@ -364,8 +391,10 @@ class Router
         if ($performLoading === true)
         {
             $this->routeDefault(array_values($this->uri->segments), '.*$');
-            return false;
+            return true;
         }
+
+        return false;
     }
 
     /**
@@ -384,7 +413,7 @@ class Router
             $segments[0] = $this->config->routing->default_controller;
         }
 
-        if ($this->translate_uri_dashes === true)
+        if ($this->config->routing->translate_uri_dashes === true)
         {
             $segments[0] = str_replace('-', '_', $segments[0]);
             if (isset($segments[1]))
@@ -443,12 +472,12 @@ class Router
         $args['route'] = $event->route;
 
         if (!is_callable($event->callable)) {
-            if (isset($this->callable['controller'])) {
+            if (isset($event->callable['controller'])) {
                 // Reset the arguments and fetch from custom callable
                 $args = array();
-                $args['controller'] = isset($this->callable['controller']) ? $this->callable['controller'] : (isset($matches['controller']) ? $matches['controller'] : null);
-                $args['function'] = isset($this->callable['function'])   ? $this->callable['function']   : (isset($matches['function']) ? $matches['function'] : null);
-                $args['parameters'] = isset($this->callable['parameters']) ? $this->callable['parameters'] : (isset($matches['parameters']) ? explode('/', $matches['parameters']) : null);
+                $args['controller'] = isset($event->callable['controller']) ? $event->callable['controller'] : (isset($matches['controller']) ? $matches['controller'] : null);
+                $args['function'] = isset($event->callable['function'])   ? $event->callable['function']   : (isset($matches['function']) ? $matches['function'] : null);
+                $args['parameters'] = isset($event->callable['parameters']) ? $event->callable['parameters'] : (isset($matches['parameters']) ? explode('/', $matches['parameters']) : null);
 
                 $this->callable = array('\FuzeWorks\Router', 'defaultCallable');
             } else {
@@ -469,9 +498,9 @@ class Router
         }
         $this->logger->stopLevel();
 
-        $skip = call_user_func_array($this->callable, array($args)) === false;
+        $skip = call_user_func_array($this->callable, array($args)) === true;
 
-        if ($skip) {
+        if (!$skip) {
             $this->logger->log('Callable not satisfied, skipping to next callable');
         }
 
@@ -486,7 +515,7 @@ class Router
      * This callable will do the 'old skool' routing. It will load the controllers from the controller-directory
      * in the application-directory.
      */
-    public function defaultCallable($arguments = array())
+    public function defaultCallable($arguments = array()): bool
     {
         $this->logger->log('Default callable called!');
 
@@ -496,8 +525,8 @@ class Router
 
         // Construct file paths and classes
         $class = '\Application\Controller\\'.ucfirst($controller);
-        $directory = Core::$appDir . DS . 'Controller';
-        $file = $directory . DS .'controller.'.$controller.'.php';
+        $directory = $this->controller_directory;
+        $file = $directory . DS . strtolower('controller.'.$controller.'.php');
 
         $event = Events::fireEvent('routerLoadControllerEvent', 
             $file, 
@@ -510,14 +539,14 @@ class Router
 
         // Cancel if requested to do so
         if ($event->isCancelled()) {
-            return;
+            return false;
         }
 
         // Check if the file exists
         if (file_exists($event->file)) {
             if (!class_exists($event->className)) {
                 $this->logger->log('Loading controller '.$event->className.' from file: '.$event->file);
-                include $event->file;
+                require $event->file;
             }
 
             // Get the path the controller should know about
@@ -528,7 +557,7 @@ class Router
 
             // If the controller does not want a function to be loaded, provide a halt parameter.
             if (isset($this->callable->halt)) {
-                return;
+                return false;
             }
 
             // Check if method exists or if there is a caller function
@@ -537,11 +566,12 @@ class Router
                 $methodEvent = Events::fireEvent('routerCallMethodEvent');
                 if ($methodEvent->isCancelled())
                 {
-                    return;
+                    return false;
                 }
 
                 // Execute the function on the controller
                 $this->output->append_output($this->callable->{$event->function}($event->parameters));
+                return true;
             } else {
                 // Function could not be found
                 $this->logger->log('Could not find function '.$event->function.' on controller '.$event->className);
@@ -552,5 +582,7 @@ class Router
             $this->logger->log('Could not find controller '.$event->className);
             $this->logger->http_error(404);
         }
+
+        return false;
     }
 }

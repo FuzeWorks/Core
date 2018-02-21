@@ -33,6 +33,7 @@ use PHPUnit\Framework\TestCase;
 use FuzeWorks\Events;
 use FuzeWorks\Layout;
 use FuzeWorks\Factory;
+use FuzeWorks\Core;
 use FuzeWorks\LoggerTracyBridge;
 
 /**
@@ -58,10 +59,16 @@ abstract class CoreTestAbstract extends TestCase
         // Reset the layout manager
         Factory::getInstance()->layout->reset();
 
+        // Reset all config files
+        Factory::getInstance()->config->discardConfigFiles();
+
         // Re-enable events, in case they have been disabled
         Events::enable();
 
         // Clear the output
         Factory::getInstance()->output->set_output('');
+
+        // Reset the HTTP status code
+        Core::$http_status_code = 200;
     }
 }

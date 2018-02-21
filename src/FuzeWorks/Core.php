@@ -71,6 +71,13 @@ class Core
     public static $logDir;
 
     /**
+     * The HTTP status code of the current request
+     *
+     * @var int $http_status_code Status code
+     */
+    public static $http_status_code = 200;
+
+    /**
      * Initializes the core.
      *
      * @throws \Exception
@@ -111,15 +118,18 @@ class Core
             Events::disable();
         }
 
-        // And fire the coreStartEvent
-        $event = Events::fireEvent('coreStartEvent');
-        if ($event->isCancelled()) {
-            return true;
-        }
-
         // And initialize multiple classes
         $container->layout->init();
         Language::init();
+
+        // And load all the plugins
+        $container->plugins->loadHeaders();
+
+        // And fire the coreStartEvent
+        $event = Events::fireEvent('coreStartEvent');
+        if ($event->isCancelled()) {
+            exit;
+        }
     }
 
     /**
