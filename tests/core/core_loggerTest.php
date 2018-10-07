@@ -1,33 +1,37 @@
 <?php
 /**
- * FuzeWorks.
+ * FuzeWorks Framework Core.
  *
- * The FuzeWorks MVC PHP FrameWork
+ * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2013-2018 TechFuze
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
- * @author      TechFuze
- * @copyright   Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- * @copyright   Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
- * @license     http://opensource.org/licenses/GPL-3.0 GPLv3 License
+ * @author    TechFuze
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @license   https://opensource.org/licenses/MIT MIT License
  *
- * @link        http://techfuze.net/fuzeworks
- * @since       Version 0.0.1
+ * @link  http://techfuze.net/fuzeworks
+ * @since Version 0.0.1
  *
- * @version     Version 1.0.1
+ * @version Version 1.2.0
  */
 
 use FuzeWorks\Logger;
@@ -47,13 +51,14 @@ class loggerTest extends CoreTestAbstract
 
     public function setUp()
     {
-        Factory::getInstance()->config->get('error')->error_reporting = false;
-        $this->output = Factory::getInstance()->output;
+        Factory::getInstance()->config->get('error')->fuzeworks_error_reporting = false;
         Logger::$Logs = array();
     }
 
     public function testGetLogger()
     {
+        $this->assertInstanceOf('FuzeWorks\Logger', new Logger);
+        Factory::getInstance()->config->get('error')->php_error_reporting = true;
         $this->assertInstanceOf('FuzeWorks\Logger', new Logger);
     }
 
@@ -115,10 +120,11 @@ class loggerTest extends CoreTestAbstract
         $exception = new LoggerException();
 
         // Log the exception
+        ob_start();
         Logger::exceptionHandler($exception);
 
         // Check the output
-        $this->assertEquals('<h1>500</h1><h3>Internal Server Error</h3><p></p>', $this->output->get_output());
+        $this->assertEquals('<h1>500</h1><h3>Internal Server Error</h3><p></p>', ob_get_clean());
 
         // Check the logs
         $log = Logger::$Logs[0];
@@ -210,14 +216,12 @@ class loggerTest extends CoreTestAbstract
         // Test all error codes
         foreach ($http_codes as $code => $description) {
             // Fire the error
+            ob_start();
             Logger::http_error($code);
 
             // Check the output
-            $this->assertEquals('<h1>'.$code.'</h1><h3>'.$description.'</h3><p></p>', $this->output->get_output());
+            $this->assertEquals('<h1>'.$code.'</h1><h3>'.$description.'</h3><p></p>', ob_get_clean());
         }
-
-        // Test when not viewing
-        Logger::http_error(404, false);
     }
 
     /**

@@ -1,33 +1,37 @@
 <?php
 /**
- * FuzeWorks.
+ * FuzeWorks Framework Core.
  *
- * The FuzeWorks MVC PHP FrameWork
+ * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2013-2018 TechFuze
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
- * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 1.0.0
+ * @version Version 1.2.0
  */
 
 namespace FuzeWorks;
@@ -39,8 +43,8 @@ use FuzeWorks\Exception\CoreException;
  *
  * Holds all the modules and starts the framework. Allows for starting and managing modules
  *
- * @author    Abel Hoogeveen <abel@techfuze.net>
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @author    TechFuze <contact@techfuze.net>
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
  */
 class Core
 {
@@ -60,15 +64,13 @@ class Core
      */
     public static $cwd;
 
-    public static $appDir;
-
-    public static $wwwDir;
-
     public static $coreDir;
 
     public static $tempDir;
 
     public static $logDir;
+
+    public static $appDirs = [];
 
     /**
      * The HTTP status code of the current request
@@ -82,19 +84,13 @@ class Core
      *
      * @throws \Exception
      */
-    public static function init()
+    public static function init(): Factory
     {
         // Set the CWD for usage in the shutdown function
         self::$cwd = getcwd();
 
         // Set the core dir for when the loading of classes is required
         self::$coreDir = dirname(__DIR__);
-
-        // If the environment is not yet defined, use production settings
-        if (!defined('ENVIRONMENT'))
-        {
-            define('ENVIRONMENT', 'PRODUCTION');
-        }
         
         // Defines the time the framework starts. Used for timing functions in the framework
         if (!defined('STARTTIME')) {
@@ -106,30 +102,8 @@ class Core
         ignore_user_abort(true);
         register_shutdown_function(array('\FuzeWorks\Core', 'shutdown'));
 
-        // Load core functionality
-        $container = new Factory();
-
-        // Load the config file of the FuzeWorks core
-        $config = $container->config->get('core');
-
-        // Disable events if requested to do so
-        if (!$config->enable_events)
-        {
-            Events::disable();
-        }
-
-        // And initialize multiple classes
-        $container->layout->init();
-        Language::init();
-
-        // And load all the plugins
-        $container->plugins->loadHeaders();
-
-        // And fire the coreStartEvent
-        $event = Events::fireEvent('coreStartEvent');
-        if ($event->isCancelled()) {
-            exit;
-        }
+        // Return the Factory
+        return new Factory();
     }
 
     /**
@@ -147,9 +121,7 @@ class Core
 
         if ($event->isCancelled() === false)
         {
-            // If the output should be displayed, send the final render and parse the logger
             Logger::shutdownError();
-            Factory::getInstance()->output->_display();
             Logger::shutdown();
         }
     }
