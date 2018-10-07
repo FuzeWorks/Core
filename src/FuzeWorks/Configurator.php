@@ -1,36 +1,41 @@
 <?php
 /**
- * FuzeWorks.
+ * FuzeWorks Framework Core.
  *
- * The FuzeWorks MVC PHP FrameWork
+ * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2013-2018 TechFuze
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
- * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 1.0.0
+ * @version Version 1.2.0
  */
 
 namespace FuzeWorks;
+use FuzeWorks\Exception\ConfiguratorException;
 use FuzeWorks\Exception\InvalidArgumentException;
 use Tracy\Debugger;
 
@@ -43,86 +48,202 @@ use Tracy\Debugger;
  * that FuzeWorks is loaded accordingly. 
  * 
  * This allows for more flexible startups.
- * @author    Abel Hoogeveen <abel@techfuze.net>
- * @author    David Grudl <https://davidgrudl.com> 
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @author    TechFuze <contact@techfuze.net>
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
  */
 class Configurator
 {
+
     /**
      * The parameters that will be passed to FuzeWorks.
      *
      * @var array
      */ 
-    protected $parameters;
+    protected $parameters = ['debugEnabled' => false];
+
+    /**
+     * Components that will be attached to the Factory.
+     *
+     * @var array Array of classnames
+     */ 
+    protected $components = [];
+
+    /**
+     * Directories that will be passed to FuzeWorks components. 
+     * 
+     * These are NOT the temp and log directory.
+     *
+     * @var array of directories
+     */     
+    protected $directories = ['app' => []];
 
     const COOKIE_SECRET = 'fuzeworks-debug';
 
-    /**
-     * Constructs the Configurator class. 
-     * 
-     * Loads the default parameters
-     */
-    public function __construct()
-    {
-        $this->parameters = $this->getDefaultParameters();
-    }
+    /* ---------------- Core Directories--------------------- */
 
     /**
-     * @return array
+     * Sets path to temporary directory.
+     *
+     * @param string $path
+     * @return Configurator
+     * @throws InvalidArgumentException
      */
-    protected function getDefaultParameters(): array
+    public function setLogDirectory(string $path)
     {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        $last = end($trace);
-        $debugMode = static::detectDebugMode();
-        return [
-            'appDir' => isset($trace[1]['file']) ? dirname($trace[1]['file']) : NULL,
-            'wwwDir' => isset($last['file']) ? dirname($last['file']) : NULL,
-            'debugMode' => $debugMode
-        ];
+        if (!is_dir($path))
+            throw new InvalidArgumentException("Could not set log directory. Directory does not exist", 1);
+        $this->parameters['logDir'] = $path;
+
+        return $this;
     }
 
     /**
      * Sets path to temporary directory.
-     * @return self
+     *
+     * @param string $path
+     * @return Configurator
+     * @throws InvalidArgumentException
      */
-    public function setLogDirectory($path): self
+    public function setTempDirectory(string $path)
     {
-        $this->parameters['logDir'] = $path;
+        if (!is_dir($path))
+            throw new InvalidArgumentException("Could not set temp directory. Directory does not exist", 1);
+        $this->parameters['tempDir'] = $path;
+
         return $this;
     }
+
+    /**
+     * Add a directory to FuzeWorks
+     *
+     * @param string $directory
+     * @param string $category Optional. Defaults to 'app
+     * @return $this
+     */
+    public function addDirectory(string $directory, string $category = 'app')
+    {
+        $this->directories[$category][] = $directory;
+
+        return $this;
+    }
+
+    /* ---------------- Components -------------------------- */
+
+    /**
+     * Registers a component that will be added to the Factory when the container is built
+     *
+     * @param iComponent $component
+     * @return Configurator
+     */
+    public function addComponent(iComponent $component)
+    {
+        foreach ($component->getClasses() as $objectName => $className) {
+            $this->components[$objectName] = $className;
+        }
+
+        return $this;
+    }
+
+    /* ---------------- Other Features ---------------------- */
 
     /**
      * Sets the default timezone.
-     * @return self
+     * @param string $timezone
+     * @return Configurator
+     * @throws InvalidArgumentException
      */
-    public function setTimeZone($timezone): self
+    public function setTimeZone(string $timezone)
     {
-        date_default_timezone_set($timezone);
+        if (!date_default_timezone_set($timezone))
+            throw new InvalidArgumentException("Could not set timezone. Invalid timezone provided.", 1);
         @ini_set('date.timezone', $timezone); // @ - function may be disabled
+
         return $this;
     }
 
     /**
-     * Adds new parameters. The %params% will be expanded.
-     * @return self
+     * Adds new parameters. Use to quickly set multiple parameters at once
+     * @param array $params
+     * @return Configurator
      */
-    public function setParameters(array $params): self
+    public function setParameters(array $params)
     {
         foreach ($params as $key => $value) {
             $this->parameters[$key] = $value;
         }
+
+        return $this;
+    }
+
+    /* ---------------- Debug Mode -------------------------- */
+
+    /**
+     * Fully enable or disable debug mode using one variable
+     * @param bool $bool
+     * @return Configurator
+     */
+    public function enableDebugMode(bool $bool = true)
+    {
+        $this->parameters['debugEnabled'] = $bool;
+
         return $this;
     }
 
     /**
-     * Sets path to temporary directory.
-     * @return self
+     * Provide a string from where debug mode can be accessed.
+     * Can be the following type of addresses:
+     * @todo
+     * @param string|array $address
+     * @return Configurator
+     * @throws InvalidArgumentException
      */
-    public function setTempDirectory($path): self
+    public function setDebugAddress($address = 'NONE')
     {
-        $this->parameters['tempDir'] = $path;
+        // First we fetch the list
+        if (!is_string($address) && !is_array($address))
+            throw new InvalidArgumentException("Can not set debug address. Address must be a string or array",1);
+
+        // Then we test some common cases
+        if (is_string($address) && $address == 'NONE')
+        {
+            $this->parameters['debugMatch'] = false;
+            return $this;
+        }
+        elseif (is_string($address) && $address == 'ALL')
+        {
+            $this->parameters['debugMatch'] = true;
+            return $this;
+        }
+
+        // Otherwise we run the regular tracy detectDebugMode
+        $list = is_string($address)
+            ? preg_split('#[,\s]+#', $address)
+            : (array) $address;
+        $addr = isset($_SERVER['REMOTE_ADDR'])
+            ? $_SERVER['REMOTE_ADDR']
+            : php_uname('n');
+        $secret = isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])
+            ? $_COOKIE[self::COOKIE_SECRET]
+            : NULL;
+        if (!isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $list[] = '127.0.0.1';
+            $list[] = '::1';
+        }
+       
+        $this->parameters['debugMatch'] = in_array($addr, $list, TRUE) || in_array("$secret@$addr", $list, TRUE);
+
+        return $this;
+    }
+
+    /**
+     * Set the email to send logs to from Tracy
+     * @param string
+     * @return Configurator
+     */
+    public function setDebugEmail($email): self
+    {
+        $this->parameters['debugEmail'] = $email;
+
         return $this;
     }
 
@@ -131,88 +252,34 @@ class Configurator
      */
     public function isDebugMode(): bool
     {
-        return $this->parameters['debugMode'];
-    }
-
-    /**
-     * Set parameter %debugMode%.
-     * @param  bool|string|array
-     * @return self
-     */
-    public function setDebugMode($value): self
-    {
-        if (is_string($value) || is_array($value)) {
-            $value = static::detectDebugMode($value);
-        } elseif (!is_bool($value)) {
-            throw new InvalidArgumentException(sprintf('Value must be either a string, array, or boolean, %s given.', gettype($value)));
-        }
-        $this->parameters['debugMode'] = $value;
-        return $this;
-    }
-
-    /**
-     * Set the email to send logs to from Tracy
-     * @param string
-     */
-    public function setDebugEmail($email): self
-    {
-        $this->parameters['debugEmail'] = $email;
-        return $this;
-    }
-
-    /**
-     * Detects debug mode by IP address.
-     * @param  string|array  IP addresses or computer names whitelist detection
-     * @return bool
-     */
-    public static function detectDebugMode($list = NULL): bool
-    {
-        $addr = isset($_SERVER['REMOTE_ADDR'])
-            ? $_SERVER['REMOTE_ADDR']
-            : php_uname('n');
-        $secret = isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])
-            ? $_COOKIE[self::COOKIE_SECRET]
-            : NULL;
-        $list = is_string($list)
-            ? preg_split('#[,\s]+#', $list)
-            : (array) $list;
-        if (!isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $list[] = '127.0.0.1';
-            $list[] = '::1';
-        }
-        return in_array($addr, $list, TRUE) || in_array("$secret@$addr", $list, TRUE);
+        return $this->parameters['debugEnabled'] && $this->parameters['debugMatch'];
     }
 
     /**
      * Create the container which holds FuzeWorks.
      *
-     * Due to the static nature of FuzeWorks, this is not yet possible. 
-     * When issue #101 is completed, this should be resolved. 
+     * Due to the static nature of FuzeWorks, this is not yet possible.
+     * When issue #101 is completed, this should be resolved.
      *
      * @return Factory
+     * @throws \Exception
      */
     public function createContainer(): Factory
     {
-        // First set all the directories
-        Core::$appDir = $this->parameters['appDir'];
-        Core::$wwwDir = $this->parameters['wwwDir'];
+        // First set all the fixed directories
         Core::$tempDir = $this->parameters['tempDir'];
         Core::$logDir = $this->parameters['logDir'];
+        Core::$appDirs = $this->directories['app'];
 
-        // Then set debug mode
-        if ($this->parameters['debugMode'])
-        {
-            define('ENVIRONMENT', 'DEVELOPMENT');
-        }
-        else
-        {
-            define('ENVIRONMENT', 'PRODUCTION');
-        }
+        // Then prepare the debugger
+        $debug = ($this->parameters['debugEnabled'] && $this->parameters['debugMatch'] ? true : false);
+        if (!defined('ENVIRONMENT'))
+            define('ENVIRONMENT', ($debug ? 'DEVELOPMENT' : 'PRODUCTION')); // @codeCoverageIgnore
 
         // And enable Tracy Debugger 
         if (class_exists('Tracy\Debugger', true))
         {
-            Debugger::enable(!$this->parameters['debugMode'], realpath($this->parameters['logDir']));
+            Debugger::enable(!$debug, realpath($this->parameters['logDir']));
             if (isset($this->parameters['debugEmail']))
             {
                 Debugger::$email = $this->parameters['debugEmail'];
@@ -221,8 +288,24 @@ class Configurator
         }
 
         // Then load the framework
-        Core::init();
+        $container = Core::init();
 
-        return Factory::getInstance();
+        // Add all components
+        foreach ($this->components as $componentName => $componentClass) {
+            if (!class_exists($componentClass))
+                throw new ConfiguratorException("Could not load component '".$componentName."'. Class '".$componentClass."' does not exist.", 1);
+
+            $container->setInstance($componentName, new $componentClass());
+        }
+
+        // And add all directories to the components
+        foreach ($this->directories as $component => $directories) {
+            if ($component == 'app')
+                continue;
+
+            $container->{$component}->setDirectories($directories);
+        }
+
+        return $container;
     }
 }

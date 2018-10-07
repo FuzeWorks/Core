@@ -1,33 +1,37 @@
 <?php
 /**
- * FuzeWorks.
+ * FuzeWorks Framework Core.
  *
- * The FuzeWorks MVC PHP FrameWork
+ * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2018   TechFuze
+ * Copyright (C) 2013-2018 TechFuze
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
- * @author      TechFuze
- * @copyright   Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
- * @copyright   Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
- * @license     http://opensource.org/licenses/GPL-3.0 GPLv3 License
+ * @author    TechFuze
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @license   https://opensource.org/licenses/MIT MIT License
  *
- * @link        http://techfuze.net/fuzeworks
- * @since       Version 1.1.4
+ * @link  http://techfuze.net/fuzeworks
+ * @since Version 1.1.4
  *
- * @version     Version 1.1.4
+ * @version Version 1.2.0
  */
 
 use FuzeWorks\Factory;
@@ -41,13 +45,16 @@ use FuzeWorks\Plugins;
 class pluginTest extends CoreTestAbstract
 {
 
+    /**
+     * @var FuzeWorks\Plugins
+     */
     protected $plugins;
 
     public function setUp()
     {
         $this->plugins = new Plugins();
         $this->plugins->addPluginPath('tests'.DS.'plugins');
-        $this->plugins->loadHeaders();
+        $this->plugins->loadHeadersFromPluginPaths();
     }
 
     public function testGetPluginsClass()
@@ -73,6 +80,22 @@ class pluginTest extends CoreTestAbstract
 
     /**
      * @depends testLoadPlugin
+     */
+    public function testLoadHeader()
+    {
+        // Load the header object
+        require_once('tests' . DS . 'plugins' . DS . 'testLoadHeader'.DS.'loadHeader'.DS.'header.php');
+        $header = new Plugins\TestLoadHeaderHeader();
+
+        // Register the header object
+        $this->plugins->addPlugin($header);
+
+        // Assert the plugin
+        $this->assertInstanceOf('Application\Plugin\Plug', $this->plugins->get('Plug'));
+    }
+
+    /**
+     * @depends testLoadPlugin
      * @expectedException FuzeWorks\Exception\PluginException
      */
     public function testMissingHeader()
@@ -90,11 +113,31 @@ class pluginTest extends CoreTestAbstract
 
     /**
      * @depends testLoadPlugin
+     */
+    public function testGetPluginWithClassFile()
+    {
+        $this->assertInstanceOf('OtherPlug', $this->plugins->get('TestGetPluginWithClassFile'));
+    }
+
+    /**
+     * @depends testLoadPlugin
      * @expectedException FuzeWorks\Exception\PluginException
      */
     public function testMissingPlugin()
     {
         $this->plugins->get('testMissingPlugin');
+    }
+
+    /**
+     * @depends testMissingPlugin
+     * @expectedException FuzeWorks\Exception\PluginException
+     */
+    public function testLoadHeaderNotIPluginHeader()
+    {
+        // Attempt to load all headers
+        $this->plugins->loadHeadersFromPluginPaths();
+
+        $this->plugins->get('TestLoadHeaderNotIPluginHeader');
     }
 
     /**
@@ -121,7 +164,7 @@ class pluginTest extends CoreTestAbstract
     public function testDisabledPlugin()
     {
         Factory::getInstance()->config->plugins->disabled_plugins = array('TestDisabledPlugin');
-        $this->plugins->loadHeaders();
+        $this->plugins->loadHeadersFromPluginPaths();
         $this->plugins->get('testDisabledPlugin');
     }
 
@@ -132,7 +175,7 @@ class pluginTest extends CoreTestAbstract
     public function testRunInvalidDirectory()
     {
         $this->plugins->addPluginPath('exists_not');
-        $this->plugins->loadHeaders();
+        $this->plugins->loadHeadersFromPluginPaths();
         $this->plugins->get('testRunInvalidDirectory');
     }
 
@@ -142,7 +185,7 @@ class pluginTest extends CoreTestAbstract
         $this->plugins->addPluginPath('tests'.DS.'plugins'.DS.'testAddPluginPath');
 
         // And try to load it again
-        $this->plugins->loadHeaders();
+        $this->plugins->loadHeadersFromPluginPaths();
         $this->assertInstanceOf('Application\Plugin\ActualPlugin', $this->plugins->get('ActualPlugin'));
     }
 
@@ -165,6 +208,15 @@ class pluginTest extends CoreTestAbstract
 
         // And test if it's gone again
         $this->assertFalse(in_array('tests'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
+    }
+
+    public function testSetDirectories()
+    {
+        // Add the directory
+        $directory = 'tests' . DS . 'helpers';
+        $this->plugins->setDirectories([$directory]);
+
+        $this->assertEquals([$directory], $this->plugins->getPluginPaths());
     }
 
     public function tearDown()

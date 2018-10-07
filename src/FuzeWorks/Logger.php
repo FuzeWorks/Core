@@ -1,40 +1,43 @@
 <?php
-
 /**
- * FuzeWorks.
+ * FuzeWorks Framework Core.
  *
- * The FuzeWorks MVC PHP FrameWork
+ * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2013-2018 TechFuze
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
- * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 1.0.1
+ * @version Version 1.2.0
  */
 
 namespace FuzeWorks;
 
+use FuzeWorks\Exception\ConfiguratorException;
 use FuzeWorks\Exception\Exception;
-use FuzeWorks\Exception\LayoutException;
 
 /**
  * Logger Class.
@@ -43,8 +46,8 @@ use FuzeWorks\Exception\LayoutException;
  * All fatal errors get catched by this class and get displayed if configured to do so.
  * Also provides utilities to benchmark the application.
  *
- * @author    Abel Hoogeveen <abel@techfuze.net>
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @author    TechFuze <contact@techfuze.net>
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
  */
 class Logger {
 
@@ -104,19 +107,32 @@ class Logger {
      */
     public function __construct()
     {
+        // Get the config file
+        $cfg_error = Factory::getInstance()->config->getConfig('error');
+
         // Register the error handler, Untestable
         // @codeCoverageIgnoreStart
-        if (Factory::getInstance()->config->get('error')->error_reporting == true && self::$useTracy === false) {
+        if ($cfg_error->fuzeworks_error_reporting == true)
+        {
             set_error_handler(array('\FuzeWorks\Logger', 'errorHandler'), E_ALL);
-            set_Exception_handler(array('\FuzeWorks\Logger', 'exceptionHandler'));
+            set_Exception_handler(array('\FuzeWorks\Logger', 'exceptionHandler'));           
+        }
+        elseif ($cfg_error->tracy_error_reporting == true && self::$useTracy === true)
+        {
+            // Register with tracy
         }
         // @codeCoverageIgnoreEnd
 
-        error_reporting(false);
+        // Set PHP error reporting
+        if (!$cfg_error->php_error_reporting)
+            error_reporting(false);
+        else
+            error_reporting(true);
 
+        // Set the environment variables
         self::$debug = (ENVIRONMENT === 'DEVELOPMENT');
-        self::$log_to_file = Factory::getInstance()->config->get('error')->log_to_file;
-        self::$logger_template = Factory::getInstance()->config->get('error')->logger_template;
+        self::$log_to_file = $cfg_error->log_to_file;
+        self::$logger_template = $cfg_error->logger_template;
         self::newLevel('Logger Initiated');
 
         if (self::$useTracy)
@@ -173,7 +189,6 @@ class Logger {
 
             // Log it!
             $thisType = self::getType($errno);
-            Factory::getInstance()->output->set_output('');
             self::errorHandler($errno, $errstr, $errfile, $errline);
 
             if ($thisType == 'ERROR')
@@ -264,9 +279,8 @@ class Logger {
         $logs = self::$Logs;
         require(dirname(__DIR__) . DS . 'Layout' . DS . 'layout.logger_cli.php');
         $contents = ob_get_clean();
-        $file = Core::$logDir . DS . 'Logs' . DS . 'log_latest.php';
-        if (is_writable($file))
-        {
+        $file = Core::$logDir . DS . 'log_latest.php';
+        if (is_writable(dirname($file))) {
             file_put_contents($file, '<?php ' . $contents);
         }
     }
@@ -537,16 +551,7 @@ class Logger {
         self::log('Loading layout ' . $layout);
 
         // Try and load the layout, if impossible, load HTTP code instead.
-        $factory = Factory::getInstance();
-        try {
-            $factory->layout->reset();
-            $factory->layout->assign('httpErrorMessage', $message);
-            $factory->layout->display($layout);
-        } catch (LayoutException $exception) {
-            // No error page could be found, just echo the result
-            $factory->output->set_output("<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3><p>' . $message . '</p>');
-        }
-        
+        echo "<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3><p>' . $message . '</p>';
         return true;
     }
 

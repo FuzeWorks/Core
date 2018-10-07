@@ -1,36 +1,41 @@
 <?php
 /**
- * FuzeWorks.
+ * FuzeWorks Framework Core.
  *
- * The FuzeWorks MVC PHP FrameWork
+ * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2013-2018 TechFuze
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
- * @author      TechFuze
- * @copyright   Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- * @copyright   Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
- * @license     http://opensource.org/licenses/GPL-3.0 GPLv3 License
+ * @author    TechFuze
+ * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @license   https://opensource.org/licenses/MIT MIT License
  *
- * @link        http://techfuze.net/fuzeworks
- * @since       Version 0.0.1
+ * @link  http://techfuze.net/fuzeworks
+ * @since Version 0.0.1
  *
- * @version     Version 1.0.0
+ * @version Version 1.2.0
  */
 
 use FuzeWorks\Factory;
+use FuzeWorks\Exception\FactoryException;
 
 /**
  * Class FactoryTest.
@@ -119,6 +124,18 @@ class factoryTest extends CoreTestAbstract
         $this->assertNotSame($factory3->mock, $factory4->mock);
     }
 
+    /**
+     * @expectedException FuzeWorks\Exception\FactoryException
+     */
+    public function testCloneInstanceWrongClassname()
+    {
+        // Get factory
+        $factory = new Factory;
+
+        // Attempt
+        $factory->cloneInstance('fake');
+    }
+
     public function testGlobalCloneInstance()
     {
         // First test without global cloning
@@ -150,22 +167,84 @@ class factoryTest extends CoreTestAbstract
         $this->assertSame($factory->config, $factory2->config);
         $this->assertSame($factory->logger, $factory2->logger);
         $this->assertSame($factory->events, $factory2->events);
-        $this->assertSame($factory->models, $factory2->models);
-        $this->assertSame($factory->layout, $factory2->layout);
         $this->assertSame($factory->libraries, $factory2->libraries);
         $this->assertSame($factory->helpers, $factory2->helpers);
-        $this->assertSame($factory->database, $factory2->database);
-        $this->assertSame($factory->language, $factory2->language);
-        $this->assertSame($factory->utf8, $factory2->utf8);
-        $this->assertSame($factory->uri, $factory2->uri);
-        $this->assertSame($factory->security, $factory2->security);
-        $this->assertSame($factory->input, $factory2->input);
-        $this->assertSame($factory->output, $factory2->output);
-        $this->assertSame($factory->router, $factory2->router);
 
         // And test when changing one classInstance
-        $factory->newInstance('Layout');
-        $this->assertNotSame($factory->layout, $factory2->layout);
+        $factory->newInstance('Helpers');
+        $this->assertNotSame($factory->helpers, $factory2->helpers);
+    }
+
+    /**
+     * @expectedException FuzeWorks\Exception\FactoryException
+     */
+    public function testFactoryNewInstanceNotExist()
+    {
+        // Load the factory
+        $factory = new Factory;
+
+        // First, it does not exist
+        $factory->newInstance('fake');
+    }
+
+    /**
+     * @expectedException FuzeWorks\Exception\FactoryException
+     */
+    public function testFactoryNewInstanceWrongNamespace()
+    {
+        // Load the factory
+        $factory = new Factory;
+
+        // Second, it just fails
+        $factory->newInstance('helpers', 'Test\\');
+    }
+
+    public function testRemoveInstance()
+    {
+        // Load the factory
+        $factory = new Factory;
+
+        // Create the object
+        $object = new MockObject;
+
+        // Add it to the factory
+        $factory->setInstance('test', $object);
+
+        // Test if it is there
+        $this->assertObjectHasAttribute('test', $factory);
+        $this->assertSame($object, $factory->test);
+
+        // Now remove it
+        $factory->removeInstance('test');
+
+        // Assert that it's gone
+        $this->assertObjectNotHasAttribute('test', $factory);
+    }
+
+    /**
+     * @expectedException FuzeWorks\Exception\FactoryException
+     */
+    public function testRemoveInstanceNotExist()
+    {
+        // Load the factory
+        $factory = new Factory;
+
+        // Test
+        $factory->removeInstance('fake');
+    }
+
+    public function testInstanceIsset()
+    {
+        // Load the factory
+        $factory = new Factory;
+
+        // Test if not set and add instance
+        $this->assertFalse($factory->instanceIsset('test'));
+        $factory->setInstance('test', 5);
+
+        // Test if isset and value
+        $this->assertTrue($factory->instanceIsset('test'));
+        $this->assertEquals(5, $factory->test);
     }
 
     public function tearDown()
@@ -182,5 +261,9 @@ class factoryTest extends CoreTestAbstract
 }
 
 class MockFactory {
+
+}
+
+class MockObject {
 
 }
