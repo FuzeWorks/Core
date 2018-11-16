@@ -36,7 +36,6 @@
 
 namespace FuzeWorks;
 
-use FuzeWorks\Exception\ConfiguratorException;
 use FuzeWorks\Exception\Exception;
 
 /**
@@ -66,11 +65,18 @@ class Logger {
     private static $print_to_screen = false;
 
     /**
-     * whether to output the log to a file after FuzeWorks has run.
+     * whether to output the log of the last entire request to a file after FuzeWorks has run.
      *
      * @var bool
      */
-    private static $log_to_file = false;
+    private static $log_last_request = false;
+
+    /**
+     * Whether to output the log of all errors to a file after FuzeWorks has run
+     *
+     * @var bool
+     */
+    private static $log_errors_to_file = false;
 
     /**
      * The template to use when parsing the debug log
@@ -117,10 +123,6 @@ class Logger {
             set_error_handler(array('\FuzeWorks\Logger', 'errorHandler'), E_ALL);
             set_Exception_handler(array('\FuzeWorks\Logger', 'exceptionHandler'));           
         }
-        elseif ($cfg_error->tracy_error_reporting == true && self::$useTracy === true)
-        {
-            // Register with tracy
-        }
         // @codeCoverageIgnoreEnd
 
         // Set PHP error reporting
@@ -131,7 +133,8 @@ class Logger {
 
         // Set the environment variables
         self::$debug = (ENVIRONMENT === 'DEVELOPMENT');
-        self::$log_to_file = $cfg_error->log_to_file;
+        self::$log_last_request = $cfg_error->log_last_request_to_file;
+        self::$log_errors_to_file = $cfg_error->log_errors_to_file;
         self::$logger_template = $cfg_error->logger_template;
         self::newLevel('Logger Initiated');
 
@@ -159,10 +162,13 @@ class Logger {
             self::logToScreen();
         }
 
-        if (self::$log_to_file == true)
+        if (self::$log_last_request == true)
         {
-            self::logToFile();
+            self::logLastRequest();
         }
+
+        if (self::$log_errors_to_file == true)
+            self::logErrorsToFile();
     }
 
     /**
@@ -273,16 +279,36 @@ class Logger {
      * Output the entire log to a file. Used for debugging problems with your code.
      * @codeCoverageIgnore
      */
-    public static function logToFile()
+    public static function logLastRequest()
     {
         ob_start(function () {});
         $logs = self::$Logs;
-        require(dirname(__DIR__) . DS . 'Layout' . DS . 'layout.logger_cli.php');
+        require(dirname(__DIR__) . DS . 'Layout' . DS . 'layout.logger_file.php');
         $contents = ob_get_clean();
-        $file = Core::$logDir . DS . 'log_latest.php';
+        $file = Core::$logDir . DS . 'fwlog_request.log';
         if (is_writable(dirname($file))) {
-            file_put_contents($file, '<?php ' . $contents);
+            file_put_contents($file, $contents);
         }
+    }
+
+    /**
+     * Output all erros to a file. Used for tracking all errors in FuzeWorks and associated code
+     * @codeCoverageIgnore
+     */
+    public static function logErrorsToFile()
+    {
+        ob_start(function() {});
+        $logs = [];
+        foreach (self::$Logs as $log)
+        {
+            if ($log['type'] === 'ERROR')
+                $logs[] = $log;
+        }
+        require(dirname(__DIR__) . DS . 'Layout' . DS . 'layout.logger_file.php');
+        $contents = ob_get_clean();
+        $file = Core::$logDir . DS . 'fwlog_errors.log';
+        if (is_writable(dirname($file)))
+            file_put_contents($file, $contents, FILE_APPEND | LOCK_EX);
     }
 
     /* =========================================LOGGING METHODS============================================================== */
