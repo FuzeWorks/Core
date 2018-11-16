@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * FuzeWorks Framework Core.
  *
@@ -29,15 +29,24 @@
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 1.1.1
+ * @since Version 1.2.0
  *
  * @version Version 1.2.0
  */
 
-return array(
-  'fuzeworks_error_reporting' => true,
-  'php_error_reporting' => false,
-  'log_errors_to_file' => true,
-  'log_last_request_to_file' => false,
-  'logger_template' => 'logger_default',
-);
+$mask = "|%5s |%-95s |\n";
+$id = 1;
+
+if (!empty($logs))
+    printf($mask, $id, '     REQUEST ' . date('Y-m-d H:i') . '-'.substr(sha1(uniqid()), 0, 8).'');
+
+foreach ($logs as $log) {
+    $id++;
+
+    $string = '';
+    $string .= '[ERROR]' . ' - ';
+    $string .= $log['message'];
+}
+
+if (!empty($logs))
+    printf($mask. $id);

@@ -129,10 +129,10 @@ class configuratorTest extends CoreTestAbstract
 
         // Create a log and write off to file
         Logger::log('Test log for the file');
-        Logger::logToFile();
+        Logger::logLastRequest();
 
         // Assert if exist
-        $this->assertTrue($fs->hasChild('log_latest.php'));
+        $this->assertTrue($fs->hasChild('fwlog_request.log'));
     }
 
     /**
