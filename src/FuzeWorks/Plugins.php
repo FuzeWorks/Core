@@ -110,7 +110,6 @@ class Plugins
 	public function loadHeadersFromPluginPaths()
 	{
 		// Cycle through all pluginPaths
-		$this->headers = array();
 		foreach ($this->pluginPaths as $pluginPath) {
 			
 			// If directory does not exist, skip it
@@ -165,7 +164,7 @@ class Plugins
 	protected function loadHeader(iPluginHeader $header): bool
     {
         // Fetch the name
-        $pluginName = $header->getName();
+        $pluginName = ucfirst($header->getName());
 
         // Check if the plugin is disabled
         if (in_array($pluginName, $this->cfg->disabled_plugins))
