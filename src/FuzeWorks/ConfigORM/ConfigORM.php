@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -43,7 +43,7 @@ use FuzeWorks\Exception\ConfigException;
  * Handles entries in the config directory of FuzeWorks and is able to dynamically update them when requested
  *
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 class ConfigORM extends ConfigORMAbstract
 {
@@ -55,28 +55,30 @@ class ConfigORM extends ConfigORMAbstract
     private $file;
 
     /**
-     * Sets up the class and the connection to the PHP file.
+     * Load the ConfigORM file.
      *
-     * @param string $filename The current filename
-     *
-     * @throws ConfigException on fatal error
+     * @param string $file
+     * @return ConfigORM
+     * @throws ConfigException
      */
-    public function __construct($file = null)
+    public function load(string $file = ''): ConfigORM
     {
-        if (is_null($file))
+        if (empty($file))
         {
             throw new ConfigException('Could not load config file. No file provided', 1);
         }
-        elseif (file_exists($file)) 
+        elseif (file_exists($file))
         {
             $this->file = $file;
             $this->cfg = (array) include $file;
             $this->originalCfg = $this->cfg;
-        } 
-        else 
+        }
+        else
         {
             throw new ConfigException('Could not load config file. Config file does not exist', 1);
         }
+
+        return $this;
     }
 
     /**
@@ -84,7 +86,7 @@ class ConfigORM extends ConfigORMAbstract
      *
      * @throws ConfigException on fatal error
      */
-    public function commit()
+    public function commit(): bool
     {
     	// Write the changes
         if (is_writable($this->file)) {

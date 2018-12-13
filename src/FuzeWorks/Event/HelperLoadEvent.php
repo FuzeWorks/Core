@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -44,7 +44,7 @@ use FuzeWorks\Event;
  * Use this to cancel the loading of a helper, or change the helper to be loaded
  *
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 class HelperLoadEvent extends Event
 {
@@ -59,29 +59,14 @@ class HelperLoadEvent extends Event
     /**
      * The directory of the helper that gets loaded
      *
-     * @var string
+     * @var array
      */
-    public $helperFile;
+    public $helperPaths;
 
-    /**
-     * An optional extension helper name that can get loaded.
-     *
-     * @var string|null
-     */
-    public $extendedHelperName = null;
 
-    /**
-     * The directory of an optional extension helper that can get loaded
-     *
-     * @var string|null
-     */
-    public $extendedHelperFile = null;
-
-    public function init($helperName, $helperFile, $extendedHelperName = null, $extendedHelperFile = null)
+    public function init(string $helperName, array $helperPaths)
     {
         $this->helperName = $helperName;
-        $this->helperFile = $helperFile;
-        $this->extendedHelperName = $extendedHelperName;
-        $this->extendedHelperFile = $extendedHelperFile;
+        $this->helperPaths = $helperPaths;
     }
 }

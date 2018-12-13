@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -47,7 +47,7 @@ use Tracy\Debugger;
  * Afterwards it blocks a screen log so that the content is not shown on the screen as well.
  *
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 class LoggerTracyBridge implements IBarPanel {
 

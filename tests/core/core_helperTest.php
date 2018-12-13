@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -34,7 +34,8 @@
  * @version Version 1.2.0
  */
 
-use FuzeWorks\Factory;
+use FuzeWorks\EventPriority;
+use FuzeWorks\Events;
 use FuzeWorks\Helpers;
 
 /**
@@ -52,8 +53,9 @@ class helperTest extends CoreTestAbstract
 
 	public function setUp()
 	{
-		$factory = Factory::getInstance();
-		$this->helpers = $factory->helpers;
+		// Prepare class
+	    $this->helpers = new Helpers();
+		$this->helpers->setDirectories(['tests' . DS . 'helpers']);
 	}
 
     public function testGetHelpersClass()
@@ -61,20 +63,96 @@ class helperTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Helpers', $this->helpers);
     }
 
+    /**
+     * @covers \FuzeWorks\Helpers::load
+     */
     public function testLoadHelper()
     {
     	// First test if the function/helper is not loaded yet
     	$this->assertFalse(function_exists('testHelperFunction'));
 
     	// Test if the helper is properly loaded
-    	$this->assertTrue($this->helpers->load('test', 'tests'.DS.'helpers'.DS.'testLoadHelper'.DS));
+    	$this->assertTrue($this->helpers->load('testLoadHelper'));
 
     	// Test if the function exists now
     	$this->assertTrue(function_exists('testHelperFunction'));
     }
 
     /**
+     * @depends testLoadHelper
+     * @covers \FuzeWorks\Helpers::load
+     */
+    public function testLoadHelperWithoutSubdirectory()
+    {
+        // First test if the function/helper is not loaded yet
+        $this->assertFalse(function_exists('testLoadHelperWithoutSubdirectory'));
+
+        // Try and load the helper
+        $this->assertTrue($this->helpers->load('testLoadHelperWithoutSubdirectory'));
+
+        // Then test if the function/helper is loaded
+        $this->assertTrue(function_exists('testLoadHelperWithoutSubdirectory'));
+    }
+
+    /**
+     * @depends testLoadHelper
+     * @covers \FuzeWorks\Helpers::load
+     */
+    public function testReloadHelper()
+    {
+        // First test if the function/helper is not loaded yet
+        $this->assertFalse(function_exists('testReloadHelper'));
+
+        // Try and load the helper
+        $this->assertTrue($this->helpers->load('testReloadHelper'));
+
+        // Then test if the function/helper is loaded
+        $this->assertTrue(function_exists('testReloadHelper'));
+
+        // Try and reload the helper
+        $this->assertFalse($this->helpers->load('testReloadHelper'));
+
+        // Test that the function still exists
+        $this->assertTrue(function_exists('testReloadHelper'));
+    }
+
+    /**
+     * @depends testLoadHelper
+     * @covers \FuzeWorks\Helpers::load
+     */
+    public function testCancelLoadHelper()
+    {
+        // First test if the function/helper is not loaded yet
+        $this->assertFalse(function_exists('testCancelLoadHelper'));
+
+        // Prepare listener
+        Events::addListener(function($event) {
+            $event->setCancelled(true);
+
+        }, 'helperLoadEvent', EventPriority::NORMAL);
+
+        $this->assertFalse($this->helpers->load('testCancelLoadHelper'));
+    }
+
+    /**
+     * @depends testLoadHelper
+     * @covers \FuzeWorks\Helpers::get
+     */
+    public function testGetHelper()
+    {
+        // First test if the function/helper is not loaded yet
+        $this->assertFalse(function_exists('testGetHelper'));
+
+        // Test if the helper is properly loaded
+        $this->assertTrue($this->helpers->get('testGetHelper'));
+
+        // Test if the function exists now
+        $this->assertTrue(function_exists('testGetHelper'));
+    }
+
+    /**
      * @expectedException FuzeWorks\Exception\HelperException
+     * @covers \FuzeWorks\Helpers::load
      */
     public function testAddHelperPathFail()
     {
@@ -82,11 +160,13 @@ class helperTest extends CoreTestAbstract
     	$this->assertFalse(function_exists('testAddHelperPathFunction'));
 
     	// Now test if the helper can be loaded (hint: it can not)
-    	$this->helpers->load('testAddHelperPath');
+    	$this->helpers->load('testAddHelperPathFail');
     }
 
     /**
      * @depends testAddHelperPathFail
+     * @covers \FuzeWorks\Helpers::addHelperPath
+     * @covers \FuzeWorks\Helpers::getHelperPaths
      */
     public function testAddHelperPath()
     {
@@ -100,6 +180,10 @@ class helperTest extends CoreTestAbstract
     	$this->assertTrue(function_exists('testAddHelperPathFunction'));
     }
 
+    /**
+     * @covers \FuzeWorks\Helpers::removeHelperPath
+     * @covers \FuzeWorks\Helpers::getHelperPaths
+     */
     public function testRemoveHelperPath()
     {
     	// Test if the path does NOT exist
@@ -118,12 +202,18 @@ class helperTest extends CoreTestAbstract
     	$this->assertFalse(in_array('tests'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
     }
 
+    /**
+     * @covers \FuzeWorks\Helpers::setDirectories
+     * @covers \FuzeWorks\Helpers::getHelperPaths
+     */
     public function testSetDirectories()
     {
         // Add the directory
         $directory = 'tests' . DS . 'helpers';
         $this->helpers->setDirectories([$directory]);
 
-        $this->assertEquals([$directory], $this->helpers->getHelperPaths());
+        // Assert expectations
+        $expected = array_merge(\FuzeWorks\Core::$appDirs, ['tests' . DS . 'helpers', $directory]);
+        $this->assertEquals($expected, $this->helpers->getHelperPaths());
     }
 }

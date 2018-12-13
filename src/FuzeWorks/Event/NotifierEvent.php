@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -41,7 +41,7 @@ use FuzeWorks\Event;
  * Simple event which will notify components of an event, but does not contain any data.
  *
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 class NotifierEvent extends Event
 {

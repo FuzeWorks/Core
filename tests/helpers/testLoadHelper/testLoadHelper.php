@@ -33,16 +33,11 @@
  *
  * @version Version 1.2.0
  */
-require_once('../vendor/autoload.php');
+if ( ! function_exists('testHelperFunction'))
+{
 
-$configurator = new FuzeWorks\Configurator();
-
-//$configurator->setDebugMode('23.75.345.200'); // enable for your remote IP
-//$configurator->enableDebugger(__DIR__ . '/../log');
-
-$configurator->setTimeZone('Europe/Amsterdam');
-$configurator->setTempDirectory(__DIR__ . '/temp');
-
-$container = $configurator->createContainer();
-
-return $container;
+	function testHelperFunction($someParameter)
+	{
+		return 'SomeResult';
+	}
+}

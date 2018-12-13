@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -49,7 +49,7 @@ use Tracy\Debugger;
  * 
  * This allows for more flexible startups.
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 class Configurator
 {
@@ -88,7 +88,7 @@ class Configurator
      * @return Configurator
      * @throws InvalidArgumentException
      */
-    public function setLogDirectory(string $path)
+    public function setLogDirectory(string $path): Configurator
     {
         if (!is_dir($path))
             throw new InvalidArgumentException("Could not set log directory. Directory does not exist", 1);
@@ -104,7 +104,7 @@ class Configurator
      * @return Configurator
      * @throws InvalidArgumentException
      */
-    public function setTempDirectory(string $path)
+    public function setTempDirectory(string $path): Configurator
     {
         if (!is_dir($path))
             throw new InvalidArgumentException("Could not set temp directory. Directory does not exist", 1);
@@ -120,7 +120,7 @@ class Configurator
      * @param string $category Optional. Defaults to 'app
      * @return $this
      */
-    public function addDirectory(string $directory, string $category = 'app')
+    public function addDirectory(string $directory, string $category = 'app'): Configurator
     {
         $this->directories[$category][] = $directory;
 
@@ -135,7 +135,7 @@ class Configurator
      * @param iComponent $component
      * @return Configurator
      */
-    public function addComponent(iComponent $component)
+    public function addComponent(iComponent $component): Configurator
     {
         foreach ($component->getClasses() as $objectName => $className) {
             $this->components[$objectName] = $className;
@@ -152,7 +152,7 @@ class Configurator
      * @return Configurator
      * @throws InvalidArgumentException
      */
-    public function setTimeZone(string $timezone)
+    public function setTimeZone(string $timezone): Configurator
     {
         if (!date_default_timezone_set($timezone))
             throw new InvalidArgumentException("Could not set timezone. Invalid timezone provided.", 1);
@@ -166,7 +166,7 @@ class Configurator
      * @param array $params
      * @return Configurator
      */
-    public function setParameters(array $params)
+    public function setParameters(array $params): Configurator
     {
         foreach ($params as $key => $value) {
             $this->parameters[$key] = $value;
@@ -182,7 +182,7 @@ class Configurator
      * @param bool $bool
      * @return Configurator
      */
-    public function enableDebugMode(bool $bool = true)
+    public function enableDebugMode(bool $bool = true): Configurator
     {
         $this->parameters['debugEnabled'] = $bool;
 
@@ -197,7 +197,7 @@ class Configurator
      * @return Configurator
      * @throws InvalidArgumentException
      */
-    public function setDebugAddress($address = 'NONE')
+    public function setDebugAddress($address = 'NONE'): Configurator
     {
         // First we fetch the list
         if (!is_string($address) && !is_array($address))
@@ -240,7 +240,7 @@ class Configurator
      * @param string
      * @return Configurator
      */
-    public function setDebugEmail($email): self
+    public function setDebugEmail($email): Configurator
     {
         $this->parameters['debugEmail'] = $email;
 
@@ -303,7 +303,8 @@ class Configurator
             if ($component == 'app')
                 continue;
 
-            $container->{$component}->setDirectories($directories);
+            if (method_exists($container->{$component}, 'setDirectories'))
+                $container->{$component}->setDirectories($directories);
         }
 
         return $container;

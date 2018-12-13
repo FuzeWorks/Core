@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -35,6 +35,8 @@
  */
 
 namespace FuzeWorks;
+use FuzeWorks\Event\HelperLoadEvent;
+use FuzeWorks\Exception\EventException;
 use FuzeWorks\Exception\HelperException;
 
 /**
@@ -54,7 +56,7 @@ use FuzeWorks\Exception\HelperException;
  * it becomes globally available to everything. 
  *
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 class Helpers
 {
@@ -64,7 +66,7 @@ class Helpers
      * 
      * @var array Array of loaded helperNames
      */
-    protected $helpers = array();
+    protected $helpers = [];
 
     /**
      * Paths where Helpers can be found. 
@@ -73,31 +75,28 @@ class Helpers
      * 
      * @var array Array of paths where helpers can be found
      */
-    protected $helperPaths = array();
+    protected $helperPaths = [];
 
     public function __construct()
     {
         $this->helperPaths = Core::$appDirs;
-        $this->helperPaths[] = Core::$coreDir . DS . 'Helpers';
     }
 
     /**
      * Load a helper.
-     * 
+     *
      * Supply the name and the helper will be loaded from the supplied directory,
      * or from one of the helperPaths (which you can add).
-     * 
-     * @param string        $helperName Name of the helper
-     * @param string|null   $directory  Directory to load the helper from, will ignore $helperPaths
-     * @return bool                     Whether the helper was succesfully loaded (true if yes)
+     *
+     * @param string $helperName Name of the helper
+     * @param array $helperDirectories
+     * @return bool                     Whether the helper was successfully loaded (true if yes)
+     * @throws HelperException
      */
-    public function load($helperName, $directory = null): bool
+    public function load(string $helperName, array $helperDirectories = []): bool
     {
-        // First determine the name of the helper
-        $helperName = strtolower(str_replace(array('_helper', '.php'), '', $helperName).'_helper');
-        
         // Determine what directories should be checked
-        $directories = (is_null($directory) ? $this->helperPaths : array($directory));
+        $helperPaths = (empty($helperDirectories) ? $this->helperPaths : $helperDirectories);
 
         // Check it is already loaded
         if (isset($this->helpers[$helperName]))
@@ -106,61 +105,44 @@ class Helpers
             return false;
         }
 
-        // First check if there is an 'extension' class
-        $extendedHelper = Factory::getInstance()->config->get('main')->application_prefix . $helperName;
-        $extendedHelperLoaded = false;
-        foreach ($directories as $helperPath) 
-        {
-            $file = $helperPath . DS . $extendedHelper . '.php';
-            if (file_exists($file))
-            {
-                $extendedHelperLoaded = true;
-                $extendedHelperFile = $file;
-            }
+        /** @var HelperLoadEvent $event */
+        try {
+            $event = Events::fireEvent('helperLoadEvent', $helperName, $helperPaths);
+
+            // @codeCoverageIgnoreStart
+        } catch (EventException $e) {
+            throw new HelperException("Could not load helper. helperLoadEvent failed: '" . $e->getMessage() . "''");
+            // @codeCoverageIgnoreEnd
         }
 
-        // If an extension is loaded there needs to be a base helper
-        if ($extendedHelperLoaded)
+        // If cancelled by event, abort loading helper
+        if ($event->isCancelled())
         {
-            $baseHelper = Core::$coreDir . DS . 'Helpers' . DS . $helperName.'.php';
-            if (!file_exists($baseHelper))
-            {
-                throw new HelperException("Could not load helper. Base Helper not found while Extension loaded", 1);
-            }
-
-            // Fire the associated event
-            $event = Events::fireEvent('helperLoadEvent', $helperName, $baseHelper, $extendedHelper, $extendedHelperFile);
-            if ($event->isCancelled()) 
-            {
-                Logger::log("Not loading helper. Aborted by event");
-                return false;
-            }
-
-            include_once($event->extendedHelperFile);
-            include_once($event->helperFile);
-            $this->helpers[$event->helperName] = true;
-            Logger::log("Loading base helper '".$event->helperName."' and extended helper '".$event->extendedHelperName."'");
-            return true;
+            Logger::log("Not loading helper. Aborted by event");
+            return false;
         }
 
-        // If no extension exists, try loading a regular helper
-        foreach ($directories as $helperPath) 
+        // Iterate over helperPaths and attempt to load if helper exists
+        foreach ($event->helperPaths as $helperPath)
         {
-            $file = $helperPath . DS . $helperName . '.php';
+            $file = $helperPath . DS . $event->helperName . '.php';
+            $subfile = $helperPath . DS . $event->helperName . DS . $event->helperName . '.php';
             if (file_exists($file))
             {
-
-                // Fire the associated event
-                $event = Events::fireEvent('helperLoadEvent', $helperName, $file);
-                if ($event->isCancelled()) 
-                {
-                    Logger::log("Not loading helper. Aborted by event");
-                    return false;
-                }
-
-                include_once($event->helperFile);
+                // Load and register
+                include_once($file);
                 $this->helpers[$event->helperName] = true;
-                Logger::log("Loading helper '".$event->helperName."'");
+                Logger::log("Loaded helper '".$event->helperName."'");
+                return true;
+            }
+
+            // If php file not in main directory, check subdirectories
+            elseif (file_exists($subfile))
+            {
+                // Load and register
+                include_once($subfile);
+                $this->helpers[$event->helperName] = true;
+                Logger::log("Loaded helper '".$event->helperName."''");
                 return true;
             }
         }
@@ -173,13 +155,13 @@ class Helpers
      * @see load() for more details
      *
      * @param string $helperName Name of the helper
-     * @param string|null $directory Directory to load the helper from, will ignore $helperPaths
-     * @return bool                     Whether the helper was succesfully loaded (true if yes)
+     * @param array $helperPaths
+     * @return bool                     Whether the helper was successfully loaded (true if yes)
      * @throws HelperException
      */
-    public function get($helperName, $directory = null): bool
+    public function get($helperName, array $helperPaths = []): bool
     {
-        return $this->load($helperName, $directory);
+        return $this->load($helperName, $helperPaths);
     }
 
     /**
@@ -189,7 +171,7 @@ class Helpers
      */
     public function setDirectories(array $directories)
     {
-        $this->helperPaths = $directories;
+        $this->helperPaths = array_merge($this->helperPaths, $directories);
     }
 
     /**

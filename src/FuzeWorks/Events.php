@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -35,6 +35,7 @@
  */
 
 namespace FuzeWorks;
+use FuzeWorks\Event\NotifierEvent;
 use FuzeWorks\Exception\EventException;
 
 /**
@@ -56,7 +57,7 @@ use FuzeWorks\Exception\EventException;
  * $event->title = date('H:i:s ').$event->title;
  *
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 class Events
 {
@@ -159,8 +160,6 @@ class Events
      *
      * @param   mixed $input Object for direct event, string for system event or notifierEvent
      * @param   mixed $parameters,... Parameters for the event
-     * @todo    Implement Application Events
-     * @todo    Implement Directory input for Events from other locations (like Modules)
      *
      * @return Event The Event
      * @throws EventException
@@ -197,8 +196,7 @@ class Events
             // Try a notifier event
             elseif (func_num_args() == 1)
             {
-                $class = "\FuzeWorks\Event\NotifierEvent";
-                $event = new $class();
+                $event = new NotifierEvent();
             }
 
             // Or throw an exception on failure
@@ -249,6 +247,7 @@ class Events
                         }
                         // @codeCoverageIgnoreEnd
 
+                        // Merge arguments and call listener
                         $args = array_merge(array($event), $callbackArray[1]);
                         call_user_func_array($callback, $args);
                         Logger::stopLevel();

@@ -25,19 +25,48 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 1.2.0
+ * @since Version 0.0.1
  *
  * @version Version 1.2.0
  */
-if ( ! function_exists('testHelperFunction'))
+
+namespace FuzeWorks\Event;
+
+use FuzeWorks\Event;
+
+/**
+ * Event that gets loaded when a config is retrieved.
+ *
+ * Use this to cancel the loading of a config, or change the config to be loaded
+ *
+ * @author    TechFuze <contact@techfuze.net>
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
+ */
+class ConfigGetEvent extends Event
 {
 
-	function testHelperFunction($someParameter)
-	{
-		return 'SomeResult';
-	}
+    /**
+     * The name of the config that gets retrieved
+     *
+     * @var string
+     */
+    public $configName;
+
+    /**
+     * The directories the config might be found in
+     *
+     * @var array
+     */
+    public $configPaths;
+
+
+    public function init(string $configName, array $configPaths)
+    {
+        $this->configName = $configName;
+        $this->configPaths = $configPaths;
+    }
 }

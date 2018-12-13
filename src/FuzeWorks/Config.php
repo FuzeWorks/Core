@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -36,6 +36,7 @@
 
 namespace FuzeWorks;
 use FuzeWorks\ConfigORM\ConfigORM;
+use FuzeWorks\Event\ConfigGetEvent;
 use FuzeWorks\Exception\ConfigException;
 
 /**
@@ -44,8 +45,7 @@ use FuzeWorks\Exception\ConfigException;
  * This class gives access to the config files. It allows you to open configurations and edit them.
  *
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
- * @todo      Implement config extensions
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 class Config
 {
@@ -55,7 +55,7 @@ class Config
      * 
      * @var array Array of all loaded config file ORM's
      */
-    protected $cfg = array();
+    protected $cfg = [];
 
     /**
      * Paths where Helpers can be found. 
@@ -64,7 +64,7 @@ class Config
      * 
      * @var array Array of paths where helpers can be found
      */
-    protected $configPaths = array();
+    protected $configPaths = [];
 
     public function __construct()
     {
@@ -79,7 +79,7 @@ class Config
      * @return  ConfigORM of the config file. Allows for easy reading and editing of the file
      * @throws  ConfigException
      */
-    public function getConfig($configName, array $configPaths = array()): ConfigORM
+    public function getConfig(string $configName, array $configPaths = []): ConfigORM
     {
         // First determine what directories to use
         $directories = (empty($configPaths) ? $this->configPaths : $configPaths);
@@ -97,12 +97,22 @@ class Config
         $this->cfg[$configName] = $this->loadConfigFile($configName, $directories);
         return $this->cfg[$configName];
     }
-    
+
+    /**
+     * @param $configName
+     * @return ConfigORM
+     * @throws ConfigException
+     */
     public function get($configName): ConfigORM
     {
         return $this->getConfig($configName);
     }
 
+    /**
+     * @param $configName
+     * @return ConfigORM
+     * @throws ConfigException
+     */
     public function __get($configName): ConfigORM
     {
         return $this->getConfig($configName);
@@ -113,7 +123,7 @@ class Config
      */
     public function discardConfigFiles()
     {
-        $this->cfg = array();
+        $this->cfg = [];
     }
 
     /**
@@ -124,30 +134,46 @@ class Config
      * @return  ConfigORM of the config file. Allows for easy reading and editing of the file
      * @throws  ConfigException
      */
-    protected function loadConfigFile($configName, array $configPaths): ConfigORM
+    protected function loadConfigFile(string $configName, array $configPaths): ConfigORM
     {
+        // Fire event to intercept the loading of a config file
+        /** @var ConfigGetEvent $event */
+        try {
+            $event = Events::fireEvent('configGetEvent', $configName, $configPaths);
+            // @codeCoverageIgnoreStart
+        } catch (Exception\EventException $e) {
+            throw new ConfigException("Could not load config. ConfigGetEvent fired exception: '" . $e->getMessage() . "''", 1);
+            // @codeCoverageIgnoreEnd
+        }
+
+        // If cancelled, load empty config
+        if ($event->isCancelled())
+        {
+            return new ConfigORM();
+        }
+
         // Cycle through all directories
-        foreach ($configPaths as $directory) 
+        foreach ($event->configPaths as $configPath)
         {
             // If file exists, load it and break the loop
-            $file = $directory . DS . 'config.'.$configName.'.php';
+            $file = $configPath . DS . 'config.'.$event->configName.'.php';
             if (file_exists($file))
             {
                 // Load object
-                return new ConfigORM($file);
+                return (new ConfigORM())->load($file);
                 break;
             }
         }
 
         // Try fallback
-        $file = Core::$coreDir . DS . 'Config' . DS . 'config.' . $configName . '.php';
+        $file = Core::$coreDir . DS . 'Config' . DS . 'config.' . $event->configName . '.php';
         if (file_exists($file))
         {
             // Load object
-            return new ConfigORM($file);
+            return (new ConfigORM())->load($file);
         }
 
-        throw new ConfigException("Could not load config. File $configName not found", 1);
+        throw new ConfigException("Could not load config. File $event->configName not found", 1);
     }
 
     /**
@@ -157,7 +183,7 @@ class Config
      */
     public function setDirectories(array $directories)
     {
-        $this->configPaths = $directories;
+        $this->configPaths = array_merge($this->configPaths, $directories);
     }
 
     /**

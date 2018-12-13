@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -35,6 +35,8 @@
  */
 
 namespace FuzeWorks;
+use FuzeWorks\ConfigORM\ConfigORM;
+use FuzeWorks\Event\PluginGetEvent;
 use FuzeWorks\Exception\PluginException;
 use ReflectionClass;
 use ReflectionException;
@@ -54,10 +56,9 @@ use ReflectionException;
  * 
  * Next a plugin class should be created. This file should be named the same as the folder, and be in the Application\Plugin namespace. An alternative classname can be set in the header, by creating a public $className variable. This plugin can be called using the $plugins->get() method.
  *
- * @todo 	  Implement events
  * @todo      Add methods to enable and disable plugins
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 class Plugins
 {
@@ -94,8 +95,7 @@ class Plugins
 
     /**
      * Called upon creation of the plugins class.
-     * 
-     * @param string $directory The directory
+     *
      * @return void
      */
 	public function __construct()
@@ -200,7 +200,7 @@ class Plugins
      *
      * @param string $pluginName Name of the plugin
      * @param array $parameters Parameters to send to the __construct() method
-     * @return object                    Plugin
+     * @return mixed Plugin on success, bool on cancellation
      * @throws Exception\EventException
      * @throws PluginException
      * @throws ReflectionException
@@ -216,7 +216,8 @@ class Plugins
 		$pluginName = ucfirst($pluginName);
 
 		// Fire pluginGetEvent, and cancel or return custom plugin if required
-		$event = Events::fireEvent('pluginGetEvent', $pluginName);
+        /** @var PluginGetEvent $event */
+        $event = Events::fireEvent('pluginGetEvent', $pluginName);
 		if ($event->isCancelled())
 		{
 			return false;
@@ -291,7 +292,7 @@ class Plugins
      */
     public function setDirectories(array $directories)
     {
-        $this->pluginPaths = $directories;
+        $this->pluginPaths = array_merge($this->pluginPaths, $directories);
     }
 
     /**

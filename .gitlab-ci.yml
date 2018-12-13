@@ -8,7 +8,7 @@ stages:
   - deploy
 
 build:composer:
-  image: php:7.1
+  image: php:7.2
   stage: build
   script: 
   - curl -sS https://getcomposer.org/installer | php
@@ -18,9 +18,9 @@ build:composer:
     paths:
     - vendor/
 
-test:7.0:
+test:7.1:
   stage: test
-  image: php:7.0
+  image: php:7.1
   script:
   - vendor/bin/phpunit -c tests/phpunit.xml --coverage-text
   cache:
@@ -28,9 +28,9 @@ test:7.0:
     paths:
     - vendor
 
-test:7.1:
+test:7.2:
   stage: test
-  image: php:7.1
+  image: php:7.2
   script:
   - vendor/bin/phpunit -c tests/phpunit.xml --coverage-text
   cache:
@@ -40,7 +40,7 @@ test:7.1:
 
 release:
   stage: deploy
-  image: php:7.1
+  image: php:7.2
   only:
   - master
   script:

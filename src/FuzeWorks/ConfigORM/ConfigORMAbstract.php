@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -44,23 +44,23 @@ use Iterator;
  * A file can also be returned using toArray(), so it will be converted to an array
  *
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  */
 abstract class ConfigORMAbstract implements Iterator
 {
     /**
      * The original state of a config file. Can be reverted to using revert().
      *
-     * @var StdObject Config file
+     * @var array Config file
      */
-    protected $originalCfg;
+    protected $originalCfg = [];
 
     /**
      * The current state of a config file.
      *
-     * @var StdObject Config file
+     * @var array Config file
      */
-    protected $cfg;
+    protected $cfg = [];
 
     /**
      * Revert to the original conditions of the config file.

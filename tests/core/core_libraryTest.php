@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -34,6 +34,7 @@
  * @version Version 1.2.0
  */
 
+use FuzeWorks\Core;
 use FuzeWorks\Factory;
 use FuzeWorks\Libraries;
 
@@ -52,11 +53,11 @@ class libraryTest extends CoreTestAbstract
 
     public function setUp()
     {
-        $factory = Factory::getInstance();
-        $this->libraries = $factory->libraries;
+        // Load new libraries class
+        $this->libraries = new Libraries();
 
-        // And then remove all paths
-        $this->libraries->setDirectories([]);
+        // And then set all paths
+        $this->libraries->setDirectories(['tests'.DS.'libraries']);
     }
 
     public function testLibrariesClass()
@@ -67,15 +68,31 @@ class libraryTest extends CoreTestAbstract
     /* ---------------------------------- LibraryPaths ---------------------------------------------- */
 
     /**
+     * @depends testLibrariesClass
+     */
+    public function testSetDirectories()
+    {
+        // Test initial
+        $initial = array_merge(Core::$appDirs, ['tests'.DS.'libraries']);
+        $this->assertEquals($initial, $this->libraries->getLibraryPaths());
+
+        // Add path
+        $newPath = 'addPath';
+        $this->libraries->setDirectories([$newPath]);
+        $initial[] = $newPath;
+        $this->assertEquals($initial, $this->libraries->getLibraryPaths());
+    }
+
+    /**
      * @expectedException FuzeWorks\Exception\LibraryException
      */
     public function testAddLibraryPathFail()
     {
         // First test if the library is not loaded yet
-        $this->assertFalse(class_exists('TestAddLibraryPath', false));
+        $this->assertFalse(class_exists('TestAddLibraryPathFail', false));
 
         // Now test if the library can be loaded (hint: it can not)
-        $this->libraries->get('TestAddLibraryPath');
+        $this->libraries->get('TestAddLibraryPathFail');
     }
 
     /**
@@ -84,6 +101,7 @@ class libraryTest extends CoreTestAbstract
     public function testAddLibraryPath()
     {
         // Add the libraryPath
+        $this->libraries->removeLibraryPath('tests'.DS.'libraries');
         $this->libraries->addLibraryPath('tests'.DS.'libraries'.DS.'testAddLibraryPath');
 
         // And try to load it again
@@ -115,9 +133,6 @@ class libraryTest extends CoreTestAbstract
      */
     public function testGetLibraryFromDirectory()
     {
-        // Add test directory path
-        $this->libraries->addLibraryPath('tests'.DS.'libraries'.DS.'testGetLibraryFromDirectory');
-
         $this->assertInstanceOf('Application\Library\TestGetLibraryFromDirectory', $this->libraries->get('TestGetLibraryFromDirectory'));
     }
 
@@ -139,7 +154,7 @@ class libraryTest extends CoreTestAbstract
     {
         // Simple test of loading a library and checking if it exists
         $this->assertInstanceOf('Application\Library\TestGetLibraryFromAltDirectory',
-            $this->libraries->get('TestGetLibraryFromAltDirectory', [], 'tests'.DS.'libraries'.DS.'testGetLibraryFromAltDirectory'));
+            $this->libraries->get('TestGetLibraryFromAltDirectory', [], ['tests'.DS.'libraries'.DS.'testGetLibraryFromAltDirectory']));
     }
 
     /**
@@ -163,7 +178,7 @@ class libraryTest extends CoreTestAbstract
      */
     public function testGetLibraryNoClass()
     {
-        $this->libraries->get('TestGetLibraryNoClass', [], 'tests'.DS.'libraries'.DS.'testGetLibraryNoClass');
+        $this->libraries->get('TestGetLibraryNoClass');
     }
 
     public function testGetLibraryParametersFromConfig()
@@ -174,7 +189,7 @@ class libraryTest extends CoreTestAbstract
         $config = Factory::getInstance()->config->getConfig(strtolower($libraryName), [$libraryDir]);
 
         // Load the library
-        $lib = $this->libraries->get('TestGetLibraryParametersFromConfig', [], $libraryDir);
+        $lib = $this->libraries->get('TestGetLibraryParametersFromConfig');
         $this->assertInstanceOf('Application\Library\TestGetLibraryParametersFromConfig', $lib);
 
         // And check the parameters

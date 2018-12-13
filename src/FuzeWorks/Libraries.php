@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -78,6 +78,7 @@ class Libraries
     public function __construct()
     {
         $this->factory = Factory::getInstance();
+        $this->libraryPaths = Core::$appDirs;
     }
 
     /**
@@ -117,11 +118,11 @@ class Libraries
      *
      * @param string $libraryName
      * @param array $parameters
-     * @param string $altDirectory
+     * @param array $altDirectories
      * @return object
      * @throws LibraryException
      */
-    public function get(string $libraryName, array $parameters = [], string $altDirectory = '')
+    public function get(string $libraryName, array $parameters = [], array $altDirectories = [])
     {
         // Test for empty string
         if (empty($libraryName))
@@ -142,8 +143,8 @@ class Libraries
 
         // Try and load from the alternate directory if provided
         $paths = $this->libraryPaths;
-        if (!empty($altDirectory))
-            array_unshift($paths, $altDirectory);
+        if (!empty($altDirectories))
+            $paths = $altDirectories;
 
         // Try and find the library in the libraryPaths
         foreach ($paths as $path)
@@ -218,7 +219,7 @@ class Libraries
      */
     public function setDirectories(array $directories)
     {
-        $this->libraryPaths = $directories;
+        $this->libraryPaths = array_merge($this->libraryPaths, $directories);
     }
 
     /**

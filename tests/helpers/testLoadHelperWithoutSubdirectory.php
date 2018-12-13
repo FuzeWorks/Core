@@ -25,19 +25,20 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 1.2.0
+ * @since Version 0.0.1
  *
  * @version Version 1.2.0
  */
-if ( ! function_exists('testAddHelperPathFunction'))
+
+if ( ! function_exists('testLoadHelperWithoutSubdirectory'))
 {
 
-	function testAddHelperPathFunction($someParameter)
-	{
-		return 'SomeResult';
-	}
+    function testLoadHelperWithoutSubdirectory($someParameter)
+    {
+        return 'SomeResult';
+    }
 }

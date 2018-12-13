@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -35,6 +35,9 @@
  */
 
 use FuzeWorks\Config;
+use FuzeWorks\Event\ConfigGetEvent;
+use FuzeWorks\EventPriority;
+use FuzeWorks\Events;
 
 /**
  * Class ConfigTest.
@@ -75,6 +78,38 @@ class configTest extends CoreTestAbstract
 	{
 		$this->config->getConfig('notFound');
 	}
+
+    /**
+     * @depends testLoadConfig
+     */
+	public function testLoadConfigCancel()
+    {
+        // Register listener
+        Events::addListener(function($event){
+            $event->setCancelled(true);
+        }, 'configGetEvent', EventPriority::NORMAL);
+
+        // Attempt and load a config file
+        $config = $this->config->getConfig('loadConfigCancel');
+        $this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $config);
+        $this->assertEmpty($config->toArray());
+    }
+
+    /**
+     * @depends testLoadConfig
+     */
+    public function testLoadConfigIntercept()
+    {
+        // Register listener
+        Events::addListener(function($event){
+            /** @var ConfigGetEvent $event */
+            $event->configName = 'testLoadConfigIntercept';
+        }, 'configGetEvent', EventPriority::NORMAL);
+
+        // Load file
+        $config = $this->config->getConfig('does_not_exist', ['tests'.DS.'config'.DS.'testLoadConfigIntercept']);
+        $this->assertEquals('exists', $config->it);
+    }
 
     /**
      * @expectedException FuzeWorks\Exception\ConfigException
@@ -137,7 +172,9 @@ class configTest extends CoreTestAbstract
         $directory = 'tests' . DS . 'config';
         $this->config->setDirectories([$directory]);
 
-        $this->assertEquals([$directory], $this->config->getConfigPaths());
+        // Assert expectations
+        $expected = array_merge(\FuzeWorks\Core::$appDirs, [$directory]);
+        $this->assertEquals($expected, $this->config->getConfigPaths());
     }
 
 }

@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -34,6 +34,7 @@
  * @version Version 1.2.0
  */
 
+use FuzeWorks\Core;
 use FuzeWorks\Factory;
 use FuzeWorks\Plugins;
 
@@ -213,10 +214,12 @@ class pluginTest extends CoreTestAbstract
     public function testSetDirectories()
     {
         // Add the directory
+        $appDir = Core::$appDirs[0];
         $directory = 'tests' . DS . 'helpers';
+        $expected = [$appDir, 'tests'.DS.'plugins', $directory];
         $this->plugins->setDirectories([$directory]);
 
-        $this->assertEquals([$directory], $this->plugins->getPluginPaths());
+        $this->assertEquals($expected, $this->plugins->getPluginPaths());
     }
 
     public function tearDown()

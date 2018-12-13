@@ -17,7 +17,7 @@
 
     <logging>
       <log type="json" target="../build/phpunit/logfile.json"/>
-      <log type="junit" target="../build/phpunit/logfile.xml" logIncompleteSkipped="false"/>
+      <log type="junit" target="../build/phpunit/logfile.xml"/>
       <log type="testdox-html" target="../build/phpunit/testdox.html"/>
       <log type="testdox-text" target="../build/phpunit/testdox.txt"/>
     </logging>
@@ -30,7 +30,6 @@
           <directory suffix=".php">../tests/</directory>
           <directory suffix=".php">../src/Layout/</directory>
           <directory suffix=".php">../src/Config/</directory>
-          <directory suffix=".php">../src/Language/</directory>
         </exclude>
       </whitelist>
     </filter>
