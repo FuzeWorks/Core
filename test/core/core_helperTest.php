@@ -55,7 +55,7 @@ class helperTest extends CoreTestAbstract
 	{
 		// Prepare class
 	    $this->helpers = new Helpers();
-		$this->helpers->setDirectories(['tests' . DS . 'helpers']);
+		$this->helpers->setDirectories(['test' . DS . 'helpers']);
 	}
 
     public function testGetHelpersClass()
@@ -171,7 +171,7 @@ class helperTest extends CoreTestAbstract
     public function testAddHelperPath()
     {
     	// Add the helperPath
-    	$this->helpers->addHelperPath('tests'.DS.'helpers'.DS.'testAddHelperPath');
+    	$this->helpers->addHelperPath('test'.DS.'helpers'.DS.'testAddHelperPath');
 
     	// And try to load it again
     	$this->assertTrue($this->helpers->load('testAddHelperPath'));
@@ -187,19 +187,19 @@ class helperTest extends CoreTestAbstract
     public function testRemoveHelperPath()
     {
     	// Test if the path does NOT exist
-    	$this->assertFalse(in_array('tests'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
 
     	// Add it
-    	$this->helpers->addHelperPath('tests'.DS.'helpers'.DS.'testRemoveHelperPath');
+    	$this->helpers->addHelperPath('test'.DS.'helpers'.DS.'testRemoveHelperPath');
 
     	// Assert if it's there
-    	$this->assertTrue(in_array('tests'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertTrue(in_array('test'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
 
     	// Remove it
-    	$this->helpers->removeHelperPath('tests'.DS.'helpers'.DS.'testRemoveHelperPath');
+    	$this->helpers->removeHelperPath('test'.DS.'helpers'.DS.'testRemoveHelperPath');
 
     	// And test if it's gone again
-    	$this->assertFalse(in_array('tests'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
     }
 
     /**
@@ -209,11 +209,11 @@ class helperTest extends CoreTestAbstract
     public function testSetDirectories()
     {
         // Add the directory
-        $directory = 'tests' . DS . 'helpers';
+        $directory = 'test' . DS . 'helpers';
         $this->helpers->setDirectories([$directory]);
 
         // Assert expectations
-        $expected = array_merge(\FuzeWorks\Core::$appDirs, ['tests' . DS . 'helpers', $directory]);
+        $expected = array_merge(\FuzeWorks\Core::$appDirs, ['test' . DS . 'helpers', $directory]);
         $this->assertEquals($expected, $this->helpers->getHelperPaths());
     }
 }

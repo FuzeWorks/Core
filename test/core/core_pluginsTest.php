@@ -54,7 +54,7 @@ class pluginTest extends CoreTestAbstract
     public function setUp()
     {
         $this->plugins = new Plugins();
-        $this->plugins->addPluginPath('tests'.DS.'plugins');
+        $this->plugins->addPluginPath('test'.DS.'plugins');
         $this->plugins->loadHeadersFromPluginPaths();
     }
 
@@ -85,7 +85,7 @@ class pluginTest extends CoreTestAbstract
     public function testLoadHeader()
     {
         // Load the header object
-        require_once('tests' . DS . 'plugins' . DS . 'testLoadHeader'.DS.'loadHeader'.DS.'header.php');
+        require_once('test' . DS . 'plugins' . DS . 'testLoadHeader'.DS.'loadHeader'.DS.'header.php');
         $header = new Plugins\TestLoadHeaderHeader();
 
         // Register the header object
@@ -183,7 +183,7 @@ class pluginTest extends CoreTestAbstract
     public function testAddPluginPath()
     {
         // Add the pluginPath
-        $this->plugins->addPluginPath('tests'.DS.'plugins'.DS.'testAddPluginPath');
+        $this->plugins->addPluginPath('test'.DS.'plugins'.DS.'testAddPluginPath');
 
         // And try to load it again
         $this->plugins->loadHeadersFromPluginPaths();
@@ -196,27 +196,27 @@ class pluginTest extends CoreTestAbstract
     public function testRemovePluginPath()
     {
         // Test if the path does NOT exist
-        $this->assertFalse(in_array('tests'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
+        $this->assertFalse(in_array('test'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
 
         // Add it
-        $this->plugins->addPluginPath('tests'.DS.'plugins'.DS.'testRemovePluginPath');
+        $this->plugins->addPluginPath('test'.DS.'plugins'.DS.'testRemovePluginPath');
 
         // Assert if it's there
-        $this->assertTrue(in_array('tests'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
+        $this->assertTrue(in_array('test'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
 
         // Remove it
-        $this->plugins->removePluginPath('tests'.DS.'plugins'.DS.'testRemovePluginPath');
+        $this->plugins->removePluginPath('test'.DS.'plugins'.DS.'testRemovePluginPath');
 
         // And test if it's gone again
-        $this->assertFalse(in_array('tests'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
+        $this->assertFalse(in_array('test'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
     }
 
     public function testSetDirectories()
     {
         // Add the directory
         $appDir = Core::$appDirs[0];
-        $directory = 'tests' . DS . 'helpers';
-        $expected = [$appDir, 'tests'.DS.'plugins', $directory];
+        $directory = 'test' . DS . 'helpers';
+        $expected = [$appDir, 'test'.DS.'plugins', $directory];
         $this->plugins->setDirectories([$directory]);
 
         $this->assertEquals($expected, $this->plugins->getPluginPaths());

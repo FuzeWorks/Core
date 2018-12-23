@@ -22,7 +22,7 @@ test:7.1:
   stage: test
   image: php:7.1
   script:
-  - vendor/bin/phpunit -c tests/phpunit.xml --coverage-text
+  - vendor/bin/phpunit -c test/phpunit.xml --coverage-text
   cache:
     key: "$CI_BUILD_REF_$CI_BUILD_REF_NAME"
     paths:
@@ -32,7 +32,7 @@ test:7.2:
   stage: test
   image: php:7.2
   script:
-  - vendor/bin/phpunit -c tests/phpunit.xml --coverage-text
+  - vendor/bin/phpunit -c test/phpunit.xml --coverage-text
   cache:
     key: "$CI_BUILD_REF_$CI_BUILD_REF_NAME"
     paths:
@@ -44,7 +44,7 @@ release:
   only:
   - master
   script:
-  - vendor/bin/phpunit -c tests/phpunit.xml --coverage-text
+  - vendor/bin/phpunit -c test/phpunit.xml --coverage-text
   artifacts:
     name: "${CI_BUILD_NAME}_${CI_BUILD_REF_NAME}"
     paths:

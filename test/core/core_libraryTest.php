@@ -57,7 +57,7 @@ class libraryTest extends CoreTestAbstract
         $this->libraries = new Libraries();
 
         // And then set all paths
-        $this->libraries->setDirectories(['tests'.DS.'libraries']);
+        $this->libraries->setDirectories(['test'.DS.'libraries']);
     }
 
     public function testLibrariesClass()
@@ -73,7 +73,7 @@ class libraryTest extends CoreTestAbstract
     public function testSetDirectories()
     {
         // Test initial
-        $initial = array_merge(Core::$appDirs, ['tests'.DS.'libraries']);
+        $initial = array_merge(Core::$appDirs, ['test'.DS.'libraries']);
         $this->assertEquals($initial, $this->libraries->getLibraryPaths());
 
         // Add path
@@ -101,8 +101,8 @@ class libraryTest extends CoreTestAbstract
     public function testAddLibraryPath()
     {
         // Add the libraryPath
-        $this->libraries->removeLibraryPath('tests'.DS.'libraries');
-        $this->libraries->addLibraryPath('tests'.DS.'libraries'.DS.'testAddLibraryPath');
+        $this->libraries->removeLibraryPath('test'.DS.'libraries');
+        $this->libraries->addLibraryPath('test'.DS.'libraries'.DS.'testAddLibraryPath');
 
         // And try to load it again
         $this->assertInstanceOf('Application\Library\TestAddLibraryPath', $this->libraries->get('TestAddLibraryPath'));
@@ -111,19 +111,19 @@ class libraryTest extends CoreTestAbstract
     public function testRemoveLibraryPath()
     {
         // Test if the path does NOT exist
-        $this->assertFalse(in_array('tests'.DS.'libraries'.DS.'testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
+        $this->assertFalse(in_array('test'.DS.'libraries'.DS.'testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
 
         // Add it
-        $this->libraries->addLibraryPath('tests'.DS.'libraries'.DS.'testRemoveLibraryPath');
+        $this->libraries->addLibraryPath('test'.DS.'libraries'.DS.'testRemoveLibraryPath');
 
         // Assert if it's there
-        $this->assertTrue(in_array('tests'.DS.'libraries'.DS.'testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
+        $this->assertTrue(in_array('test'.DS.'libraries'.DS.'testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
 
         // Remove it
-        $this->libraries->removeLibraryPath('tests'.DS.'libraries'.DS.'testRemoveLibraryPath');
+        $this->libraries->removeLibraryPath('test'.DS.'libraries'.DS.'testRemoveLibraryPath');
 
         // And test if it's gone again
-        $this->assertFalse(in_array('tests'.DS.'libraries'.DS.'testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
+        $this->assertFalse(in_array('test'.DS.'libraries'.DS.'testRemoveLibraryPath', $this->libraries->getLibraryPaths()));
     }
 
     /* ---------------------------------- Load library from directories ------------------- */
@@ -142,7 +142,7 @@ class libraryTest extends CoreTestAbstract
     public function testGetLibraryFromSubdirectory()
     {
         // Add test directory path
-        $this->libraries->addLibraryPath('tests'.DS.'libraries'.DS.'testGetLibraryFromSubdirectory');
+        $this->libraries->addLibraryPath('test'.DS.'libraries'.DS.'testGetLibraryFromSubdirectory');
 
         $this->assertInstanceOf('Application\Library\TestGetLibraryFromSubdirectory', $this->libraries->get('TestGetLibraryFromSubdirectory'));
     }
@@ -154,7 +154,7 @@ class libraryTest extends CoreTestAbstract
     {
         // Simple test of loading a library and checking if it exists
         $this->assertInstanceOf('Application\Library\TestGetLibraryFromAltDirectory',
-            $this->libraries->get('TestGetLibraryFromAltDirectory', [], ['tests'.DS.'libraries'.DS.'testGetLibraryFromAltDirectory']));
+            $this->libraries->get('TestGetLibraryFromAltDirectory', [], ['test'.DS.'libraries'.DS.'testGetLibraryFromAltDirectory']));
     }
 
     /**
@@ -185,7 +185,7 @@ class libraryTest extends CoreTestAbstract
     {
         // Prepare the config file
         $libraryName = 'TestGetLibraryParametersFromConfig';
-        $libraryDir = 'tests'.DS.'libraries'.DS.'testGetLibraryParametersFromConfig';
+        $libraryDir = 'test'.DS.'libraries'.DS.'testGetLibraryParametersFromConfig';
         $config = Factory::getInstance()->config->getConfig(strtolower($libraryName), [$libraryDir]);
 
         // Load the library
@@ -207,7 +207,7 @@ class libraryTest extends CoreTestAbstract
 
     public function testAddLibraryClass()
     {
-        require_once('tests'.DS.'libraries'.DS.'testAddLibraryClass'.DS.'TestAddLibraryClass.php');
+        require_once('test'.DS.'libraries'.DS.'testAddLibraryClass'.DS.'TestAddLibraryClass.php');
 
         $this->libraries->addLibraryClass('LibraryClass', '\Custom\Spaces\TestAddLibraryClass');
 

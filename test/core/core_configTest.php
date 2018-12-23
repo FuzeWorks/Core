@@ -107,7 +107,7 @@ class configTest extends CoreTestAbstract
         }, 'configGetEvent', EventPriority::NORMAL);
 
         // Load file
-        $config = $this->config->getConfig('does_not_exist', ['tests'.DS.'config'.DS.'testLoadConfigIntercept']);
+        $config = $this->config->getConfig('does_not_exist', ['test'.DS.'config'.DS.'testLoadConfigIntercept']);
         $this->assertEquals('exists', $config->it);
     }
 
@@ -126,7 +126,7 @@ class configTest extends CoreTestAbstract
     public function testAddConfigPath()
     {
     	// Add the configPath
-    	$this->config->addConfigPath('tests'.DS.'config'.DS.'testAddConfigPath');
+    	$this->config->addConfigPath('test'.DS.'config'.DS.'testAddConfigPath');
 
     	// And try to load it again
     	$this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $this->config->getConfig('testAddConfigPath'));
@@ -135,25 +135,25 @@ class configTest extends CoreTestAbstract
     public function testRemoveConfigPath()
     {
     	// Test if the path does NOT exist
-    	$this->assertFalse(in_array('tests'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertFalse(in_array('test'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
 
     	// Add it
-    	$this->config->addConfigPath('tests'.DS.'config'.DS.'testRemoveConfigPath');
+    	$this->config->addConfigPath('test'.DS.'config'.DS.'testRemoveConfigPath');
 
     	// Assert if it's there
-    	$this->assertTrue(in_array('tests'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertTrue(in_array('test'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
 
     	// Remove it
-    	$this->config->removeConfigPath('tests'.DS.'config'.DS.'testRemoveConfigPath');
+    	$this->config->removeConfigPath('test'.DS.'config'.DS.'testRemoveConfigPath');
 
     	// And test if it's gone again
-    	$this->assertFalse(in_array('tests'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertFalse(in_array('test'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
     }
 
     public function testSameConfigObject()
     {
-        $config = $this->config->getConfig('testsameconfigobject', array('tests'.DS.'config'.DS.'testSameConfigObject'));
-        $config2 = $this->config->getConfig('testsameconfigobject', array('tests'.DS.'config'.DS.'testSameConfigObject'));
+        $config = $this->config->getConfig('testsameconfigobject', array('test'.DS.'config'.DS.'testSameConfigObject'));
+        $config2 = $this->config->getConfig('testsameconfigobject', array('test'.DS.'config'.DS.'testSameConfigObject'));
 
         // First test if the objects are the same instance
         $this->assertSame($config, $config2);
@@ -169,7 +169,7 @@ class configTest extends CoreTestAbstract
     public function testSetDirectories()
     {
         // Add the directory
-        $directory = 'tests' . DS . 'config';
+        $directory = 'test' . DS . 'config';
         $this->config->setDirectories([$directory]);
 
         // Assert expectations

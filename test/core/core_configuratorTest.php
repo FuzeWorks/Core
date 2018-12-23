@@ -84,7 +84,7 @@ class configuratorTest extends CoreTestAbstract
     public function testAddComponent()
     {
         // Load the component
-        require_once 'tests'.DS.'components'.DS.'testAddComponent'.DS.'TestAddComponent.php';
+        require_once 'test'.DS.'components'.DS.'testAddComponent'.DS.'TestAddComponent.php';
         $component = new FuzeWorks\Component\TestComponent();
         $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->addComponent($component));
 
@@ -102,7 +102,7 @@ class configuratorTest extends CoreTestAbstract
     public function testAddComponentFail()
     {
         // Load the component
-        require_once 'tests'.DS.'components'.DS.'testAddComponentFail'.DS.'TestAddComponentFail.php';
+        require_once 'test'.DS.'components'.DS.'testAddComponentFail'.DS.'TestAddComponentFail.php';
         $component = new FuzeWorks\Component\TestAddComponentFailComponent;
         $this->configurator->addComponent($component);
 
@@ -197,7 +197,7 @@ class configuratorTest extends CoreTestAbstract
         vfsStream::setup('testAddComponentDirectory');
 
         // Add the component
-        require_once 'tests'.DS.'components'.DS.'testAddComponentDirectory'.DS.'TestAddComponentDirectory.php';
+        require_once 'test'.DS.'components'.DS.'testAddComponentDirectory'.DS.'TestAddComponentDirectory.php';
         $component = new FuzeWorks\Component\TestAddComponentDirectoryComponent();
         $this->configurator->addComponent($component);
 
