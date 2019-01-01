@@ -62,10 +62,10 @@ class Configurator
     protected $parameters = ['debugEnabled' => false];
 
     /**
-     * Components that will be attached to the Factory.
+     * Components that have been added to FuzeWorks
      *
-     * @var array Array of classnames
-     */ 
+     * @var iComponent[]
+     */
     protected $components = [];
 
     /**
@@ -76,6 +76,13 @@ class Configurator
      * @var array of directories
      */     
     protected $directories = ['app' => []];
+
+    /**
+     * Array of ComponentClass methods to be invoked once ComponentClass is loaded
+     *
+     * @var DeferredComponentClass[]
+     */
+    protected $deferredComponentClassMethods = [];
 
     const COOKIE_SECRET = 'fuzeworks-debug';
 
@@ -137,14 +144,49 @@ class Configurator
      */
     public function addComponent(iComponent $component): Configurator
     {
-        foreach ($component->getClasses() as $objectName => $className) {
-            $this->components[$objectName] = $className;
-        }
+        $this->components[] = $component;
+        $component->onAddComponent($this);
 
         return $this;
     }
 
+    /**
+     * @param string $componentClass
+     * @param string $method
+     * @param callable|null $callable
+     * @param   mixed    $parameters,...     Parameters for the method to be invoked
+     * @return DeferredComponentClass
+     */
+    public function deferComponentClassMethod(string $componentClass, string $method, callable $callable = null)
+    {
+        // Retrieve arguments
+        $arguments = (func_num_args() > 3 ? array_slice(func_get_args(), 3) : []);
+
+        // Add component
+        if (!isset($this->deferredComponentClassMethods[$componentClass]))
+            $this->deferredComponentClassMethods[$componentClass] = [];
+
+        $deferredComponentClass = new DeferredComponentClass($componentClass, $method, $arguments, $callable);
+        return $this->deferredComponentClassMethods[$componentClass][] = $deferredComponentClass;
+    }
+
     /* ---------------- Other Features ---------------------- */
+
+    /**
+     * Override a config value before FuzeWorks is loaded.
+     *
+     * Allows the user to change any value in config files loaded by FuzeWorks.
+     *
+     * @param string $configFileName
+     * @param string $configKey
+     * @param $configValue
+     * @return Configurator
+     */
+    public function setConfigOverride(string $configFileName, string $configKey, $configValue): Configurator
+    {
+        Config::overrideConfig($configFileName, $configKey, $configValue);
+        return $this;
+    }
 
     /**
      * Sets the default timezone.
@@ -290,12 +332,57 @@ class Configurator
         // Then load the framework
         $container = Core::init();
 
-        // Add all components
-        foreach ($this->components as $componentName => $componentClass) {
-            if (!class_exists($componentClass))
-                throw new ConfiguratorException("Could not load component '".$componentName."'. Class '".$componentClass."' does not exist.", 1);
+        // Invoke deferredComponentClass on FuzeWorks\Core classes
+        foreach ($this->deferredComponentClassMethods as $componentClass => $deferredComponentClasses)
+        {
+            // @todo Verify if system works
+            if ($container->instanceIsset($componentClass))
+            {
+                // @codeCoverageIgnoreStart
+                foreach ($deferredComponentClasses as $deferredComponentClass)
+                {
 
-            $container->setInstance($componentName, new $componentClass());
+                    $deferredComponentClass->invoke(call_user_func_array(
+                        array($container->{$deferredComponentClass->componentClass}),
+                        $deferredComponentClass->arguments
+                    ));
+                }
+                // @codeCoverageIgnoreEnd
+            }
+        }
+
+        // Add all components
+        foreach ($this->components as $component)
+        {
+            foreach ($component->getClasses() as $componentName => $componentClass)
+            {
+                if (is_object($componentClass))
+                {
+                    $container->setInstance($componentName, $componentClass);
+                }
+                else
+                {
+                    if (!class_exists($componentClass))
+                        throw new ConfiguratorException("Could not load component '".$componentName."'. Class '".$componentClass."' does not exist.", 1);
+
+                    $container->setInstance($componentName, new $componentClass());
+                }
+
+                // Invoke deferredComponentClass
+                if (isset($this->deferredComponentClassMethods[$componentName]))
+                {
+                    $dfcm = $this->deferredComponentClassMethods[$componentName];
+                    foreach ($dfcm as $deferredComponentClass)
+                    {
+                        $deferredComponentClass->invoke(call_user_func_array(
+                            array($container->{$deferredComponentClass->componentClass}, $deferredComponentClass->method),
+                            $deferredComponentClass->arguments
+                        ));
+                    }
+                }
+            }
+
+            $component->onCreateContainer($this);
         }
 
         // And add all directories to the components

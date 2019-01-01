@@ -78,25 +78,20 @@ class Events
     /**
      * Adds a function as listener.
      *
-     * @param   mixed   $callback           The callback when the events get fired, see {@link http://php.net/manual/en/language.types.callable.php PHP.net}
-     * @param   string  $eventName          The name of the event
-     * @param   int     $priority           The priority, even though integers are valid, please use EventPriority (for example EventPriority::Lowest)
-     * @param   mixed   $parameters,...     Parameters for the listener
+     * @param   callable $callback           The callback when the events get fired, see {@link http://php.net/manual/en/language.types.callable.php PHP.net}
+     * @param   string   $eventName          The name of the event
+     * @param   int      $priority           The priority, even though integers are valid, please use EventPriority (for example EventPriority::Lowest)
+     * @param   mixed    $parameters,...     Parameters for the listener
      *
      * @see EventPriority
      *
      * @throws EventException
      */
-    public static function addListener($callback, $eventName, $priority = EventPriority::NORMAL)
+    public static function addListener(callable $callback, string $eventName, int $priority = EventPriority::NORMAL)
     {
         // Perform multiple checks
         if (EventPriority::getPriority($priority) == false) {
             throw new EventException('Can not add listener: Unknown priority '.$priority, 1);
-        }
-
-        if (!is_callable($callback))
-        {
-            throw new EventException("Can not add listener: Callback is not callable", 1);
         }
 
         if (empty($eventName))
@@ -134,7 +129,7 @@ class Events
      *
      * @throws EventException
      */
-    public static function removeListener($callback, $eventName, $priority = EventPriority::NORMAL)
+    public static function removeListener(callable $callback, string $eventName, $priority = EventPriority::NORMAL)
     {
         if (EventPriority::getPriority($priority) == false) {
             throw new EventException('Unknown priority '.$priority);

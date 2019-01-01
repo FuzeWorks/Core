@@ -35,9 +35,9 @@
  */
 use PHPUnit\Framework\TestCase;
 use FuzeWorks\Events;
-use FuzeWorks\Layout;
 use FuzeWorks\Factory;
 use FuzeWorks\Core;
+use FuzeWorks\Config;
 use FuzeWorks\LoggerTracyBridge;
 
 /**
@@ -57,7 +57,7 @@ abstract class CoreTestAbstract extends TestCase
         // Clear all events created by tests
         Events::$listeners = array();
 
-        // Re-register the LoggerTracyBridge to supress errors
+        // Re-register the LoggerTracyBridge to suppress errors
         LoggerTracyBridge::register();
 
         // Reset all config files
@@ -68,5 +68,8 @@ abstract class CoreTestAbstract extends TestCase
 
         // Reset the HTTP status code
         Core::$http_status_code = 200;
+
+        // Remove Config overrides
+        Config::$configOverrides = [];
     }
 }

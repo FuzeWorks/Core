@@ -34,6 +34,7 @@
  * @version Version 1.2.0
  */
 namespace FuzeWorks\Component;
+use FuzeWorks\Configurator;
 use FuzeWorks\iComponent;
 
 class TestComponent implements iComponent
@@ -42,6 +43,16 @@ class TestComponent implements iComponent
     public function getClasses(): array
     {
         return ['test' => 'FuzeWorks\Component\Test'];
+    }
+
+    public function onAddComponent(Configurator $configurator): Configurator
+    {
+        return $configurator;
+    }
+
+    public function onCreateContainer(Configurator $configurator): Configurator
+    {
+        return $configurator;
     }
 }
 

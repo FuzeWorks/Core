@@ -36,6 +36,7 @@
 
 use FuzeWorks\Configurator;
 use FuzeWorks\Core;
+use FuzeWorks\iComponent;
 use FuzeWorks\Logger;
 
 /**
@@ -93,6 +94,25 @@ class configuratorTest extends CoreTestAbstract
         $this->assertTrue(property_exists($container, 'test'));
         $this->assertInstanceOf('FuzeWorks\Component\Test', $container->test);
         $this->assertEquals(5, $container->test->variable);
+    }
+
+    /**
+     * @depends testAddComponent
+     */
+    public function testAddComponentClassByObject()
+    {
+        // Create object
+        $object = $this->getMockBuilder(MockComponentClass::class)->getMock();
+        $object->variable = 'value';
+
+        // Create and add component
+        $component = $this->getMockBuilder(MockComponent::class)->setMethods(['getClasses'])->getMock();
+        $component->method('getClasses')->willReturn(['componentobject' => $object]);
+        $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->addComponent($component));
+
+        // Create container and test for variable
+        $container = $this->configurator->createContainer()->init();
+        $this->assertEquals('value', $container->componentobject->variable);
     }
 
     /**
@@ -214,6 +234,69 @@ class configuratorTest extends CoreTestAbstract
         $this->assertEquals($container->testaddcomponentdirectory->directories, [vfsStream::url('testAddComponentDirectory')]);
     }
 
+    /* ---------------------------------- Deferred Invocation --------------------------------------- */
+
+    /**
+     * @depends testAddComponent
+     */
+    public function testDeferComponentClassMethod()
+    {
+        // Create mocks
+        $componentClass = $this->getMockBuilder(MockComponentClass::class)->setMethods(['update'])->getMock();
+        $componentClass->expects($this->once())->method('update')->willReturn('result');
+        $component = $this->getMockBuilder(MockComponent::class)->setMethods(['getClasses'])->getMock();
+        $component->method('getClasses')->willReturn(['test' => $componentClass]);
+
+        // Add the Component
+        $this->configurator->addComponent($component);
+
+        // Defer method
+        $deferred = $this->configurator->deferComponentClassMethod('test', 'update');
+
+        // Expect false before execution
+        $this->assertFalse($deferred->isInvoked());
+        $this->assertFalse($deferred->getResult());
+
+        // Create container
+        $this->configurator->createContainer();
+
+        // Make assertions
+        $this->assertTrue($deferred->isInvoked());
+        $this->assertEquals('result', $deferred->getResult());
+    }
+
+    /**
+     * @depends testDeferComponentClassMethod
+     */
+    public function testDeferComponentClassMethodWithCallback()
+    {
+        // Create mocks
+        $componentClass = $this->getMockBuilder(MockComponentClass::class)->setMethods(['update'])->getMock();
+        $componentClass->expects($this->once())->method('update')->with('some_argument')->willReturn('result');
+        $component = $this->getMockBuilder(MockComponent::class)->setMethods(['getClasses'])->getMock();
+        $component->method('getClasses')->willReturn(['test' => $componentClass]);
+
+        // Add the Component
+        $this->configurator->addComponent($component);
+
+        // Defer method
+        $deferred = $this->configurator->deferComponentClassMethod(
+            'test',
+            'update',
+            function($result){
+                $this->assertEquals('result', $result);
+            },
+            'some_argument'
+            );
+
+        // Create container
+        $this->configurator->createContainer();
+
+        // Make assertions
+        $this->assertTrue($deferred->isInvoked());
+        $this->assertEquals('result', $deferred->getResult());
+    }
+
     /* ---------------------------------- Parameters ------------------------------------------------ */
 
     /**
@@ -248,6 +331,18 @@ class configuratorTest extends CoreTestAbstract
         // Create container and verify
         $this->configurator->createContainer()->init();
         $this->assertEquals('fake_directory', Core::$tempDir);
+    }
+
+    public function testSetConfigOverride()
+    {
+        // Set an override that can be verified
+        $this->configurator->setConfigOverride('test', 'somekey', 'somevalue');
+
+        // Create container
+        $this->configurator->createContainer()->init();
+
+        // Verify that the variable is set in the Config class
+        $this->assertEquals(['test' => ['somekey' => 'somevalue']], \FuzeWorks\Config::$configOverrides);
     }
 
     /* ---------------------------------- Debugging ------------------------------------------------- */
@@ -362,4 +457,27 @@ class configuratorTest extends CoreTestAbstract
         $this->configurator->createContainer()->init();
         $this->assertEquals('test@email.com', \Tracy\Debugger::$email);
     }
+}
+
+class MockComponent implements iComponent
+{
+
+    public function getClasses(): array
+    {
+    }
+
+    public function onAddComponent(Configurator $configurator): Configurator
+    {
+        return $configurator;
+    }
+
+    public function onCreateContainer(Configurator $configurator): Configurator
+    {
+        return $configurator;
+    }
+}
+
+class MockComponentClass
+{
+    //public function update(){}
 }

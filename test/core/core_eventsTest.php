@@ -172,16 +172,7 @@ class eventsTest extends CoreTestAbstract
      */
     public function testAddInvalidPriorityListener()
     {
-        Events::addListener('fakeCallable', 'mockEvent', 99);
-    }
-
-    /**
-     * @depends testAddAndRemoveListener
-     * @expectedException FuzeWorks\Exception\EventException
-     */
-    public function testAddInvalidCallableListener()
-    {
-        Events::addListener(array('nonExistingClass', 'nonExistingMethod'), 'mockEvent', EventPriority::NORMAL);
+        Events::addListener(function($event){}, 'mockEvent', 99);
     }
 
     /**
@@ -199,7 +190,7 @@ class eventsTest extends CoreTestAbstract
      */
     public function testRemoveInvalidPriorityListener()
     {
-        Events::removeListener('fakeCallable', 'mockEvent', 99);
+        Events::removeListener(function($event){}, 'mockEvent', 99);
     }
 
     /**
@@ -207,7 +198,7 @@ class eventsTest extends CoreTestAbstract
      */
     public function testRemoveUnsetEventListener()
     {
-        $this->assertNull(Events::removeListener('fakeCallable', 'emptyListenerArray', EventPriority::NORMAL));
+        $this->assertNull(Events::removeListener(function($event){}, 'emptyListenerArray', EventPriority::NORMAL));
     }
 
     /**

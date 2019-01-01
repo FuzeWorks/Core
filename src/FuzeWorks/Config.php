@@ -58,6 +58,13 @@ class Config
     protected $cfg = [];
 
     /**
+     * Array of config values that will be overridden
+     *
+     * @var array of config values
+     */
+    public static $configOverrides = [];
+
+    /**
      * Paths where Helpers can be found. 
      * 
      * Libraries will only be loaded if either a directory is supplied or it is in one of the helperPaths
@@ -160,7 +167,17 @@ class Config
             if (file_exists($file))
             {
                 // Load object
-                return (new ConfigORM())->load($file);
+                $configORM = (new ConfigORM())->load($file);
+
+                // Override config values if they exist
+                if (isset(self::$configOverrides[$event->configName]))
+                {
+                    foreach (self::$configOverrides[$event->configName] as $configKey => $configValue)
+                        $configORM->{$configKey} = $configValue;
+                }
+
+                // Return object
+                return $configORM;
                 break;
             }
         }
@@ -174,6 +191,28 @@ class Config
         }
 
         throw new ConfigException("Could not load config. File $event->configName not found", 1);
+    }
+
+    /**
+     * Override a config value before FuzeWorks is loaded.
+     *
+     * Allows the user to change any value in config files loaded by FuzeWorks.
+     *
+     * @param string $configName
+     * @param string $configKey
+     * @param $configValue
+     */
+    public static function overrideConfig(string $configName, string $configKey, $configValue)
+    {
+        // Convert configName
+        $configName = strtolower($configName);
+
+        // If config doesn't exist yet, create it
+        if (!isset(self::$configOverrides[$configName]))
+            self::$configOverrides[$configName] = [];
+
+        // And set the value
+        self::$configOverrides[$configName][$configKey] = $configValue;
     }
 
     /**

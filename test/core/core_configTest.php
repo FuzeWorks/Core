@@ -112,6 +112,25 @@ class configTest extends CoreTestAbstract
     }
 
     /**
+     * @depends testLoadConfig
+     * @covers \FuzeWorks\Config::overrideConfig
+     * @covers \FuzeWorks\Config::loadConfigFile
+     */
+    public function testLoadConfigOverride()
+    {
+        // Load file without override
+        $this->assertEquals(['initial' => 'value'], $this->config->getConfig('testLoadConfigOverride', ['test'.DS.'config'.DS.'testLoadConfigOverride'])->toArray());
+
+        // Discard to reset test
+        $this->config->discardConfigFiles();
+
+        // Create override
+        Config::overrideConfig('testLoadConfigOverride', 'initial', 'different');
+
+        $this->assertEquals(['initial' => 'different'], $this->config->getConfig('testLoadConfigOverride', ['test'.DS.'config'.DS.'testLoadConfigOverride'])->toArray());
+    }
+
+    /**
      * @expectedException FuzeWorks\Exception\ConfigException
      */
     public function testAddConfigPathFail()

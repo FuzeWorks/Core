@@ -33,14 +33,6 @@
  *
  * @version Version 1.2.0
  */
-
-
-namespace FuzeWorks;
-
-
-interface iComponent
-{
-    public function getClasses(): array;
-    public function onAddComponent(Configurator $configurator): Configurator;
-    public function onCreateContainer(Configurator $configurator): Configurator;
-}
+return array(
+    'initial' => 'value'
+);

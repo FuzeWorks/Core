@@ -29,18 +29,74 @@
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 1.2.0
+ * @since Version 0.0.1
  *
  * @version Version 1.2.0
  */
 
-
 namespace FuzeWorks;
 
 
-interface iComponent
+class DeferredComponentClass
 {
-    public function getClasses(): array;
-    public function onAddComponent(Configurator $configurator): Configurator;
-    public function onCreateContainer(Configurator $configurator): Configurator;
+    /**
+     * @var string Name of the class to be invoked
+     */
+    public $componentClass;
+
+    /**
+     * @var string name of the method to be invoked
+     */
+    public $method;
+
+    /**
+     * @var array arguments to invoke the method with
+     */
+    public $arguments = [];
+
+    /**
+     * @var mixed return from the invoked method
+     */
+    protected $return;
+
+    /**
+     * @var bool Whether the method has been invoked
+     */
+    protected $invoked = false;
+
+    /**
+     * @var callable A callback to call when method has been invoked.
+     */
+    protected $callback;
+
+    public function __construct(string $componentClass, string $method, array $arguments, callable $callback = null)
+    {
+        $this->componentClass = $componentClass;
+        $this->method = $method;
+        $this->arguments = $arguments;
+        $this->callback = $callback;
+    }
+
+    public function invoke($result)
+    {
+        $this->return = $result;
+        $this->invoked = true;
+        if (is_callable($this->callback))
+            call_user_func($this->callback, $result);
+    }
+
+    public function isInvoked(): bool
+    {
+        return $this->invoked;
+    }
+
+    public function getResult()
+    {
+        if ($this->invoked == true)
+            return $this->return;
+        else
+            return false;
+    }
+
+
 }
