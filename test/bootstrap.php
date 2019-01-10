@@ -38,7 +38,6 @@ require_once(dirname(__DIR__) . '/vendor/autoload.php');
 $configurator = new FuzeWorks\Configurator();
 
 // Set directories
-$configurator->addDirectory(dirname(__FILE__) . '/application');
 $configurator->setTempDirectory(__DIR__ . '/temp');
 $configurator->setLogDirectory(__DIR__ . '/temp');
 
