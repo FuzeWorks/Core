@@ -4,7 +4,7 @@
  *
  * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2013-2018 TechFuze
+ * Copyright (C) 2013-2019 TechFuze
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
@@ -44,7 +44,7 @@ use Iterator;
  * A file can also be returned using toArray(), so it will be converted to an array
  *
  * @author    TechFuze <contact@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, TechFuze. (http://techfuze.net)
+ * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
  */
 abstract class ConfigORMAbstract implements Iterator
 {
