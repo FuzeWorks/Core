@@ -163,7 +163,7 @@ class Config
         foreach ($event->configPaths as $configPath)
         {
             // If file exists, load it and break the loop
-            $file = $configPath . DS . 'config.'.$event->configName.'.php';
+            $file = $configPath . DS . 'config.'.strtolower($event->configName).'.php';
             if (file_exists($file))
             {
                 // Load object

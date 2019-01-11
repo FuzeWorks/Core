@@ -72,7 +72,7 @@ class helperTest extends CoreTestAbstract
     	$this->assertFalse(function_exists('testHelperFunction'));
 
     	// Test if the helper is properly loaded
-    	$this->assertTrue($this->helpers->load('testLoadHelper'));
+    	$this->assertTrue($this->helpers->load('TestLoadHelper'));
 
     	// Test if the function exists now
     	$this->assertTrue(function_exists('testHelperFunction'));
@@ -88,7 +88,7 @@ class helperTest extends CoreTestAbstract
         $this->assertFalse(function_exists('testLoadHelperWithoutSubdirectory'));
 
         // Try and load the helper
-        $this->assertTrue($this->helpers->load('testLoadHelperWithoutSubdirectory'));
+        $this->assertTrue($this->helpers->load('TestLoadHelperWithoutSubdirectory'));
 
         // Then test if the function/helper is loaded
         $this->assertTrue(function_exists('testLoadHelperWithoutSubdirectory'));
@@ -104,13 +104,13 @@ class helperTest extends CoreTestAbstract
         $this->assertFalse(function_exists('testReloadHelper'));
 
         // Try and load the helper
-        $this->assertTrue($this->helpers->load('testReloadHelper'));
+        $this->assertTrue($this->helpers->load('TestReloadHelper'));
 
         // Then test if the function/helper is loaded
         $this->assertTrue(function_exists('testReloadHelper'));
 
         // Try and reload the helper
-        $this->assertFalse($this->helpers->load('testReloadHelper'));
+        $this->assertFalse($this->helpers->load('TestReloadHelper'));
 
         // Test that the function still exists
         $this->assertTrue(function_exists('testReloadHelper'));
@@ -131,7 +131,7 @@ class helperTest extends CoreTestAbstract
 
         }, 'helperLoadEvent', EventPriority::NORMAL);
 
-        $this->assertFalse($this->helpers->load('testCancelLoadHelper'));
+        $this->assertFalse($this->helpers->load('TestCancelLoadHelper'));
     }
 
     /**
@@ -144,7 +144,7 @@ class helperTest extends CoreTestAbstract
         $this->assertFalse(function_exists('testGetHelper'));
 
         // Test if the helper is properly loaded
-        $this->assertTrue($this->helpers->get('testGetHelper'));
+        $this->assertTrue($this->helpers->get('TestGetHelper'));
 
         // Test if the function exists now
         $this->assertTrue(function_exists('testGetHelper'));
@@ -160,7 +160,7 @@ class helperTest extends CoreTestAbstract
     	$this->assertFalse(function_exists('testAddHelperPathFunction'));
 
     	// Now test if the helper can be loaded (hint: it can not)
-    	$this->helpers->load('testAddHelperPathFail');
+    	$this->helpers->load('TestAddHelperPathFail');
     }
 
     /**
@@ -171,10 +171,10 @@ class helperTest extends CoreTestAbstract
     public function testAddHelperPath()
     {
     	// Add the helperPath
-    	$this->helpers->addHelperPath('test'.DS.'helpers'.DS.'testAddHelperPath');
+    	$this->helpers->addHelperPath('test'.DS.'helpers'.DS.'TestAddHelperPath');
 
     	// And try to load it again
-    	$this->assertTrue($this->helpers->load('testAddHelperPath'));
+    	$this->assertTrue($this->helpers->load('TestAddHelperPath'));
 
     	// And test if the function is loaded
     	$this->assertTrue(function_exists('testAddHelperPathFunction'));
@@ -187,19 +187,19 @@ class helperTest extends CoreTestAbstract
     public function testRemoveHelperPath()
     {
     	// Test if the path does NOT exist
-    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'TestRemoveHelperPath', $this->helpers->getHelperPaths()));
 
     	// Add it
-    	$this->helpers->addHelperPath('test'.DS.'helpers'.DS.'testRemoveHelperPath');
+    	$this->helpers->addHelperPath('test'.DS.'helpers'.DS.'TestRemoveHelperPath');
 
     	// Assert if it's there
-    	$this->assertTrue(in_array('test'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertTrue(in_array('test'.DS.'helpers'.DS.'TestRemoveHelperPath', $this->helpers->getHelperPaths()));
 
     	// Remove it
-    	$this->helpers->removeHelperPath('test'.DS.'helpers'.DS.'testRemoveHelperPath');
+    	$this->helpers->removeHelperPath('test'.DS.'helpers'.DS.'TestRemoveHelperPath');
 
     	// And test if it's gone again
-    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'testRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'TestRemoveHelperPath', $this->helpers->getHelperPaths()));
     }
 
     /**

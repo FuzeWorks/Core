@@ -49,4 +49,4 @@ foreach ($logs as $log) {
 }
 
 if (!empty($logs))
-    printf($mask. $id);
+    printf($mask, $id, '');

@@ -85,7 +85,7 @@ class pluginTest extends CoreTestAbstract
     public function testLoadHeader()
     {
         // Load the header object
-        require_once('test' . DS . 'plugins' . DS . 'testLoadHeader'.DS.'loadHeader'.DS.'header.php');
+        require_once('test' . DS . 'plugins' . DS . 'TestLoadHeader'.DS.'loadHeader'.DS.'header.php');
         $header = new Plugins\TestLoadHeaderHeader();
 
         // Register the header object
@@ -183,7 +183,7 @@ class pluginTest extends CoreTestAbstract
     public function testAddPluginPath()
     {
         // Add the pluginPath
-        $this->plugins->addPluginPath('test'.DS.'plugins'.DS.'testAddPluginPath');
+        $this->plugins->addPluginPath('test'.DS.'plugins'.DS.'TestAddPluginPath');
 
         // And try to load it again
         $this->plugins->loadHeadersFromPluginPaths();

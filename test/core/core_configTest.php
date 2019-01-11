@@ -103,11 +103,11 @@ class configTest extends CoreTestAbstract
         // Register listener
         Events::addListener(function($event){
             /** @var ConfigGetEvent $event */
-            $event->configName = 'testLoadConfigIntercept';
+            $event->configName = 'TestLoadConfigIntercept';
         }, 'configGetEvent', EventPriority::NORMAL);
 
         // Load file
-        $config = $this->config->getConfig('does_not_exist', ['test'.DS.'config'.DS.'testLoadConfigIntercept']);
+        $config = $this->config->getConfig('does_not_exist', ['test'.DS.'config'.DS.'TestLoadConfigIntercept']);
         $this->assertEquals('exists', $config->it);
     }
 
@@ -119,7 +119,7 @@ class configTest extends CoreTestAbstract
     public function testLoadConfigOverride()
     {
         // Load file without override
-        $this->assertEquals(['initial' => 'value'], $this->config->getConfig('testLoadConfigOverride', ['test'.DS.'config'.DS.'testLoadConfigOverride'])->toArray());
+        $this->assertEquals(['initial' => 'value'], $this->config->getConfig('testLoadConfigOverride', ['test'.DS.'config'.DS.'TestLoadConfigOverride'])->toArray());
 
         // Discard to reset test
         $this->config->discardConfigFiles();
@@ -127,7 +127,7 @@ class configTest extends CoreTestAbstract
         // Create override
         Config::overrideConfig('testLoadConfigOverride', 'initial', 'different');
 
-        $this->assertEquals(['initial' => 'different'], $this->config->getConfig('testLoadConfigOverride', ['test'.DS.'config'.DS.'testLoadConfigOverride'])->toArray());
+        $this->assertEquals(['initial' => 'different'], $this->config->getConfig('testLoadConfigOverride', ['test'.DS.'config'.DS.'TestLoadConfigOverride'])->toArray());
     }
 
     /**
@@ -145,7 +145,7 @@ class configTest extends CoreTestAbstract
     public function testAddConfigPath()
     {
     	// Add the configPath
-    	$this->config->addConfigPath('test'.DS.'config'.DS.'testAddConfigPath');
+    	$this->config->addConfigPath('test'.DS.'config'.DS.'TestAddConfigPath');
 
     	// And try to load it again
     	$this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $this->config->getConfig('testAddConfigPath'));
@@ -154,25 +154,25 @@ class configTest extends CoreTestAbstract
     public function testRemoveConfigPath()
     {
     	// Test if the path does NOT exist
-    	$this->assertFalse(in_array('test'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertFalse(in_array('test'.DS.'config'.DS.'TestRemoveConfigPath', $this->config->getConfigPaths()));
 
     	// Add it
-    	$this->config->addConfigPath('test'.DS.'config'.DS.'testRemoveConfigPath');
+    	$this->config->addConfigPath('test'.DS.'config'.DS.'TestRemoveConfigPath');
 
     	// Assert if it's there
-    	$this->assertTrue(in_array('test'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertTrue(in_array('test'.DS.'config'.DS.'TestRemoveConfigPath', $this->config->getConfigPaths()));
 
     	// Remove it
-    	$this->config->removeConfigPath('test'.DS.'config'.DS.'testRemoveConfigPath');
+    	$this->config->removeConfigPath('test'.DS.'config'.DS.'TestRemoveConfigPath');
 
     	// And test if it's gone again
-    	$this->assertFalse(in_array('test'.DS.'config'.DS.'testRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertFalse(in_array('test'.DS.'config'.DS.'TestRemoveConfigPath', $this->config->getConfigPaths()));
     }
 
     public function testSameConfigObject()
     {
-        $config = $this->config->getConfig('testsameconfigobject', array('test'.DS.'config'.DS.'testSameConfigObject'));
-        $config2 = $this->config->getConfig('testsameconfigobject', array('test'.DS.'config'.DS.'testSameConfigObject'));
+        $config = $this->config->getConfig('testsameconfigobject', array('test'.DS.'config'.DS.'TestSameConfigObject'));
+        $config2 = $this->config->getConfig('testsameconfigobject', array('test'.DS.'config'.DS.'TestSameConfigObject'));
 
         // First test if the objects are the same instance
         $this->assertSame($config, $config2);
