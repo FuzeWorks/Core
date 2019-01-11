@@ -12,7 +12,3 @@ apt-get install git zip unzip -yqq
 # Install xdebug
 pecl install xdebug
 docker-php-ext-enable xdebug
-
-# Install mysql driver
-# Here you can install any other extension that you need
-docker-php-ext-install pdo_mysql
