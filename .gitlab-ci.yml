@@ -38,6 +38,16 @@ test:7.2:
     paths:
     - vendor/
 
+test:7.3:
+  stage: test
+  image: php:7.3
+  script:
+    - vendor/bin/phpunit -c test/phpunit.xml --coverage-text
+  cache:
+    key: "$CI_BUILD_REF_$CI_BUILD_REF_NAME"
+    paths:
+      - vendor/
+
 release:
   stage: deploy
   image: php:7.2
