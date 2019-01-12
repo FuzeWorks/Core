@@ -142,9 +142,7 @@ class Libraries
             return $this->initLibrary($libraryName, $this->libraryClasses[$libraryNameLowerCase], $parameters);
 
         // Try and load from the alternate directory if provided
-        $paths = $this->libraryPaths;
-        if (!empty($altDirectories))
-            $paths = $altDirectories;
+        $paths = (empty($altDirectories) ? $this->libraryPaths : $altDirectories);
 
         // Try and find the library in the libraryPaths
         foreach ($paths as $path)
