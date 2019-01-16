@@ -157,7 +157,7 @@ class Factory
         try {
             $cfg = $this->config->get('core');
         } catch (ConfigException $e) {
-            throw new CoreException("Could not initiate Factory. Config 'core 'could not be found.");
+            throw new CoreException("Could not initiate Factory. Config 'core' could not be found.");
         }
 
         // Disable events if requested to do so

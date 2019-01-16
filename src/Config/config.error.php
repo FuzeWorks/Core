@@ -39,5 +39,5 @@ return array(
   'php_error_reporting' => false,
   'log_errors_to_file' => true,
   'log_last_request_to_file' => false,
-  'logger_template' => 'logger_default',
+  'logger_template' => 'logger_cli',
 );

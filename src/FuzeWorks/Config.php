@@ -38,6 +38,7 @@ namespace FuzeWorks;
 use FuzeWorks\ConfigORM\ConfigORM;
 use FuzeWorks\Event\ConfigGetEvent;
 use FuzeWorks\Exception\ConfigException;
+use FuzeWorks\Exception\EventException;
 
 /**
  * Config Class.
@@ -148,7 +149,7 @@ class Config
         try {
             $event = Events::fireEvent('configGetEvent', $configName, $configPaths);
             // @codeCoverageIgnoreStart
-        } catch (Exception\EventException $e) {
+        } catch (EventException $e) {
             throw new ConfigException("Could not load config. ConfigGetEvent fired exception: '" . $e->getMessage() . "''", 1);
             // @codeCoverageIgnoreEnd
         }
@@ -178,7 +179,6 @@ class Config
 
                 // Return object
                 return $configORM;
-                break;
             }
         }
 
@@ -187,7 +187,17 @@ class Config
         if (file_exists($file))
         {
             // Load object
-            return (new ConfigORM())->load($file);
+            $configORM = (new ConfigORM())->load($file);
+
+            // Override config values if they exist
+            if (isset(self::$configOverrides[$event->configName]))
+            {
+                foreach (self::$configOverrides[$event->configName] as $configKey => $configValue)
+                    $configORM->{$configKey} = $configValue;
+            }
+
+            // Return object
+            return $configORM;
         }
 
         throw new ConfigException("Could not load config. File $event->configName not found", 1);

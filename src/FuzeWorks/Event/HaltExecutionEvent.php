@@ -33,10 +33,33 @@
  *
  * @version Version 1.2.0
  */
-?>
-<span title="Logger">
-<svg viewBox="0 0 2048 2048">
-<path d="M1792 1344v128q0 26-19 45t-45 19h-1664q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1664q26 0 45 19t19 45zm0-384v128q0 26-19 45t-45 19h-1664q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1664q26 0 45 19t19 45zm0-384v128q0 26-19 45t-45 19h-1664q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1664q26 0 45 19t19 45zm0-384v128q0 26-19 45t-45 19h-1664q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1664q26 0 45 19t19 45z" fill-opacity=".9" fill="#BDE797"/>
-</svg>
-<span class="tracy-label">Logger</span>
-</span>
+
+namespace FuzeWorks\Event;
+
+use FuzeWorks\Event;
+
+/**
+ * Event that gets loaded when a FuzeWorks execution is halted.
+ *
+ * Use this to change the output when execution is halted
+ *
+ * @author    TechFuze <contact@techfuze.net>
+ * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
+ */
+class HaltExecutionEvent extends Event
+{
+    /**
+     * @var array Log
+     */
+    public $log;
+
+    public function init(array $log)
+    {
+        $this->log = $log;
+    }
+
+    public function getLog(): array
+    {
+        return $this->log;
+    }
+}

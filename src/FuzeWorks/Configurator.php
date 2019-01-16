@@ -196,8 +196,10 @@ class Configurator
      */
     public function setTimeZone(string $timezone): Configurator
     {
-        if (!date_default_timezone_set($timezone))
+        if (!in_array($timezone, timezone_identifiers_list()))
             throw new InvalidArgumentException("Could not set timezone. Invalid timezone provided.", 1);
+
+        @date_default_timezone_set($timezone);
         @ini_set('date.timezone', $timezone); // @ - function may be disabled
 
         return $this;
@@ -221,12 +223,12 @@ class Configurator
 
     /**
      * Fully enable or disable debug mode using one variable
-     * @param bool $bool
      * @return Configurator
      */
-    public function enableDebugMode(bool $bool = true): Configurator
+    public function enableDebugMode(): Configurator
     {
-        $this->parameters['debugEnabled'] = $bool;
+        $this->parameters['debugEnabled'] = true;
+        $this->parameters['debugMatch'] = (isset($this->parameters['debugMatch']) ? $this->parameters['debugMatch'] : false);
 
         return $this;
     }
@@ -257,7 +259,7 @@ class Configurator
             return $this;
         }
 
-        // Otherwise we run the regular tracy detectDebugMode
+        // Otherwise we run the regular detectDebugMode from Tracy
         $list = is_string($address)
             ? preg_split('#[,\s]+#', $address)
             : (array) $address;
@@ -273,18 +275,6 @@ class Configurator
         }
        
         $this->parameters['debugMatch'] = in_array($addr, $list, TRUE) || in_array("$secret@$addr", $list, TRUE);
-
-        return $this;
-    }
-
-    /**
-     * Set the email to send logs to from Tracy
-     * @param string
-     * @return Configurator
-     */
-    public function setDebugEmail($email): Configurator
-    {
-        $this->parameters['debugEmail'] = $email;
 
         return $this;
     }
@@ -315,22 +305,11 @@ class Configurator
 
         // Then prepare the debugger
         $debug = ($this->parameters['debugEnabled'] && $this->parameters['debugMatch'] ? true : false);
-        if (!defined('ENVIRONMENT'))
-            define('ENVIRONMENT', ($debug ? 'DEVELOPMENT' : 'PRODUCTION')); // @codeCoverageIgnore
-
-        // And enable Tracy Debugger 
-        if (class_exists('Tracy\Debugger', true))
-        {
-            Debugger::enable(!$debug, realpath($this->parameters['logDir']));
-            if (isset($this->parameters['debugEmail']))
-            {
-                Debugger::$email = $this->parameters['debugEmail'];
-            }
-            Logger::$useTracy = true;
-        }
 
         // Then load the framework
         $container = Core::init();
+        if ($debug == true)
+            Logger::enable();
 
         // Invoke deferredComponentClass on FuzeWorks\Core classes
         foreach ($this->deferredComponentClassMethods as $componentClass => $deferredComponentClasses)
@@ -341,9 +320,8 @@ class Configurator
                 // @codeCoverageIgnoreStart
                 foreach ($deferredComponentClasses as $deferredComponentClass)
                 {
-
                     $deferredComponentClass->invoke(call_user_func_array(
-                        array($container->{$deferredComponentClass->componentClass}),
+                        array($container->{$deferredComponentClass->componentClass}, $deferredComponentClass->method),
                         $deferredComponentClass->arguments
                     ));
                 }
@@ -382,7 +360,7 @@ class Configurator
                 }
             }
 
-            $component->onCreateContainer($this);
+            $component->onCreateContainer($container);
         }
 
         // And add all directories to the components

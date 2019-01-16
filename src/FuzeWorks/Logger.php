@@ -36,6 +36,7 @@
 
 namespace FuzeWorks;
 
+use FuzeWorks\Exception\EventException;
 use FuzeWorks\Exception\Exception;
 
 /**
@@ -55,7 +56,7 @@ class Logger {
      *
      * @var array
      */
-    public static $Logs = array();
+    public static $logs = [];
 
     /**
      * whether to output the log after FuzeWorks has run.
@@ -83,7 +84,7 @@ class Logger {
      * 
      * @var string Template name
      */
-    private static $logger_template = 'logger_default';
+    private static $logger_template = 'logger_cli';
 
     /**
      * whether to output the log after FuzeWorks has run, regardless of conditions.
@@ -97,14 +98,7 @@ class Logger {
      * 
      * @var array
      */
-    public static $markPoints = array();
-
-    /**
-     * Whether to use the Tracy debugger instead of FuzeWorks Logger
-     *
-     * @var bool
-     */
-    public static $useTracy = false;
+    public static $markPoints = [];
 
     /**
      * Initiates the Logger.
@@ -120,29 +114,69 @@ class Logger {
         // @codeCoverageIgnoreStart
         if ($cfg_error->fuzeworks_error_reporting == true)
         {
-            set_error_handler(array('\FuzeWorks\Logger', 'errorHandler'), E_ALL);
-            set_Exception_handler(array('\FuzeWorks\Logger', 'exceptionHandler'));           
+            self::enableHandlers();
         }
         // @codeCoverageIgnoreEnd
 
         // Set PHP error reporting
-        if (!$cfg_error->php_error_reporting)
-            error_reporting(false);
-        else
+        if ($cfg_error->php_error_reporting)
             error_reporting(true);
+        else
+            error_reporting(false);
 
         // Set the environment variables
-        self::$debug = (ENVIRONMENT === 'DEVELOPMENT');
         self::$log_last_request = $cfg_error->log_last_request_to_file;
         self::$log_errors_to_file = $cfg_error->log_errors_to_file;
         self::$logger_template = $cfg_error->logger_template;
         self::newLevel('Logger Initiated');
+    }
 
-        if (self::$useTracy)
-        {
-            LoggerTracyBridge::register();
-            GitTracyBridge::register();
-        }
+    /**
+     * Enable error to screen logging.
+     */
+    public static function enable()
+    {
+        self::$print_to_screen = true;
+    }
+
+    /**
+     * Disable error to screen logging.
+     */
+    public static function disable()
+    {
+        self::$print_to_screen = false;
+    }
+
+    /**
+     * Returns whether screen logging is enabled.
+     */
+    public static function isEnabled(): bool
+    {
+        return self::$print_to_screen;
+    }
+
+    /**
+     * Enable FuzeWorks error handling
+     *
+     * Registers errorHandler() and exceptionHandler() as the respective handlers for PHP
+     * @codeCoverageIgnore
+     */
+    public static function enableHandlers()
+    {
+        set_error_handler(array('\FuzeWorks\Logger', 'errorHandler'), E_ALL);
+        set_exception_handler(array('\FuzeWorks\Logger', 'exceptionHandler'));
+    }
+
+    /**
+     * Disable FuzeWorks error handling
+     *
+     * Unregisters errorHandler() and exceptionHandler() as the respective handlers for PHP
+     * @codeCoverageIgnore
+     */
+    public static function disableHandlers()
+    {
+        restore_error_handler();
+        restore_exception_handler();
     }
 
     /**
@@ -180,26 +214,20 @@ class Logger {
      */
     public static function shutdownError()
     {
-        // Load last error if thrown
-        $errfile = 'Unknown file';
-        $errstr = 'shutdown';
-        $errno = E_CORE_ERROR;
-        $errline = 0;
-
         $error = error_get_last();
         if ($error !== null) {
-            $errno = $error['type'];
-            $errfile = $error['file'];
-            $errline = $error['line'];
-            $errstr = $error['message'];
-
-            // Log it!
-            $thisType = self::getType($errno);
-            self::errorHandler($errno, $errstr, $errfile, $errline);
+             // Log it!
+            $thisType = self::getType($error['type']);
+            $LOG = array('type' => $error['type'],
+                'message' => $error['message'],
+                'logFile' => $error['file'],
+                'logLine' => $error['line'],
+                'runtime' => round(self::getRelativeTime(), 4),);
+            self::$logs[] = $LOG;
 
             if ($thisType == 'ERROR')
             {
-               self::http_error('500'); 
+               self::haltExecution($LOG);
             }
         }
     }
@@ -213,7 +241,7 @@ class Logger {
      * @param int Line. The line on which the error occured.
      * @param array context. Some of the error's relevant variables
      */
-    public static function errorHandler($type = E_USER_NOTICE, $error = 'Undefined Error', $errFile = null, $errLine = null, $context = null) 
+    public static function errorHandler($type = E_USER_NOTICE, $error = 'Undefined Error', $errFile = null, $errLine = null)
     {
         // Check type
         $thisType = self::getType($type);
@@ -221,9 +249,8 @@ class Logger {
             'message' => (!is_null($error) ? $error : ''),
             'logFile' => (!is_null($errFile) ? $errFile : ''),
             'logLine' => (!is_null($errLine) ? $errLine : ''),
-            'context' => (!is_null($context) ? $context : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
-        self::$Logs[] = $LOG;
+        self::$logs[] = $LOG;
     }
 
     /**
@@ -235,16 +262,16 @@ class Logger {
      */
     public static function exceptionHandler($exception) 
     {
-        $message = $exception->getMessage();
-        $code = $exception->getCode();
-        $file = $exception->getFile();
-        $line = $exception->getLine();
-        $context = $exception->getTraceAsString();
+        $LOG = array('type' => 'EXCEPTION',
+            'message' => $exception->getMessage(),
+            'logFile' => $exception->getFile(),
+            'logLine' => $exception->getLine(),
+            'context' => $exception->getTraceAsString(),
+            'runtime' => round(self::getRelativeTime(), 4),);
+        self::$logs[] = $LOG;
 
-        self::logError('Exception thrown: ' . $message . ' | ' . $code, null, $file, $line);
-        
         // And return a 500 because this error was fatal
-        self::http_error('500');
+        self::haltExecution($LOG);
     }
 
     /**
@@ -268,10 +295,10 @@ class Logger {
         // Send a screenLogEvent, allows for new screen log designs
         $event = Events::fireEvent('screenLogEvent');
         if ($event->isCancelled()) {
-            return false;
+            return;
         }
 
-        $logs = self::$Logs;
+        $logs = self::$logs;
         require(dirname(__DIR__) . DS . 'Layout' . DS . 'layout.' . self::$logger_template . '.php');
     }
 
@@ -282,7 +309,7 @@ class Logger {
     public static function logLastRequest()
     {
         ob_start(function () {});
-        $logs = self::$Logs;
+        $logs = self::$logs;
         require(dirname(__DIR__) . DS . 'Layout' . DS . 'layout.logger_file.php');
         $contents = ob_get_clean();
         $file = Core::$logDir . DS . 'fwlog_request.log';
@@ -292,14 +319,14 @@ class Logger {
     }
 
     /**
-     * Output all erros to a file. Used for tracking all errors in FuzeWorks and associated code
+     * Output all errors to a file. Used for tracking all errors in FuzeWorks and associated code
      * @codeCoverageIgnore
      */
     public static function logErrorsToFile()
     {
         ob_start(function() {});
         $logs = [];
-        foreach (self::$Logs as $log)
+        foreach (self::$logs as $log)
         {
             if ($log['type'] === 'ERROR')
                 $logs[] = $log;
@@ -314,7 +341,7 @@ class Logger {
     /* =========================================LOGGING METHODS============================================================== */
 
     /**
-     * Set a benchmark markpoint.
+     * Set a benchmark mark point.
      * 
      * Multiple calls to this function can be made so that several
      * execution points can be timed.
@@ -331,7 +358,7 @@ class Logger {
             'context' => '',
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$Logs[] = $LOG;
+        self::$logs[] = $LOG;
     }
 
     /**
@@ -339,10 +366,10 @@ class Logger {
      *
      * @param string $msg  The information to be logged
      * @param string $mod  The name of the module
-     * @param string $file The file where the log occured
-     * @param int    $line The line where the log occured
+     * @param string $file The file where the log occurred
+     * @param int    $line The line where the log occurred
      */
-    public static function log($msg, $mod = null, $file = 0, $line = 0)
+    public static function log($msg, $mod = null, $file = null, $line = null)
     {
         self::logInfo($msg, $mod, $file, $line);
     }
@@ -352,10 +379,10 @@ class Logger {
      *
      * @param string $msg  The information to be logged
      * @param string $mod  The name of the module
-     * @param string $file The file where the log occured
-     * @param int    $line The line where the log occured
+     * @param string $file The file where the log occurred
+     * @param int    $line The line where the log occurred
      */
-    public static function logInfo($msg, $mod = null, $file = 0, $line = 0)
+    public static function logInfo($msg, $mod = null, $file = null, $line = null)
     {
         $LOG = array('type' => 'INFO',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -364,7 +391,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$Logs[] = $LOG;
+        self::$logs[] = $LOG;
     }
 
     /**
@@ -372,10 +399,10 @@ class Logger {
      *
      * @param string $msg  The information to be logged
      * @param string $mod  The name of the module
-     * @param string $file The file where the log occured
-     * @param int    $line The line where the log occured
+     * @param string $file The file where the log occurred
+     * @param int    $line The line where the log occurred
      */
-    public static function logDebug($msg, $mod = null, $file = 0, $line = 0)
+    public static function logDebug($msg, $mod = null, $file = null, $line = null)
     {
         $LOG = array('type' => 'DEBUG',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -384,7 +411,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$Logs[] = $LOG;
+        self::$logs[] = $LOG;
     }
 
     /**
@@ -392,10 +419,10 @@ class Logger {
      *
      * @param string $msg  The information to be logged
      * @param string $mod  The name of the module
-     * @param string $file The file where the log occured
-     * @param int    $line The line where the log occured
+     * @param string $file The file where the log occurred
+     * @param int    $line The line where the log occurred
      */
-    public static function logError($msg, $mod = null, $file = 0, $line = 0)
+    public static function logError($msg, $mod = null, $file = null, $line = null)
     {
         $LOG = array('type' => 'ERROR',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -404,7 +431,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$Logs[] = $LOG;
+        self::$logs[] = $LOG;
     }
 
     /**
@@ -412,10 +439,10 @@ class Logger {
      *
      * @param string $msg  The information to be logged
      * @param string $mod  The name of the module
-     * @param string $file The file where the log occured
-     * @param int    $line The line where the log occured
+     * @param string $file The file where the log occurred
+     * @param int    $line The line where the log occurred
      */
-    public static function logWarning($msg, $mod = null, $file = 0, $line = 0)
+    public static function logWarning($msg, $mod = null, $file = null, $line = null)
     {
         $LOG = array('type' => 'WARNING',
             'message' => (!is_null($msg) ? $msg : ''),
@@ -424,7 +451,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$Logs[] = $LOG;
+        self::$logs[] = $LOG;
     }
 
     /**
@@ -432,8 +459,8 @@ class Logger {
      *
      * @param string $msg  The name of the new level
      * @param string $mod  The name of the module
-     * @param string $file The file where the log occured
-     * @param int    $line The line where the log occured
+     * @param string $file The file where the log occurred
+     * @param int    $line The line where the log occurred
      */
     public static function newLevel($msg, $mod = null, $file = null, $line = null)
     {
@@ -444,7 +471,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$Logs[] = $LOG;
+        self::$logs[] = $LOG;
     }
 
     /**
@@ -452,8 +479,8 @@ class Logger {
      *
      * @param string $msg  The name of the new level
      * @param string $mod  The name of the module
-     * @param string $file The file where the log occured
-     * @param int    $line The line where the log occured
+     * @param string $file The file where the log occurred
+     * @param int    $line The line where the log occurred
      */
     public static function stopLevel($msg = null, $mod = null, $file = null, $line = null)
     {
@@ -464,7 +491,7 @@ class Logger {
             'context' => (!is_null($mod) ? $mod : ''),
             'runtime' => round(self::getRelativeTime(), 4),);
 
-        self::$Logs[] = $LOG;
+        self::$logs[] = $LOG;
     }
 
     /* =========================================OTHER METHODS============================================================== */
@@ -473,7 +500,7 @@ class Logger {
      * Returns a string representation of an error
      * Turns a PHP error-constant (or integer) into a string representation.
      *
-     * @param int $type PHP-constant errortype (e.g. E_NOTICE).
+     * @param int $type PHP-constant errorType (e.g. E_NOTICE).
      *
      * @return string String representation
      */
@@ -516,93 +543,25 @@ class Logger {
     }
 
     /**
-     * Calls an HTTP error, sends it as a header, and loads a template if required to do so.
+     * Halts the Execution of FuzeWorks
      *
-     * @param int       $errno      HTTP error code
-     * @param string    $message    Message describing the reason for the HTTP error
-     * @param bool      $layout     true to layout error on website
+     * Will die a message if not intercepted by haltExecutionEvent.
+     * @param array $log
+     * @codeCoverageIgnore
      */
-    public static function http_error($errno = 500, $message = '', $layout = true): bool
+    public static function haltExecution(array $log)
     {
-        $http_codes = array(
-            400 => 'Bad Request',
-            401 => 'Unauthorized',
-            402 => 'Payment Required',
-            403 => 'Forbidden',
-            404 => 'Not Found',
-            405 => 'Method Not Allowed',
-            406 => 'Not Acceptable',
-            407 => 'Proxy Authentication Required',
-            408 => 'Request Timeout',
-            409 => 'Conflict',
-            410 => 'Gone',
-            411 => 'Length Required',
-            412 => 'Precondition Failed',
-            413 => 'Request Entity Too Large',
-            414 => 'Request-URI Too Long',
-            415 => 'Unsupported Media Type',
-            416 => 'Requested Range Not Satisfiable',
-            417 => 'Expectation Failed',
-            418 => 'I\'m a teapot',
-            426 => 'Upgrade Required',
-            428 => 'Precondition Required',
-            429 => 'Too Many Requests',
-            431 => 'Request Header Fields Too Large',
-            500 => 'Internal Server Error',
-            501 => 'Not Implemented',
-            502 => 'Bad Gateway',
-            503 => 'Service Unavailable',
-            504 => 'Gateway Timeout',
-            505 => 'HTTP Version Not Supported',
-            506 => 'Variant Also Negotiates',
-            509 => 'Bandwidth Limit Exceeded',
-            510 => 'Not Extended',
-            511 => 'Network Authentication Required',
-        );
-
-        self::logError('HTTP-error ' . $errno . ' called');
-        self::log('Sending header HTTP/1.1 ' . $errno . ' ' . $http_codes[$errno]);
-        header('HTTP/1.1 ' . $errno . ' ' . $http_codes[$errno]);
-
-        // Set the status code
-        Core::$http_status_code = $errno;
-
-        // Do we want the error-layout with it?
-        if ($layout == false) {
-            return false;
+        self::logError("Halting execution...");
+        try {
+            $event = Events::fireEvent("haltExecutionEvent", $log);
+        } catch (EventException $e) {
+            self::logError("Can't fire haltExecutionEvent: '".$e->getMessage()."'");
+            die(PHP_EOL . "FuzeWorks execution halted. See error log for more information");
         }
+        if ($event->isCancelled() == true)
+            return;
 
-        // Load the layout
-        $layout = 'errors/' . $errno;
-        self::log('Loading layout ' . $layout);
-
-        // Try and load the layout, if impossible, load HTTP code instead.
-        echo "<h1>$errno</h1><h3>" . $http_codes[$errno] . '</h3><p>' . $message . '</p>';
-        return true;
-    }
-
-    /**
-     * Enable error to screen logging.
-     */
-    public static function enable()
-    {
-        self::$print_to_screen = true;
-    }
-
-    /**
-     * Disable error to screen logging.
-     */
-    public static function disable()
-    {
-        self::$print_to_screen = false;
-    }
-
-    /**
-     * Returns whether screen logging is enabled.
-     */
-    public static function isEnabled(): bool
-    {
-        return self::$print_to_screen;
+        die(PHP_EOL . "FuzeWorks execution halted. See error log for more information");
     }
 
     /**

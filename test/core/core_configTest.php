@@ -131,6 +131,27 @@ class configTest extends CoreTestAbstract
     }
 
     /**
+     * @depends testLoadConfigOverride
+     * @covers \FuzeWorks\Config::overrideConfig
+     * @covers \FuzeWorks\Config::loadConfigFile
+     */
+    public function testLoadConfigCoreOverride()
+    {
+        // First see that it does not exist
+        $this->assertFalse(isset($this->config->getConfig('error')->toArray()['someKey']));
+
+        // Then discard to reset the test
+        $this->config->discardConfigFiles();
+
+        // Create the override
+        Config::overrideConfig('error', 'someKey', 'someValue');
+
+        // And test that it exists now
+        $this->assertTrue(isset($this->config->getConfig('error')->toArray()['someKey']));
+        $this->assertEquals('someValue', $this->config->getConfig('error')->toArray()['someKey']);
+    }
+
+    /**
      * @expectedException FuzeWorks\Exception\ConfigException
      */
     public function testAddConfigPathFail()

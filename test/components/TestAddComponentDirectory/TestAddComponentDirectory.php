@@ -35,6 +35,7 @@
  */
 namespace FuzeWorks\Component;
 use FuzeWorks\Configurator;
+use FuzeWorks\Factory;
 use FuzeWorks\iComponent;
 
 class TestAddComponentDirectoryComponent implements iComponent
@@ -50,9 +51,9 @@ class TestAddComponentDirectoryComponent implements iComponent
         return $configurator;
     }
 
-    public function onCreateContainer(Configurator $configurator): Configurator
+    public function onCreateContainer(Factory $container)
     {
-        return $configurator;
+        return $container;
     }
 }
 

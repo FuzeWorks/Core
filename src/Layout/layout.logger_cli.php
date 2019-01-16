@@ -104,6 +104,11 @@ foreach ($logs as $log) {
         $string .= getColoredString('[ERROR]', 'black', 'red') . ' - ';
         $string .= getColoredString($log['message'], 'black', 'red');
     }
+    elseif ($log['type'] == 'EXCEPTION')
+    {
+        $string .= getColoredString('[EXCEPTION]', 'black', 'red') . ' - ';
+        $string .= getColoredString($log['message'], 'black', 'red');
+    }
     elseif ($log['type'] == "LEVEL_STOP")
     {
         continue;

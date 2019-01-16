@@ -43,14 +43,10 @@ chdir(dirname(__DIR__));
 
 // Load the FuzeWorks container
 $container = require('bootstrap.php');
+Logger::disableHandlers();
 
 // Load the test abstract
 require_once 'core/abstract.coreTestAbstract.php';
-
-// Reset error and exception handlers
-ob_start();
-restore_error_handler();
-restore_exception_handler();
 
 // Display all errors
 ini_set('display_errors', 1);

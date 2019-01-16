@@ -36,6 +36,7 @@
 
 use FuzeWorks\Configurator;
 use FuzeWorks\Core;
+use FuzeWorks\Factory;
 use FuzeWorks\iComponent;
 use FuzeWorks\Logger;
 
@@ -366,7 +367,7 @@ class configuratorTest extends CoreTestAbstract
 
         // Load the container and verify that tracy runs in debug mode
         $this->configurator->createContainer()->init();
-        $this->assertTrue(\Tracy\Debugger::isEnabled());
+        $this->assertTrue(Logger::isEnabled());
     }
 
     /**
@@ -444,19 +445,6 @@ class configuratorTest extends CoreTestAbstract
     {
         $this->configurator->setDebugAddress(null);
     }
-
-    /**
-     * @depends testEnableDebugMode
-     */
-    public function testSetDebugEmail()
-    {
-        // Set email and verify return value
-        $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->setDebugEmail('test@email.com'));
-
-        // Create container and test Tracy for set address
-        $this->configurator->createContainer()->init();
-        $this->assertEquals('test@email.com', \Tracy\Debugger::$email);
-    }
 }
 
 class MockComponent implements iComponent
@@ -471,9 +459,9 @@ class MockComponent implements iComponent
         return $configurator;
     }
 
-    public function onCreateContainer(Configurator $configurator): Configurator
+    public function onCreateContainer(Factory $container)
     {
-        return $configurator;
+        return $container;
     }
 }
 

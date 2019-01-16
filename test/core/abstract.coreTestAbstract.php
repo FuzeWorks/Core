@@ -57,9 +57,6 @@ abstract class CoreTestAbstract extends TestCase
         // Clear all events created by tests
         Events::$listeners = array();
 
-        // Re-register the LoggerTracyBridge to suppress errors
-        LoggerTracyBridge::register();
-
         // Reset all config files
         Factory::getInstance()->config->discardConfigFiles();
 

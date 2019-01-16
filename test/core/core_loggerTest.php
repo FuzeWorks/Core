@@ -34,6 +34,7 @@
  * @version Version 1.2.0
  */
 
+use FuzeWorks\Events;
 use FuzeWorks\Logger;
 use FuzeWorks\Factory;
 use FuzeWorks\Exception\LoggerException;
@@ -52,7 +53,7 @@ class loggerTest extends CoreTestAbstract
     public function setUp()
     {
         Factory::getInstance()->config->get('error')->fuzeworks_error_reporting = false;
-        Logger::$Logs = array();
+        Logger::$logs = array();
     }
 
     public function testGetLogger()
@@ -64,15 +65,14 @@ class loggerTest extends CoreTestAbstract
 
     public function testErrorHandler()
     {
-        Logger::errorHandler(E_ERROR, 'Example error', __FILE__, 1, 'data');
-        $this->assertCount(1, Logger::$Logs);
+        Logger::errorHandler(E_ERROR, 'Example error', __FILE__, 1);
+        $this->assertCount(1, Logger::$logs);
 
-        $log = Logger::$Logs[0];
+        $log = Logger::$logs[0];
         $this->assertEquals('ERROR', $log['type']);
         $this->assertEquals('Example error', $log['message']);
         $this->assertEquals(__FILE__, $log['logFile']);
         $this->assertEquals(1, $log['logLine']);
-        $this->assertEquals('data', $log['context']);
     }
 
     /**
@@ -101,13 +101,13 @@ class loggerTest extends CoreTestAbstract
 
         foreach ($types as $errorType => $output) {
             // Clear the log entries
-            Logger::$Logs = array();
+            Logger::$logs = array();
 
             // Log the error
             Logger::errorHandler($errorType, 'Log message');
 
             // Fetch the error
-            $log = Logger::$Logs[0];
+            $log = Logger::$logs[0];
 
             // Check the type
             $this->assertEquals($output, $log['type']);
@@ -117,17 +117,16 @@ class loggerTest extends CoreTestAbstract
     public function testExceptionHandler()
     {
         // Create the exception
-        $exception = new LoggerException();
+        $exception = new LoggerException("FAILURE");
+
+        // Prepare to intercept
+        Events::addListener(function($event){
+            $event->setCancelled(true);
+            $this->assertEquals('FAILURE', $event->log['message']);
+        }, 'haltExecutionEvent');
 
         // Log the exception
-        ob_start();
         Logger::exceptionHandler($exception);
-
-        // Check the output
-        $this->assertEquals('<h1>500</h1><h3>Internal Server Error</h3><p></p>', ob_get_clean());
-
-        // Check the logs
-        $log = Logger::$Logs[0];
     }
 
     public function testLog()
@@ -136,7 +135,7 @@ class loggerTest extends CoreTestAbstract
         Logger::log('Log message', 'core_loggerTest', __FILE__, 1);
 
         // Fetch the message
-        $log = Logger::$Logs[0];
+        $log = Logger::$logs[0];
 
         // Assert data
         $this->assertEquals('INFO', $log['type']);
@@ -162,74 +161,17 @@ class loggerTest extends CoreTestAbstract
 
         foreach ($types as $method => $returnValue) {
             // Clear the log entries
-            Logger::$Logs = array();
+            Logger::$logs = array();
 
             // Log the entry
             Logger::{$method}('Log message', 'core_loggerTest', __FILE__, 1);
 
             // Fetch the entry
-            $log = Logger::$Logs[0];
+            $log = Logger::$logs[0];
 
             // Assert the entry
             $this->assertEquals($returnValue, $log['type']);
         }
-    }
-
-    public function testHttpError()
-    {
-        $http_codes = array(
-            400 => 'Bad Request',
-            401 => 'Unauthorized',
-            402 => 'Payment Required',
-            403 => 'Forbidden',
-            404 => 'Not Found',
-            405 => 'Method Not Allowed',
-            406 => 'Not Acceptable',
-            407 => 'Proxy Authentication Required',
-            408 => 'Request Timeout',
-            409 => 'Conflict',
-            410 => 'Gone',
-            411 => 'Length Required',
-            412 => 'Precondition Failed',
-            413 => 'Request Entity Too Large',
-            414 => 'Request-URI Too Long',
-            415 => 'Unsupported Media Type',
-            416 => 'Requested Range Not Satisfiable',
-            417 => 'Expectation Failed',
-            418 => 'I\'m a teapot',
-            426 => 'Upgrade Required',
-            428 => 'Precondition Required',
-            429 => 'Too Many Requests',
-            431 => 'Request Header Fields Too Large',
-            500 => 'Internal Server Error',
-            501 => 'Not Implemented',
-            502 => 'Bad Gateway',
-            503 => 'Service Unavailable',
-            504 => 'Gateway Timeout',
-            505 => 'HTTP Version Not Supported',
-            506 => 'Variant Also Negotiates',
-            509 => 'Bandwidth Limit Exceeded',
-            510 => 'Not Extended',
-            511 => 'Network Authentication Required',
-        );
-
-        // Test all error codes
-        foreach ($http_codes as $code => $description) {
-            // Fire the error
-            ob_start();
-            Logger::http_error($code);
-
-            // Check the output
-            $this->assertEquals('<h1>'.$code.'</h1><h3>'.$description.'</h3><p></p>', ob_get_clean());
-        }
-    }
-
-    /**
-     * @depends testHttpError
-     */
-    public function testHttpErrorWithoutLayout()
-    {
-        $this->assertFalse(Logger::http_error(500, '', false));
     }
 
     public function testEnableDisable()
@@ -246,6 +188,6 @@ class loggerTest extends CoreTestAbstract
     public function tearDown()
     {
         Logger::disable();
-        Logger::$Logs = array();
+        Logger::$logs = array();
     }
 }
