@@ -225,7 +225,7 @@ class libraryTest extends CoreTestAbstract
 
     public function tearDown()
     {
-        Factory::getInstance()->config->getConfig('main')->revert();
+        Factory::getInstance()->config->getConfig('error')->revert();
     }
 
 }

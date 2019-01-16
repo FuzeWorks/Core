@@ -35,7 +35,9 @@
  */
 
 namespace FuzeWorks;
+use FuzeWorks\Exception\ConfigException;
 use FuzeWorks\Exception\CoreException;
+use FuzeWorks\Exception\EventException;
 use FuzeWorks\Exception\FactoryException;
 
 /**
@@ -149,12 +151,12 @@ class Factory
      * @return Factory
      * @throws CoreException
      */
-	public function init()
+	public function init(): Factory
     {
         // Load the config file of the FuzeWorks core
         try {
             $cfg = $this->config->get('core');
-        } catch (Exception\ConfigException $e) {
+        } catch (ConfigException $e) {
             throw new CoreException("Could not initiate Factory. Config 'core 'could not be found.");
         }
 
@@ -177,7 +179,7 @@ class Factory
         // And fire the coreStartEvent
         try {
             Events::fireEvent('coreStartEvent');
-        } catch (Exception\EventException $e) {
+        } catch (EventException $e) {
             throw new CoreException("Could not initiate Factory. coreStartEvent threw exception: ".$e->getMessage());
         }
 

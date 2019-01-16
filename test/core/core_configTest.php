@@ -67,7 +67,7 @@ class configTest extends CoreTestAbstract
 	 */
 	public function testLoadConfig()
 	{
-		$this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $this->config->getConfig('main'));
+		$this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $this->config->getConfig('error'));
 	}
 
 	/**
