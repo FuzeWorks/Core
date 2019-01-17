@@ -205,11 +205,6 @@ class Events
             throw new EventException('Event could not be loaded. Invalid variable provided.', 1);
         }
 
-        if (self::$enabled)
-        {
-            Logger::newLevel("Firing Event: '".$eventName."'");           
-        }
-
         if (func_num_args() > 1) {
             call_user_func_array(array($event, 'init'), array_slice(func_get_args(), 1));
         }
@@ -219,10 +214,11 @@ class Events
             return $event;
         }
 
-        Logger::log('Checking for Listeners');
-
         //There are listeners for this event
         if (isset(self::$listeners[$eventName])) {
+            // Event with listeners found. Log it.
+            Logger::newLevel("Firing Event: '".$eventName."'. Found listeners: ");
+
             //Loop from the highest priority to the lowest
             for ($priority = EventPriority::getHighestPriority(); $priority <= EventPriority::getLowestPriority(); ++$priority) {
                 //Check for listeners in this priority
@@ -251,9 +247,9 @@ class Events
                     Logger::stopLevel();
                 }
             }
-        }
 
-        Logger::stopLevel();
+            Logger::stopLevel();
+        }
 
         return $event;
     }

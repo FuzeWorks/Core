@@ -78,6 +78,13 @@ class Factory
 	 */
 	protected static $cloneInstances = false;
 
+    /**
+     * Whether the Factory has been initialized or not
+     *
+     * @var bool $initialized
+     */
+	private $initialized = false;
+
 	/**
 	 * Config Object
 	 * @var Config
@@ -153,6 +160,10 @@ class Factory
      */
 	public function init(): Factory
     {
+        // If already initialized, cancel
+        if ($this->initialized)
+            return $this;
+
         // Load the config file of the FuzeWorks core
         try {
             $cfg = $this->config->get('core');
@@ -175,6 +186,9 @@ class Factory
 
         // Initialize all plugins
         $this->plugins->loadHeadersFromPluginPaths();
+
+        // Log actions
+        Logger::logInfo("FuzeWorks initialized. Firing coreStartEvent.");
 
         // And fire the coreStartEvent
         try {

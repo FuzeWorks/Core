@@ -91,7 +91,7 @@ class configuratorTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->addComponent($component));
 
         // Create container and test if component is added and has known properties
-        $container = $this->configurator->createContainer()->init();
+        $container = $this->configurator->createContainer();
         $this->assertTrue(property_exists($container, 'test'));
         $this->assertInstanceOf('FuzeWorks\Component\Test', $container->test);
         $this->assertEquals(5, $container->test->variable);
@@ -112,7 +112,7 @@ class configuratorTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->addComponent($component));
 
         // Create container and test for variable
-        $container = $this->configurator->createContainer()->init();
+        $container = $this->configurator->createContainer();
         $this->assertEquals('value', $container->componentobject->variable);
     }
 
@@ -128,7 +128,7 @@ class configuratorTest extends CoreTestAbstract
         $this->configurator->addComponent($component);
 
         // Create container
-        $this->configurator->createContainer()->init();
+        $this->configurator->createContainer();
     }
 
     /* ---------------------------------- Directories ----------------------------------------------- */
@@ -145,7 +145,7 @@ class configuratorTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->setLogDirectory(vfsStream::url('testSetLogDirectory')));
 
         // Create container and test if properly set
-        $this->configurator->createContainer()->init();
+        $this->configurator->createContainer();
         $this->assertEquals(Core::$logDir, vfsStream::url('testSetLogDirectory'));
 
         // Create a log and write off to file
@@ -178,7 +178,7 @@ class configuratorTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->setTempDirectory(vfsStream::url('testSetTempDirectory')));
 
         // Create container and test if properly set
-        $this->configurator->createContainer()->init();
+        $this->configurator->createContainer();
         $this->assertEquals(Core::$tempDir, vfsStream::url('testSetTempDirectory'));
     }
 
@@ -204,7 +204,7 @@ class configuratorTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->addDirectory(vfsStream::url('testAddAppDirectory')));
 
         // Create container and test if properly set
-        $this->configurator->createContainer()->init();
+        $this->configurator->createContainer();
         $this->assertEquals(Core::$appDirs, [vfsStream::url('testAddAppDirectory')]);
     }
 
@@ -226,7 +226,7 @@ class configuratorTest extends CoreTestAbstract
         $this->configurator->addDirectory(vfsStream::url('testAddComponentDirectory'), 'testaddcomponentdirectory');
 
         // Create container and test if component is added and has known properties
-        $container = $this->configurator->createContainer()->init();
+        $container = $this->configurator->createContainer();
         $this->assertTrue(property_exists($container, 'testaddcomponentdirectory'));
         $this->assertInstanceOf('FuzeWorks\Component\TestAddComponentDirectory', $container->testaddcomponentdirectory);
         $this->assertEquals(5, $container->testaddcomponentdirectory->variable);
@@ -330,7 +330,7 @@ class configuratorTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->setParameters(['tempDir' => 'fake_directory']));
 
         // Create container and verify
-        $this->configurator->createContainer()->init();
+        $this->configurator->createContainer();
         $this->assertEquals('fake_directory', Core::$tempDir);
     }
 
@@ -340,7 +340,7 @@ class configuratorTest extends CoreTestAbstract
         $this->configurator->setConfigOverride('test', 'somekey', 'somevalue');
 
         // Create container
-        $this->configurator->createContainer()->init();
+        $this->configurator->createContainer();
 
         // Verify that the variable is set in the Config class
         $this->assertEquals(['test' => ['somekey' => 'somevalue']], \FuzeWorks\Config::$configOverrides);
@@ -366,7 +366,7 @@ class configuratorTest extends CoreTestAbstract
         $this->assertTrue($this->configurator->isDebugMode());
 
         // Load the container and verify that tracy runs in debug mode
-        $this->configurator->createContainer()->init();
+        $this->configurator->createContainer();
         $this->assertTrue(Logger::isEnabled());
     }
 
@@ -379,7 +379,7 @@ class configuratorTest extends CoreTestAbstract
         $this->assertFalse($this->configurator->enableDebugMode(false)->isDebugMode());
 
         // Create the container and verify that tracy debug has been disabled
-        $this->configurator->createContainer()->init();
+        $this->configurator->createContainer();
 
         // Tracy can't be disabled once it's been enabled. Therefor this won't be tested
     }
@@ -449,6 +449,11 @@ class configuratorTest extends CoreTestAbstract
 
 class MockComponent implements iComponent
 {
+
+    public function getName(): string
+    {
+        return 'MockComponent';
+    }
 
     public function getClasses(): array
     {

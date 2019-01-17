@@ -41,6 +41,11 @@ use FuzeWorks\iComponent;
 class TestAddComponentFailComponent implements iComponent
 {
 
+    public function getName(): string
+    {
+        return 'TestAddComponentFailComponent';
+    }
+
     public function getClasses(): array
     {
         return ['test' => 'FuzeWorks\Component\TestAddComponentNotExist'];

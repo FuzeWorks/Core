@@ -41,6 +41,11 @@ use FuzeWorks\iComponent;
 class TestComponent implements iComponent
 {
 
+    public function getName(): string
+    {
+        return 'TestComponent';
+    }
+
     public function getClasses(): array
     {
         return ['test' => 'FuzeWorks\Component\Test'];

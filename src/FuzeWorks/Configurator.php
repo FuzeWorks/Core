@@ -151,6 +151,8 @@ class Configurator
     }
 
     /**
+     * Invokes a method on a componentClass after the Container has been created.
+     *
      * @param string $componentClass
      * @param string $method
      * @param callable|null $callable
@@ -168,6 +170,21 @@ class Configurator
 
         $deferredComponentClass = new DeferredComponentClass($componentClass, $method, $arguments, $callable);
         return $this->deferredComponentClassMethods[$componentClass][] = $deferredComponentClass;
+    }
+
+    /**
+     * Alias for deferComponentClassMethods
+     *
+     * @param string $componentClass
+     * @param string $method
+     * @param callable|null $callable
+     * @param   mixed    $parameters,...     Parameters for the method to be invoked
+     * @return DeferredComponentClass
+     * @codeCoverageIgnore
+     */
+    public function call(string $componentClass, string $method, callable $callable = null)
+    {
+        return call_user_func_array([$this, 'deferComponentClassMethod'], func_get_args());
     }
 
     /* ---------------- Other Features ---------------------- */
@@ -311,27 +328,10 @@ class Configurator
         if ($debug == true)
             Logger::enable();
 
-        // Invoke deferredComponentClass on FuzeWorks\Core classes
-        foreach ($this->deferredComponentClassMethods as $componentClass => $deferredComponentClasses)
-        {
-            // @todo Verify if system works
-            if ($container->instanceIsset($componentClass))
-            {
-                // @codeCoverageIgnoreStart
-                foreach ($deferredComponentClasses as $deferredComponentClass)
-                {
-                    $deferredComponentClass->invoke(call_user_func_array(
-                        array($container->{$deferredComponentClass->componentClass}, $deferredComponentClass->method),
-                        $deferredComponentClass->arguments
-                    ));
-                }
-                // @codeCoverageIgnoreEnd
-            }
-        }
-
-        // Add all components
+        // Load components
         foreach ($this->components as $component)
         {
+            Logger::logInfo("Adding Component: '" . $component->getName() . "'");
             foreach ($component->getClasses() as $componentName => $componentClass)
             {
                 if (is_object($componentClass))
@@ -345,26 +345,30 @@ class Configurator
 
                     $container->setInstance($componentName, new $componentClass());
                 }
-
-                // Invoke deferredComponentClass
-                if (isset($this->deferredComponentClassMethods[$componentName]))
-                {
-                    $dfcm = $this->deferredComponentClassMethods[$componentName];
-                    foreach ($dfcm as $deferredComponentClass)
-                    {
-                        $deferredComponentClass->invoke(call_user_func_array(
-                            array($container->{$deferredComponentClass->componentClass}, $deferredComponentClass->method),
-                            $deferredComponentClass->arguments
-                        ));
-                    }
-                }
             }
 
             $component->onCreateContainer($container);
         }
 
+        // Invoke deferredComponentClass on FuzeWorks\Core classes
+        foreach ($this->deferredComponentClassMethods as $componentClass => $deferredComponentClasses)
+        {
+            if ($container->instanceIsset($componentClass))
+            {
+                foreach ($deferredComponentClasses as $deferredComponentClass)
+                {
+                    Logger::logDebug("Invoking '" . $deferredComponentClass->method . "' on component '" . $deferredComponentClass->componentClass . "'");
+                    $deferredComponentClass->invoke(call_user_func_array(
+                        array($container->{$deferredComponentClass->componentClass}, $deferredComponentClass->method),
+                        $deferredComponentClass->arguments
+                    ));
+                }
+            }
+        }
+
         // And add all directories to the components
         foreach ($this->directories as $component => $directories) {
+            Logger::logDebug("Adding directories for '" . $component . "'");
             if ($component == 'app')
                 continue;
 
@@ -372,6 +376,7 @@ class Configurator
                 $container->{$component}->setDirectories($directories);
         }
 
+        $container->init();
         return $container;
     }
 }

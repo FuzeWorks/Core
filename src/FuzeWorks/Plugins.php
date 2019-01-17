@@ -123,10 +123,12 @@ class Plugins
 			
 			// Now go through each entry in the plugin folder
 			foreach ($pluginPathContents as $pluginFolder) {
+			    // @codeCoverageIgnoreStart
 				if (!is_dir($pluginPath . DS . $pluginFolder))
 				{
 					continue;
 				}
+                // @codeCoverageIgnoreEnd
 
 				// If a header file exists, use it
 				$file = $pluginPath . DS . $pluginFolder . DS . 'header.php';

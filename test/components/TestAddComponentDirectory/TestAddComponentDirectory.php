@@ -55,6 +55,11 @@ class TestAddComponentDirectoryComponent implements iComponent
     {
         return $container;
     }
+
+    public function getName(): string
+    {
+        return 'TestAddComponentDirectoryComponent';
+    }
 }
 
 class TestAddComponentDirectory

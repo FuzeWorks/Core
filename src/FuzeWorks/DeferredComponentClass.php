@@ -77,6 +77,11 @@ class DeferredComponentClass
         $this->callback = $callback;
     }
 
+    /**
+     * Receives the result after being invoked. Used to save the result and send back with callable if configured.
+     *
+     * @param $result
+     */
     public function invoke($result)
     {
         $this->return = $result;

@@ -40,6 +40,7 @@ namespace FuzeWorks;
 
 interface iComponent
 {
+    public function getName(): string;
     public function getClasses(): array;
     public function onAddComponent(Configurator $configurator);
     public function onCreateContainer(Factory $container);

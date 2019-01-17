@@ -50,6 +50,5 @@ $configurator->setDebugAddress('ALL');
 //$configurator->setDebugEmail('example@mail.com');
 
 $container = $configurator->createContainer();
-$container->init();
 return $container;
 
