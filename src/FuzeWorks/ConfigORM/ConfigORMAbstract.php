@@ -71,11 +71,32 @@ abstract class ConfigORMAbstract implements Iterator
     }
 
     /**
+     * Clears the current config
+     */
+    public function clear()
+    {
+        $this->cfg = [];
+    }
+
+    /**
+     * Replaces keys and values in the config with the provided array
+     *
+     * @param array $replacementArray
+     */
+    public function replace(array $replacementArray)
+    {
+        foreach ($replacementArray as $key => $value)
+        {
+            $this->cfg[$key] = $value;
+        }
+    }
+
+    /**
      * Checks if a requested key is set in the config file.
      *
      * @param string $name Parameter name
-     *
      * @return bool true on isset, false on not
+     * @codeCoverageIgnore
      */
     public function __isset($name)
     {
@@ -86,8 +107,8 @@ abstract class ConfigORMAbstract implements Iterator
      * Return a value from a config file.
      *
      * @param string $name Key of the requested entry
-     *
      * @return mixed Value of the requested entry
+     * @codeCoverageIgnore
      */
     public function __get($name)
     {
@@ -99,6 +120,7 @@ abstract class ConfigORMAbstract implements Iterator
      *
      * @param string $name  Key of the entry
      * @param mixed  $value Value of the entry
+     * @codeCoverageIgnore
      */
     public function __set($name, $value)
     {
@@ -109,6 +131,7 @@ abstract class ConfigORMAbstract implements Iterator
      * Unset a value in a config file.
      *
      * @param string Key of the entry
+     * @codeCoverageIgnore
      */
     public function __unset($name)
     {
@@ -117,6 +140,7 @@ abstract class ConfigORMAbstract implements Iterator
 
     /**
      * Iterator method.
+     * @codeCoverageIgnore
      */
     public function rewind()
     {
@@ -125,6 +149,7 @@ abstract class ConfigORMAbstract implements Iterator
 
     /**
      * Iterator method.
+     * @codeCoverageIgnore
      */
     public function current()
     {
@@ -133,6 +158,7 @@ abstract class ConfigORMAbstract implements Iterator
 
     /**
      * Iterator method.
+     * @codeCoverageIgnore
      */
     public function key()
     {
@@ -141,6 +167,7 @@ abstract class ConfigORMAbstract implements Iterator
 
     /**
      * Iterator method.
+     * @codeCoverageIgnore
      */
     public function next()
     {
@@ -149,6 +176,7 @@ abstract class ConfigORMAbstract implements Iterator
 
     /**
      * Iterator method.
+     * @codeCoverageIgnore
      */
     public function valid()
     {
