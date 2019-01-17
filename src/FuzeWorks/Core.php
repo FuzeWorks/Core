@@ -117,6 +117,9 @@ class Core
         // Fix Apache bug where CWD is changed upon shutdown
         chdir(self::$cwd);
 
+        // Log the shutdown
+        Logger::logInfo("Shutting FuzeWorks down gracefully");
+
         // Fire the Shutdown event
         $event = Events::fireEvent('coreShutdownEvent');
 

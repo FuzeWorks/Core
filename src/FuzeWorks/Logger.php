@@ -218,7 +218,7 @@ class Logger {
         if ($error !== null) {
              // Log it!
             $thisType = self::getType($error['type']);
-            $LOG = array('type' => $error['type'],
+            $LOG = array('type' => (!is_null($thisType) ? $thisType : 'ERROR'),
                 'message' => $error['message'],
                 'logFile' => $error['file'],
                 'logLine' => $error['line'],

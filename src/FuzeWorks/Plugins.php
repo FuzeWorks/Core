@@ -180,7 +180,7 @@ class Plugins
         $h->init();
 
         // And log it
-        Factory::getInstance()->logger->log('Loaded Plugin Header: \'' . $pluginName . '\'');
+        Logger::log('Loaded Plugin Header: \'' . $pluginName . '\'');
         return true;
     }
 
@@ -257,7 +257,7 @@ class Plugins
 		if (method_exists($header, 'getPlugin'))
 		{
 			$this->plugins[$pluginName] = $header->getPlugin();
-			Factory::getInstance()->logger->log('Loaded Plugin: \'' . $pluginName . '\'');
+			Logger::log('Loaded Plugin: \'' . $pluginName . '\'');
 			return $this->plugins[$pluginName];
 		}
 
@@ -281,7 +281,7 @@ class Plugins
 			throw new PluginException("Could not load plugin. Class does not exist", 1);
 		}
 		$this->plugins[$pluginName] = new $className($parameters);
-		Factory::getInstance()->logger->log('Loaded Plugin: \'' . $pluginName . '\'');
+		Logger::log('Loaded Plugin: \'' . $pluginName . '\'');
 
 		// And return it
 		return $this->plugins[$pluginName];
