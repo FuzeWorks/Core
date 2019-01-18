@@ -60,6 +60,7 @@ use FuzeWorks\Exception\HelperException;
  */
 class Helpers
 {
+    use ComponentPathsTrait;
 
     /**
      * Array of loadedHelpers, so that they won't be reloaded
@@ -68,18 +69,9 @@ class Helpers
      */
     protected $helpers = [];
 
-    /**
-     * Paths where Helpers can be found. 
-     * 
-     * Libraries will only be loaded if either a directory is supplied or it is in one of the helperPaths
-     * 
-     * @var array Array of paths where helpers can be found
-     */
-    protected $helperPaths = [];
-
     public function __construct()
     {
-        $this->helperPaths = Core::$appDirs;
+        $this->componentPaths = Core::$appDirs;
     }
 
     /**
@@ -96,7 +88,7 @@ class Helpers
     public function load(string $helperName, array $helperDirectories = []): bool
     {
         // Determine what directories should be checked
-        $helperPaths = (empty($helperDirectories) ? $this->helperPaths : $helperDirectories);
+        $helperPaths = (empty($helperDirectories) ? $this->componentPaths : $helperDirectories);
 
         // Check it is already loaded
         if (isset($this->helpers[$helperName]))
@@ -162,53 +154,5 @@ class Helpers
     public function get($helperName, array $helperPaths = []): bool
     {
         return $this->load($helperName, $helperPaths);
-    }
-
-    /**
-     * Set the directories. Automatically gets invoked if helperPaths are added to FuzeWorks\Configurator.
-     *
-     * @param array $directories
-     */
-    public function setDirectories(array $directories)
-    {
-        $this->helperPaths = array_merge($this->helperPaths, $directories);
-    }
-
-    /**
-     * Add a path where helpers can be found
-     * 
-     * @param string $directory The directory
-     * @return void
-     */
-    public function addHelperPath($directory)
-    {
-        if (!in_array($directory, $this->helperPaths))
-        {
-            $this->helperPaths[] = $directory;
-        }
-    }
-
-    /**
-     * Remove a path where helpers can be found
-     * 
-     * @param string $directory The directory
-     * @return void
-     */    
-    public function removeHelperPath($directory)
-    {
-        if (($key = array_search($directory, $this->helperPaths)) !== false) 
-        {
-            unset($this->helperPaths[$key]);
-        }
-    }
-
-    /**
-     * Get a list of all current helperPaths
-     * 
-     * @return array Array of paths where helpers can be found
-     */
-    public function getHelperPaths(): array
-    {
-        return $this->helperPaths;
     }
 }

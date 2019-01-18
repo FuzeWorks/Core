@@ -36,18 +36,12 @@
 
 namespace FuzeWorks;
 
-
 use FuzeWorks\Exception\ConfigException;
 use FuzeWorks\Exception\LibraryException;
 
 class Libraries
 {
-    /**
-     * Array of all the paths where libraries can be found
-     *
-     * @var array Library paths
-     */
-    protected $libraryPaths = [];
+    use ComponentPathsTrait;
 
     /**
      * Array of loaded library objects
@@ -78,7 +72,7 @@ class Libraries
     public function __construct()
     {
         $this->factory = Factory::getInstance();
-        $this->libraryPaths = Core::$appDirs;
+        $this->componentPaths = Core::$appDirs;
     }
 
     /**
@@ -142,7 +136,7 @@ class Libraries
             return $this->initLibrary($libraryName, $this->libraryClasses[$libraryNameLowerCase], $parameters);
 
         // Try and load from the alternate directory if provided
-        $paths = (empty($altDirectories) ? $this->libraryPaths : $altDirectories);
+        $paths = (empty($altDirectories) ? $this->componentPaths : $altDirectories);
 
         // Try and find the library in the libraryPaths
         foreach ($paths as $path)
@@ -208,53 +202,5 @@ class Libraries
         $this->libraryObjects[strtolower($libraryName)] = $classObject;
         $this->factory->logger->log("Loaded Library: ".$libraryName);
         return $this->libraryObjects[strtolower($libraryName)];
-    }
-
-    /**
-     * Set the directories. Automatically gets invoked if libraryPaths are added to FuzeWorks\Configurator.
-     *
-     * @param array $directories
-     */
-    public function setDirectories(array $directories)
-    {
-        $this->libraryPaths = array_merge($this->libraryPaths, $directories);
-    }
-
-    /**
-     * Add a path where libraries can be found
-     *
-     * @param string $directory The directory
-     * @return void
-     */
-    public function addLibraryPath($directory)
-    {
-        if (!in_array($directory, $this->libraryPaths))
-        {
-            $this->libraryPaths[] = $directory;
-        }
-    }
-
-    /**
-     * Remove a path where libraries can be found
-     *
-     * @param string $directory The directory
-     * @return void
-     */
-    public function removeLibraryPath($directory)
-    {
-        if (($key = array_search($directory, $this->libraryPaths)) !== false)
-        {
-            unset($this->libraryPaths[$key]);
-        }
-    }
-
-    /**
-     * Get a list of all current libraryPaths
-     *
-     * @return array Array of paths where libraries can be found
-     */
-    public function getLibraryPaths(): array
-    {
-        return $this->libraryPaths;
     }
 }

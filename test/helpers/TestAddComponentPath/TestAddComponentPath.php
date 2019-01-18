@@ -33,10 +33,10 @@
  *
  * @version Version 1.2.0
  */
-if ( ! function_exists('testAddHelperPathFunction'))
+if ( ! function_exists('testAddComponentPathFunction'))
 {
 
-	function testAddHelperPathFunction($someParameter)
+	function testAddComponentPathFunction($someParameter)
 	{
 		return 'SomeResult';
 	}

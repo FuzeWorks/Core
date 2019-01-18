@@ -62,13 +62,7 @@ use ReflectionException;
  */
 class Plugins
 {
-
-	/**
-	 * Array of all the paths where plugins can be found
-	 * 
-	 * @var array Plugin paths
-	 */
-	protected $pluginPaths = array();
+    use ComponentPathsTrait;
 
 	/**
 	 * Array of loaded Plugins, so that they won't be reloaded
@@ -101,7 +95,7 @@ class Plugins
 	public function __construct()
 	{
 		$this->cfg = Factory::getInstance()->config->plugins;
-		$this->pluginPaths = Core::$appDirs;
+		$this->componentPaths = Core::$appDirs;
 	}
 
     /**
@@ -110,7 +104,7 @@ class Plugins
 	public function loadHeadersFromPluginPaths()
 	{
 		// Cycle through all pluginPaths
-		foreach ($this->pluginPaths as $pluginPath) {
+		foreach ($this->componentPaths as $pluginPath) {
 			
 			// If directory does not exist, skip it
 			if (!file_exists($pluginPath) || !is_dir($pluginPath))
@@ -285,53 +279,5 @@ class Plugins
 
 		// And return it
 		return $this->plugins[$pluginName];
-	}
-
-    /**
-     * Set the directories. Automatically gets invoked if pluginPaths are added to FuzeWorks\Configurator.
-     *
-     * @param array $directories
-     */
-    public function setDirectories(array $directories)
-    {
-        $this->pluginPaths = array_merge($this->pluginPaths, $directories);
-    }
-
-    /**
-     * Add a path where plugins can be found
-     * 
-     * @param string $directory The directory
-     * @return void
-     */
-	public function addPluginPath($directory)
-	{
-		if (!in_array($directory, $this->pluginPaths))
-		{
-			$this->pluginPaths[] = $directory;
-		}
-	}
-
-    /**
-     * Remove a path where plugins can be found
-     * 
-     * @param string $directory The directory
-     * @return void
-     */  
-	public function removePluginPath($directory)
-	{
-		if (($key = array_search($directory, $this->pluginPaths)) !== false) 
-		{
-		    unset($this->pluginPaths[$key]);
-		}
-	}
-
-    /**
-     * Get a list of all current pluginPaths
-     * 
-     * @return array Array of paths where plugins can be found
-     */
-	public function getPluginPaths(): array
-	{
-		return $this->pluginPaths;
 	}
 }

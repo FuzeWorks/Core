@@ -154,40 +154,40 @@ class configTest extends CoreTestAbstract
     /**
      * @expectedException FuzeWorks\Exception\ConfigException
      */
-    public function testAddConfigPathFail()
+    public function testAddComponentPathFail()
     {
     	// Now test if the config can be loaded (hint: it can not)
-    	$this->config->getConfig('testAddConfigPath');
+    	$this->config->getConfig('testAddComponentPath');
     }
 
     /**
-     * @depends testAddConfigPathFail
+     * @depends testAddComponentPathFail
      */
-    public function testAddConfigPath()
+    public function testaddComponentPath()
     {
     	// Add the configPath
-    	$this->config->addConfigPath('test'.DS.'config'.DS.'TestAddConfigPath');
+    	$this->config->addComponentPath('test'.DS.'config'.DS.'TestAddComponentPath');
 
     	// And try to load it again
-    	$this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $this->config->getConfig('testAddConfigPath'));
+    	$this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $this->config->getConfig('testAddComponentPath'));
     }
 
-    public function testRemoveConfigPath()
+    public function testremoveComponentPath()
     {
     	// Test if the path does NOT exist
-    	$this->assertFalse(in_array('test'.DS.'config'.DS.'TestRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertFalse(in_array('test'.DS.'config'.DS.'TestRemoveComponentPath', $this->config->getComponentPaths()));
 
     	// Add it
-    	$this->config->addConfigPath('test'.DS.'config'.DS.'TestRemoveConfigPath');
+    	$this->config->addComponentPath('test'.DS.'config'.DS.'TestRemoveComponentPath');
 
     	// Assert if it's there
-    	$this->assertTrue(in_array('test'.DS.'config'.DS.'TestRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertTrue(in_array('test'.DS.'config'.DS.'TestRemoveComponentPath', $this->config->getComponentPaths()));
 
     	// Remove it
-    	$this->config->removeConfigPath('test'.DS.'config'.DS.'TestRemoveConfigPath');
+    	$this->config->removeComponentPath('test'.DS.'config'.DS.'TestRemoveComponentPath');
 
     	// And test if it's gone again
-    	$this->assertFalse(in_array('test'.DS.'config'.DS.'TestRemoveConfigPath', $this->config->getConfigPaths()));
+    	$this->assertFalse(in_array('test'.DS.'config'.DS.'TestRemoveComponentPath', $this->config->getComponentPaths()));
     }
 
     public function testSameConfigObject()
@@ -214,7 +214,7 @@ class configTest extends CoreTestAbstract
 
         // Assert expectations
         $expected = array_merge(\FuzeWorks\Core::$appDirs, [$directory]);
-        $this->assertEquals($expected, $this->config->getConfigPaths());
+        $this->assertEquals($expected, $this->config->getComponentPaths());
     }
 
 }

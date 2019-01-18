@@ -50,6 +50,7 @@ use FuzeWorks\Exception\EventException;
  */
 class Config
 {
+    use ComponentPathsTrait;
 
     /**
      * Array where all config files are saved while FuzeWorks runs
@@ -65,18 +66,9 @@ class Config
      */
     public static $configOverrides = [];
 
-    /**
-     * Paths where Helpers can be found. 
-     * 
-     * Libraries will only be loaded if either a directory is supplied or it is in one of the helperPaths
-     * 
-     * @var array Array of paths where helpers can be found
-     */
-    protected $configPaths = [];
-
     public function __construct()
     {
-        $this->configPaths = Core::$appDirs;
+        $this->componentPaths = Core::$appDirs;
     }
 
     /**
@@ -90,7 +82,7 @@ class Config
     public function getConfig(string $configName, array $configPaths = []): ConfigORM
     {
         // First determine what directories to use
-        $directories = (empty($configPaths) ? $this->configPaths : $configPaths);
+        $directories = (empty($configPaths) ? $this->componentPaths : $configPaths);
 
         // Determine the config name
         $configName = strtolower($configName);
@@ -223,54 +215,6 @@ class Config
 
         // And set the value
         self::$configOverrides[$configName][$configKey] = $configValue;
-    }
-
-    /**
-     * Set the directories. Automatically gets invoked if configPaths are added to FuzeWorks\Configurator.
-     *
-     * @param array $directories
-     */
-    public function setDirectories(array $directories)
-    {
-        $this->configPaths = array_merge($this->configPaths, $directories);
-    }
-
-    /**
-     * Add a path where config files can be found
-     * 
-     * @param string $directory The directory
-     * @return void
-     */
-    public function addConfigPath($directory)
-    {
-        if (!in_array($directory, $this->configPaths))
-        {
-            $this->configPaths[] = $directory;
-        }
-    }
-
-    /**
-     * Remove a path where config files can be found
-     * 
-     * @param string $directory The directory
-     * @return void
-     */    
-    public function removeConfigPath($directory)
-    {
-        if (($key = array_search($directory, $this->configPaths)) !== false) 
-        {
-            unset($this->configPaths[$key]);
-        }
-    }
-
-    /**
-     * Get a list of all current configPaths
-     * 
-     * @return array Array of paths where config files can be found
-     */
-    public function getConfigPaths(): array
-    {
-        return $this->configPaths;
     }
 
 }

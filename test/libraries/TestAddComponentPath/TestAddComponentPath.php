@@ -35,6 +35,6 @@
  */
 namespace Application\Library;
 
-class TestAddLibraryPath {
+class TestAddComponentPath {
 
 }

@@ -154,57 +154,57 @@ class helperTest extends CoreTestAbstract
      * @expectedException FuzeWorks\Exception\HelperException
      * @covers \FuzeWorks\Helpers::load
      */
-    public function testAddHelperPathFail()
+    public function testAddComponentPathFail()
     {
     	// First test if the function is not loaded yet
-    	$this->assertFalse(function_exists('testAddHelperPathFunction'));
+    	$this->assertFalse(function_exists('testAddComponentPathFunction'));
 
     	// Now test if the helper can be loaded (hint: it can not)
-    	$this->helpers->load('TestAddHelperPathFail');
+    	$this->helpers->load('TestAddComponentPathFail');
     }
 
     /**
-     * @depends testAddHelperPathFail
-     * @covers \FuzeWorks\Helpers::addHelperPath
-     * @covers \FuzeWorks\Helpers::getHelperPaths
+     * @depends testAddComponentPathFail
+     * @covers \FuzeWorks\Helpers::addComponentPath
+     * @covers \FuzeWorks\Helpers::getComponentPaths
      */
-    public function testAddHelperPath()
+    public function testAddComponentPath()
     {
-    	// Add the helperPath
-    	$this->helpers->addHelperPath('test'.DS.'helpers'.DS.'TestAddHelperPath');
+    	// Add the componentPath
+    	$this->helpers->addComponentPath('test'.DS.'helpers'.DS.'TestAddComponentPath');
 
     	// And try to load it again
-    	$this->assertTrue($this->helpers->load('TestAddHelperPath'));
+    	$this->assertTrue($this->helpers->load('TestAddComponentPath'));
 
     	// And test if the function is loaded
-    	$this->assertTrue(function_exists('testAddHelperPathFunction'));
+    	$this->assertTrue(function_exists('testAddComponentPathFunction'));
     }
 
     /**
-     * @covers \FuzeWorks\Helpers::removeHelperPath
-     * @covers \FuzeWorks\Helpers::getHelperPaths
+     * @covers \FuzeWorks\Helpers::removeComponentPath
+     * @covers \FuzeWorks\Helpers::getComponentPaths
      */
-    public function testRemoveHelperPath()
+    public function testRemoveComponentPath()
     {
     	// Test if the path does NOT exist
-    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'TestRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'TestRemoveComponentPath', $this->helpers->getComponentPaths()));
 
     	// Add it
-    	$this->helpers->addHelperPath('test'.DS.'helpers'.DS.'TestRemoveHelperPath');
+    	$this->helpers->addComponentPath('test'.DS.'helpers'.DS.'TestRemoveComponentPath');
 
     	// Assert if it's there
-    	$this->assertTrue(in_array('test'.DS.'helpers'.DS.'TestRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertTrue(in_array('test'.DS.'helpers'.DS.'TestRemoveComponentPath', $this->helpers->getComponentPaths()));
 
     	// Remove it
-    	$this->helpers->removeHelperPath('test'.DS.'helpers'.DS.'TestRemoveHelperPath');
+    	$this->helpers->removeComponentPath('test'.DS.'helpers'.DS.'TestRemoveComponentPath');
 
     	// And test if it's gone again
-    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'TestRemoveHelperPath', $this->helpers->getHelperPaths()));
+    	$this->assertFalse(in_array('test'.DS.'helpers'.DS.'TestRemoveComponentPath', $this->helpers->getComponentPaths()));
     }
 
     /**
      * @covers \FuzeWorks\Helpers::setDirectories
-     * @covers \FuzeWorks\Helpers::getHelperPaths
+     * @covers \FuzeWorks\Helpers::getComponentPaths
      */
     public function testSetDirectories()
     {
@@ -214,6 +214,6 @@ class helperTest extends CoreTestAbstract
 
         // Assert expectations
         $expected = array_merge(\FuzeWorks\Core::$appDirs, ['test' . DS . 'helpers', $directory]);
-        $this->assertEquals($expected, $this->helpers->getHelperPaths());
+        $this->assertEquals($expected, $this->helpers->getComponentPaths());
     }
 }

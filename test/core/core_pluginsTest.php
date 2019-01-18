@@ -54,7 +54,7 @@ class pluginTest extends CoreTestAbstract
     public function setUp()
     {
         $this->plugins = new Plugins();
-        $this->plugins->addPluginPath('test'.DS.'plugins');
+        $this->plugins->addComponentPath('test'.DS.'plugins');
         $this->plugins->loadHeadersFromPluginPaths();
     }
 
@@ -175,15 +175,15 @@ class pluginTest extends CoreTestAbstract
      */
     public function testRunInvalidDirectory()
     {
-        $this->plugins->addPluginPath('exists_not');
+        $this->plugins->addComponentPath('exists_not');
         $this->plugins->loadHeadersFromPluginPaths();
         $this->plugins->get('testRunInvalidDirectory');
     }
 
-    public function testAddPluginPath()
+    public function testAddComponentPath()
     {
-        // Add the pluginPath
-        $this->plugins->addPluginPath('test'.DS.'plugins'.DS.'TestAddPluginPath');
+        // Add the componentPath
+        $this->plugins->addComponentPath('test'.DS.'plugins'.DS.'TestAddComponentPath');
 
         // And try to load it again
         $this->plugins->loadHeadersFromPluginPaths();
@@ -191,24 +191,24 @@ class pluginTest extends CoreTestAbstract
     }
 
     /**
-     * @depends testAddPluginPath
+     * @depends testAddComponentPath
      */
-    public function testRemovePluginPath()
+    public function testRemoveComponentPath()
     {
         // Test if the path does NOT exist
-        $this->assertFalse(in_array('test'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
+        $this->assertFalse(in_array('test'.DS.'plugins'.DS.'testRemoveComponentPath', $this->plugins->getComponentPaths()));
 
         // Add it
-        $this->plugins->addPluginPath('test'.DS.'plugins'.DS.'testRemovePluginPath');
+        $this->plugins->addComponentPath('test'.DS.'plugins'.DS.'testRemoveComponentPath');
 
         // Assert if it's there
-        $this->assertTrue(in_array('test'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
+        $this->assertTrue(in_array('test'.DS.'plugins'.DS.'testRemoveComponentPath', $this->plugins->getComponentPaths()));
 
         // Remove it
-        $this->plugins->removePluginPath('test'.DS.'plugins'.DS.'testRemovePluginPath');
+        $this->plugins->removeComponentPath('test'.DS.'plugins'.DS.'testRemoveComponentPath');
 
         // And test if it's gone again
-        $this->assertFalse(in_array('test'.DS.'plugins'.DS.'testRemovePluginPath', $this->plugins->getPluginPaths()));
+        $this->assertFalse(in_array('test'.DS.'plugins'.DS.'testRemoveComponentPath', $this->plugins->getComponentPaths()));
     }
 
     public function testSetDirectories()
@@ -219,7 +219,7 @@ class pluginTest extends CoreTestAbstract
         $expected = [$appDir, 'test'.DS.'plugins', $directory];
         $this->plugins->setDirectories([$directory]);
 
-        $this->assertEquals($expected, $this->plugins->getPluginPaths());
+        $this->assertEquals($expected, $this->plugins->getComponentPaths());
     }
 
     public function tearDown()

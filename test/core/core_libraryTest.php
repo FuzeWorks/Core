@@ -65,7 +65,7 @@ class libraryTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Libraries', $this->libraries);
     }
 
-    /* ---------------------------------- LibraryPaths ---------------------------------------------- */
+    /* ---------------------------------- ComponentPaths ---------------------------------------------- */
 
     /**
      * @depends testLibrariesClass
@@ -74,56 +74,56 @@ class libraryTest extends CoreTestAbstract
     {
         // Test initial
         $initial = array_merge(Core::$appDirs, ['test'.DS.'libraries']);
-        $this->assertEquals($initial, $this->libraries->getLibraryPaths());
+        $this->assertEquals($initial, $this->libraries->getComponentPaths());
 
         // Add path
         $newPath = 'addPath';
         $this->libraries->setDirectories([$newPath]);
         $initial[] = $newPath;
-        $this->assertEquals($initial, $this->libraries->getLibraryPaths());
+        $this->assertEquals($initial, $this->libraries->getComponentPaths());
     }
 
     /**
      * @expectedException FuzeWorks\Exception\LibraryException
      */
-    public function testAddLibraryPathFail()
+    public function testAddComponentPathFail()
     {
         // First test if the library is not loaded yet
-        $this->assertFalse(class_exists('TestAddLibraryPathFail', false));
+        $this->assertFalse(class_exists('TestAddComponentPathFail', false));
 
         // Now test if the library can be loaded (hint: it can not)
-        $this->libraries->get('TestAddLibraryPathFail');
+        $this->libraries->get('TestAddComponentPathFail');
     }
 
     /**
-     * @depends testAddLibraryPathFail
+     * @depends testAddComponentPathFail
      */
-    public function testAddLibraryPath()
+    public function testAddComponentPath()
     {
-        // Add the libraryPath
-        $this->libraries->removeLibraryPath('test'.DS.'libraries');
-        $this->libraries->addLibraryPath('test'.DS.'libraries'.DS.'TestAddLibraryPath');
+        // Add the componentPath
+        $this->libraries->removeComponentPath('test'.DS.'libraries');
+        $this->libraries->addComponentPath('test'.DS.'libraries'.DS.'TestAddComponentPath');
 
         // And try to load it again
-        $this->assertInstanceOf('Application\Library\TestAddLibraryPath', $this->libraries->get('TestAddLibraryPath'));
+        $this->assertInstanceOf('Application\Library\TestAddComponentPath', $this->libraries->get('TestAddComponentPath'));
     }
 
-    public function testRemoveLibraryPath()
+    public function testRemoveComponentPath()
     {
         // Test if the path does NOT exist
-        $this->assertFalse(in_array('test'.DS.'libraries'.DS.'TestRemoveLibraryPath', $this->libraries->getLibraryPaths()));
+        $this->assertFalse(in_array('test'.DS.'libraries'.DS.'TestRemoveComponentPath', $this->libraries->getComponentPaths()));
 
         // Add it
-        $this->libraries->addLibraryPath('test'.DS.'libraries'.DS.'TestRemoveLibraryPath');
+        $this->libraries->addComponentPath('test'.DS.'libraries'.DS.'TestRemoveComponentPath');
 
         // Assert if it's there
-        $this->assertTrue(in_array('test'.DS.'libraries'.DS.'TestRemoveLibraryPath', $this->libraries->getLibraryPaths()));
+        $this->assertTrue(in_array('test'.DS.'libraries'.DS.'TestRemoveComponentPath', $this->libraries->getComponentPaths()));
 
         // Remove it
-        $this->libraries->removeLibraryPath('test'.DS.'libraries'.DS.'TestRemoveLibraryPath');
+        $this->libraries->removeComponentPath('test'.DS.'libraries'.DS.'TestRemoveComponentPath');
 
         // And test if it's gone again
-        $this->assertFalse(in_array('test'.DS.'libraries'.DS.'TestRemoveLibraryPath', $this->libraries->getLibraryPaths()));
+        $this->assertFalse(in_array('test'.DS.'libraries'.DS.'TestRemoveComponentPath', $this->libraries->getComponentPaths()));
     }
 
     /* ---------------------------------- Load library from directories ------------------- */
@@ -142,7 +142,7 @@ class libraryTest extends CoreTestAbstract
     public function testGetLibraryFromSubdirectory()
     {
         // Add test directory path
-        $this->libraries->addLibraryPath('test'.DS.'libraries'.DS.'TestGetLibraryFromSubdirectory');
+        $this->libraries->addComponentPath('test'.DS.'libraries'.DS.'TestGetLibraryFromSubdirectory');
 
         $this->assertInstanceOf('Application\Library\TestGetLibraryFromSubdirectory', $this->libraries->get('TestGetLibraryFromSubdirectory'));
     }
