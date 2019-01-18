@@ -35,7 +35,7 @@
  */
 use FuzeWorks\Factory;
 use FuzeWorks\Events;
-use FuzeWorks\EventPriority;
+use FuzeWorks\Priority;
 
 /**
  * Class CoreStartEventTest.
@@ -50,7 +50,7 @@ class coreStartEventTest extends CoreTestAbstract
         $mock = $this->getMockBuilder(MockStartEvent::class)->setMethods(['mockMethod'])->getMock();
         $mock->expects($this->once())->method('mockMethod');
 
-        Events::addListener(array($mock, 'mockMethod'), 'coreStartEvent', EventPriority::NORMAL);
+        Events::addListener(array($mock, 'mockMethod'), 'coreStartEvent', Priority::NORMAL);
         $factory = new Factory;
         $factory->init();
     }

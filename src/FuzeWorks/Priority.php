@@ -37,22 +37,22 @@
 namespace FuzeWorks;
 
 /**
- * Class EventPriority.
+ * Class Priority.
  *
- * The EventPriority is an "enum" which gives priorities an integer value, the higher the integer value, the lower the
+ * The Priority is an "enum" which gives priorities an integer value, the higher the integer value, the lower the
  * priority. The available priorities are, from highest to lowest:
  *
- * EventPriority::MONITOR
- * EventPriority::HIGHEST
- * EventPriority::HIGH
- * EventPriority::NORMAL
- * EventPriority::LOW
- * EventPriority::LOWEST
+ * Priority::MONITOR
+ * Priority::HIGHEST
+ * Priority::HIGH
+ * Priority::NORMAL
+ * Priority::LOW
+ * Priority::LOWEST
  *
  * @author    TechFuze <contact@techfuze.net>
  * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
  */
-abstract class EventPriority
+abstract class Priority
 {
     const LOWEST = 5;
     const LOW = 4;
@@ -72,17 +72,17 @@ abstract class EventPriority
     {
         switch ($intPriorty) {
             case 5:
-                return 'EventPriority::LOWEST';
+                return 'Priority::LOWEST';
             case 4:
-                return 'EventPriority::LOW';
+                return 'Priority::LOW';
             case 3:
-                return 'EventPriority::NORMAL';
+                return 'Priority::NORMAL';
             case 2:
-                return 'EventPriority::HIGH';
+                return 'Priority::HIGH';
             case 1:
-                return 'EventPriority::HIGHEST';
+                return 'Priority::HIGHEST';
             case 0:
-                return 'EventPriority::MONITOR';
+                return 'Priority::MONITOR';
             default:
                 return false;
         }
@@ -90,7 +90,7 @@ abstract class EventPriority
 
     /**
      * Returns the highest priority
-     * This function is needed for the firing of events in the right order,.
+     * This function is needed for executing in the right order,.
      *
      * @return int
      */
@@ -101,7 +101,7 @@ abstract class EventPriority
 
     /**
      * Returns the lowest priority
-     * This function is needed for the firing of events in the right order,.
+     * This function is needed for executing in the right order,.
      *
      * @return int
      */

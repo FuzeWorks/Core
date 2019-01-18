@@ -35,7 +35,7 @@
  */
 use FuzeWorks\Factory;
 use FuzeWorks\Events;
-use FuzeWorks\EventPriority;
+use FuzeWorks\Priority;
 
 /**
  * Class pluginGetEventTest.
@@ -51,7 +51,7 @@ class pluginGetEventTest extends CoreTestAbstract
         Events::addListener(
             function($event){$event->setCancelled(true);return $event;}, 
             'pluginGetEvent', 
-            EventPriority::NORMAL);
+            Priority::NORMAL);
 
         // And fire the event
         $this->assertFalse(Factory::getInstance()->plugins->get('test'));
@@ -66,7 +66,7 @@ class pluginGetEventTest extends CoreTestAbstract
         Events::addListener(
             function($event){$event->setPlugin('test_string');return $event;}, 
             'pluginGetEvent', 
-            EventPriority::NORMAL);
+            Priority::NORMAL);
 
         // And fire the event
         $this->assertEquals('test_string', Factory::getInstance()->plugins->get('test'));

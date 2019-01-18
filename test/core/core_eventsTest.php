@@ -36,7 +36,7 @@
 
 use FuzeWorks\Event;
 use FuzeWorks\Events;
-use FuzeWorks\EventPriority;
+use FuzeWorks\Priority;
 
 /**
  * Class EventTest.
@@ -50,7 +50,7 @@ class eventsTest extends CoreTestAbstract
         $mock = $this->getMockBuilder(Observer::class)->setMethods(['mockMethod'])->getMock();
         $mock->expects($this->once())->method('mockMethod');
 
-        Events::addListener(array($mock, 'mockMethod'), 'mockEvent', EventPriority::NORMAL);
+        Events::addListener(array($mock, 'mockMethod'), 'mockEvent', Priority::NORMAL);
         Events::fireEvent('mockEvent');
     }
 
@@ -64,7 +64,7 @@ class eventsTest extends CoreTestAbstract
         $listener = $this->getMockBuilder(Observer::class)->setMethods(['mockListener'])->getMock();
         $listener->expects($this->once())->method('mockListener')->with($this->equalTo($event));
 
-        Events::addListener(array($listener, 'mockListener'), get_class($event), EventPriority::NORMAL);
+        Events::addListener(array($listener, 'mockListener'), get_class($event), Priority::NORMAL);
         Events::fireEvent($event);
     }
 
@@ -81,7 +81,7 @@ class eventsTest extends CoreTestAbstract
         Events::addListener(function($event) {
             $this->assertEquals('value', $event->key);
 
-        }, $eventName, EventPriority::NORMAL);
+        }, $eventName, Priority::NORMAL);
 
         Events::fireEvent($event);
     }
@@ -116,7 +116,7 @@ class eventsTest extends CoreTestAbstract
             $event->key = 2;
             return $event;
 
-        }, $eventName, EventPriority::HIGH);
+        }, $eventName, Priority::HIGH);
 
         // The second listener, should be called second due to LOW priority
         Events::addListener(function($event) {
@@ -124,7 +124,7 @@ class eventsTest extends CoreTestAbstract
             $event->key = 3;
             return $event;
 
-        }, $eventName, EventPriority::LOW);
+        }, $eventName, Priority::LOW);
 
         // Fire the event and test if the key is the result of the last listener
         Events::fireEvent($event);
@@ -157,10 +157,10 @@ class eventsTest extends CoreTestAbstract
         // First add the listener, expect it to be never called
         $listener = $this->getMockBuilder(Observer::class)->setMethods(['mockListener'])->getMock();
         $listener->expects($this->never())->method('mockListener');
-        Events::addListener(array($listener, 'mockListener'), 'mockEvent', EventPriority::NORMAL);
+        Events::addListener(array($listener, 'mockListener'), 'mockEvent', Priority::NORMAL);
 
         // Now try and remove it
-        Events::removeListener(array($listener, 'mockListener'), 'mockEvent', EventPriority::NORMAL);
+        Events::removeListener(array($listener, 'mockListener'), 'mockEvent', Priority::NORMAL);
 
         // And now fire the event
         Events::fireEvent('mockEvent');
@@ -181,7 +181,7 @@ class eventsTest extends CoreTestAbstract
      */
     public function testAddInvalidNameListener()
     {
-        Events::addListener(function($e) {}, '', EventPriority::NORMAL);
+        Events::addListener(function($e) {}, '', Priority::NORMAL);
     }
 
     /**
@@ -198,7 +198,7 @@ class eventsTest extends CoreTestAbstract
      */
     public function testRemoveUnsetEventListener()
     {
-        $this->assertNull(Events::removeListener(function($event){}, 'emptyListenerArray', EventPriority::NORMAL));
+        $this->assertNull(Events::removeListener(function($event){}, 'emptyListenerArray', Priority::NORMAL));
     }
 
     /**
@@ -206,8 +206,8 @@ class eventsTest extends CoreTestAbstract
      */
     public function testRemoveUnsetListener()
     {
-        Events::addListener(function($e) {}, 'mockEvent', EventPriority::NORMAL);
-        $this->assertNull(Events::removeListener(function($x) {echo "Called"; }, 'mockEvent', EventPriority::NORMAL));
+        Events::addListener(function($e) {}, 'mockEvent', Priority::NORMAL);
+        $this->assertNull(Events::removeListener(function($x) {echo "Called"; }, 'mockEvent', Priority::NORMAL));
     }
 
     /**
@@ -223,7 +223,7 @@ class eventsTest extends CoreTestAbstract
         Events::addListener(function($event, $passVariable) {
             $this->assertEquals('value', $passVariable);
 
-        }, $eventName, EventPriority::NORMAL, $passVariable);
+        }, $eventName, Priority::NORMAL, $passVariable);
 
         Events::fireEvent($event);
     }
@@ -233,7 +233,7 @@ class eventsTest extends CoreTestAbstract
         // First add the listener, expect it to be never called
         $listener = $this->getMockBuilder(Observer::class)->setMethods(['mockListener'])->getMock();
         $listener->expects($this->never())->method('mockListener');
-        Events::addListener(array($listener, 'mockListener'), 'mockEvent', EventPriority::NORMAL);
+        Events::addListener(array($listener, 'mockListener'), 'mockEvent', Priority::NORMAL);
 
         // Disable the event syste,
         Events::disable();
@@ -247,7 +247,7 @@ class eventsTest extends CoreTestAbstract
         // First add the listener, expect it to be never called
         $listener = $this->getMockBuilder(Observer::class)->setMethods(['mockListener'])->getMock();
         $listener->expects($this->once())->method('mockListener');
-        Events::addListener(array($listener, 'mockListener'), 'mockEvent', EventPriority::NORMAL);
+        Events::addListener(array($listener, 'mockListener'), 'mockEvent', Priority::NORMAL);
 
         // Disable the event syste,
         Events::disable();

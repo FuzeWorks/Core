@@ -33,49 +33,49 @@
  *
  * @version Version 1.2.0
  */
-use FuzeWorks\EventPriority;
+use FuzeWorks\Priority;
 
 /**
- * Class EventPriorityTest.
+ * Class priorityTest.
  *
- * This test will test the EventPriority class
+ * This test will test the Priority class
  */
-class eventPriorityTest extends CoreTestAbstract
+class priorityTest extends CoreTestAbstract
 {
 
     public function testPriorities()
     {
-        $this->assertEquals(EventPriority::LOWEST, 5);
-        $this->assertEquals(EventPriority::LOW, 4);
-        $this->assertEquals(EventPriority::NORMAL, 3);
-        $this->assertEquals(EventPriority::HIGH, 2);
-        $this->assertEquals(EventPriority::HIGHEST, 1);
-        $this->assertEquals(EventPriority::MONITOR, 0);
+        $this->assertEquals(Priority::LOWEST, 5);
+        $this->assertEquals(Priority::LOW, 4);
+        $this->assertEquals(Priority::NORMAL, 3);
+        $this->assertEquals(Priority::HIGH, 2);
+        $this->assertEquals(Priority::HIGHEST, 1);
+        $this->assertEquals(Priority::MONITOR, 0);
     }
 
     public function testGetPriority()
     {
-        $this->assertEquals(EventPriority::getPriority(5), 'EventPriority::LOWEST');
-        $this->assertEquals(EventPriority::getPriority(4), 'EventPriority::LOW');
-        $this->assertEquals(EventPriority::getPriority(3), 'EventPriority::NORMAL');
-        $this->assertEquals(EventPriority::getPriority(2), 'EventPriority::HIGH');
-        $this->assertEquals(EventPriority::getPriority(1), 'EventPriority::HIGHEST');
-        $this->assertEquals(EventPriority::getPriority(0), 'EventPriority::MONITOR');
+        $this->assertEquals(Priority::getPriority(5), 'Priority::LOWEST');
+        $this->assertEquals(Priority::getPriority(4), 'Priority::LOW');
+        $this->assertEquals(Priority::getPriority(3), 'Priority::NORMAL');
+        $this->assertEquals(Priority::getPriority(2), 'Priority::HIGH');
+        $this->assertEquals(Priority::getPriority(1), 'Priority::HIGHEST');
+        $this->assertEquals(Priority::getPriority(0), 'Priority::MONITOR');
     }
 
     public function testGetInvalidPriority()
     {
-        $this->assertFalse(EventPriority::getPriority(99));
+        $this->assertFalse(Priority::getPriority(99));
     }
 
     public function testHighestPriority()
     {
-        $this->assertEquals(EventPriority::getHighestPriority(), EventPriority::MONITOR);
+        $this->assertEquals(Priority::getHighestPriority(), Priority::MONITOR);
     }
 
     public function testLowestPriority()
     {
-        $this->assertEquals(EventPriority::getLowestPriority(), EventPriority::LOWEST);
+        $this->assertEquals(Priority::getLowestPriority(), Priority::LOWEST);
     }
 
 }

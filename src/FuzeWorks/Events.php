@@ -47,7 +47,7 @@ use FuzeWorks\Exception\EventException;
  * If we want to add the current time at the end of each page title, we need to hook to the corresponding event. Those events are found in the 'events' directory in the system directory.
  * The event that will be fired when the title is changing is called layoutSetTitleEvent. So if we want our module to hook to that event, we add the following to the constructor:
  *
- * Events::addListener(array($this, "onLayoutSetTitleEvent"), "layoutSetTitleEvent", EventPriority::NORMAL);
+ * Events::addListener(array($this, "onLayoutSetTitleEvent"), "layoutSetTitleEvent", Priority::NORMAL);
  *
  * This will add the function "onLayoutSetTitleEvent" of our current class ($this) to the list of listeners with priority NORMAL. So we need to add
  * a method called onLayoutSetTitleEvent($event) it is very important to add the pointer-reference (&) or return the event, otherwise it doesn't change the event variables.
@@ -80,17 +80,17 @@ class Events
      *
      * @param   callable $callback           The callback when the events get fired, see {@link http://php.net/manual/en/language.types.callable.php PHP.net}
      * @param   string   $eventName          The name of the event
-     * @param   int      $priority           The priority, even though integers are valid, please use EventPriority (for example EventPriority::Lowest)
+     * @param   int      $priority           The priority, even though integers are valid, please use Priority (for example Priority::Lowest)
      * @param   mixed    $parameters,...     Parameters for the listener
      *
-     * @see EventPriority
+     * @see Priority
      *
      * @throws EventException
      */
-    public static function addListener(callable $callback, string $eventName, int $priority = EventPriority::NORMAL)
+    public static function addListener(callable $callback, string $eventName, int $priority = Priority::NORMAL)
     {
         // Perform multiple checks
-        if (EventPriority::getPriority($priority) == false) {
+        if (Priority::getPriority($priority) == false) {
             throw new EventException('Can not add listener: Unknown priority '.$priority, 1);
         }
 
@@ -123,15 +123,15 @@ class Events
      *
      * @param mixed callback The callback when the events get fired, see {@link http://php.net/manual/en/language.types.callable.php PHP.net}
      * @param string $eventName The name of the event
-     * @param int    $priority  The priority, even though integers are valid, please use EventPriority (for example EventPriority::Lowest)
+     * @param int    $priority  The priority, even though integers are valid, please use Priority (for example Priority::Lowest)
      *
-     * @see EventPriority
+     * @see Priority
      *
      * @throws EventException
      */
-    public static function removeListener(callable $callback, string $eventName, $priority = EventPriority::NORMAL)
+    public static function removeListener(callable $callback, string $eventName, $priority = Priority::NORMAL)
     {
-        if (EventPriority::getPriority($priority) == false) {
+        if (Priority::getPriority($priority) == false) {
             throw new EventException('Unknown priority '.$priority);
         }
 
@@ -220,11 +220,11 @@ class Events
             Logger::newLevel("Firing Event: '".$eventName."'. Found listeners: ");
 
             //Loop from the highest priority to the lowest
-            for ($priority = EventPriority::getHighestPriority(); $priority <= EventPriority::getLowestPriority(); ++$priority) {
+            for ($priority = Priority::getHighestPriority(); $priority <= Priority::getLowestPriority(); ++$priority) {
                 //Check for listeners in this priority
                 if (isset(self::$listeners[$eventName][$priority])) {
                     $listeners = self::$listeners[$eventName][$priority];
-                    Logger::newLevel('Found listeners with priority '.EventPriority::getPriority($priority));
+                    Logger::newLevel('Found listeners with priority '.Priority::getPriority($priority));
                     //Fire the event to each listener
                     foreach ($listeners as $callbackArray) {
                         // @codeCoverageIgnoreStart

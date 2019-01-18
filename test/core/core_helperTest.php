@@ -34,7 +34,7 @@
  * @version Version 1.2.0
  */
 
-use FuzeWorks\EventPriority;
+use FuzeWorks\Priority;
 use FuzeWorks\Events;
 use FuzeWorks\Helpers;
 
@@ -129,7 +129,7 @@ class helperTest extends CoreTestAbstract
         Events::addListener(function($event) {
             $event->setCancelled(true);
 
-        }, 'helperLoadEvent', EventPriority::NORMAL);
+        }, 'helperLoadEvent', Priority::NORMAL);
 
         $this->assertFalse($this->helpers->load('TestCancelLoadHelper'));
     }

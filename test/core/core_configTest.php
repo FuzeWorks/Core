@@ -36,7 +36,7 @@
 
 use FuzeWorks\Config;
 use FuzeWorks\Event\ConfigGetEvent;
-use FuzeWorks\EventPriority;
+use FuzeWorks\Priority;
 use FuzeWorks\Events;
 
 /**
@@ -87,7 +87,7 @@ class configTest extends CoreTestAbstract
         // Register listener
         Events::addListener(function($event){
             $event->setCancelled(true);
-        }, 'configGetEvent', EventPriority::NORMAL);
+        }, 'configGetEvent', Priority::NORMAL);
 
         // Attempt and load a config file
         $config = $this->config->getConfig('loadConfigCancel');
@@ -104,7 +104,7 @@ class configTest extends CoreTestAbstract
         Events::addListener(function($event){
             /** @var ConfigGetEvent $event */
             $event->configName = 'TestLoadConfigIntercept';
-        }, 'configGetEvent', EventPriority::NORMAL);
+        }, 'configGetEvent', Priority::NORMAL);
 
         // Load file
         $config = $this->config->getConfig('does_not_exist', ['test'.DS.'config'.DS.'TestLoadConfigIntercept']);

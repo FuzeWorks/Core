@@ -35,7 +35,7 @@
  */
 use FuzeWorks\Events;
 use FuzeWorks\Event;
-use FuzeWorks\EventPriority;
+use FuzeWorks\Priority;
 
 /**
  * Class EventTest.
@@ -54,7 +54,7 @@ class eventTest extends CoreTestAbstract
 
     public function testCancelEvent()
     {
-        Events::addListener(array($this, 'listener_cancel'), 'testCancelEvent', EventPriority::NORMAL);
+        Events::addListener(array($this, 'listener_cancel'), 'testCancelEvent', Priority::NORMAL);
         $event = Events::fireEvent('testCancelEvent');
 
         $this->assertTrue($event->isCancelled());
@@ -62,8 +62,8 @@ class eventTest extends CoreTestAbstract
 
     public function testUncancelEvent()
     {
-        Events::addListener(array($this, 'listener_cancel'), 'testUncancelEvent', EventPriority::HIGH);
-        Events::addListener(array($this, 'listener_uncancel'), 'testUncancelEvent', EventPriority::LOW);
+        Events::addListener(array($this, 'listener_cancel'), 'testUncancelEvent', Priority::HIGH);
+        Events::addListener(array($this, 'listener_uncancel'), 'testUncancelEvent', Priority::LOW);
         $event = Events::fireEvent('testUncancelEvent');
 
         $this->assertFalse($event->isCancelled());
