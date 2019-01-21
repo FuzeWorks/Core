@@ -47,6 +47,9 @@ foreach ($logs as $log) {
     } elseif ($log['type'] == 'ERROR') {
         $string .= '<div style="' . ($layer == 0 ? 'padding-left: 21px;' : '') . 'font-size: 11pt; background-color:#f56954;">[' . $log['type'] . ']' . (!empty($log['context']) && is_string($log['context']) ? '<u>[' . $log['context'] . ']</u>' : '') . ' ' . $log['message'] . '
         	<span style="float: right">' . (!empty($log['logFile']) ? $log['logFile'] : '') . ' : ' . (!empty($log['logLine']) ? $log['logLine'] : '') . '(' . round($log['runtime'] * 1000, 4) . ' ms)</span></div>';
+    } elseif ($log['type'] == 'EXCEPTION') {
+        $string .= '<div style="' . ($layer == 0 ? 'padding-left: 21px;' : '') . 'font-size: 11pt; background-color:#f56954;">[' . $log['type'] . ']' . (!empty($log['context']) && is_string($log['context']) ? '<u>[' . $log['context'] . ']</u>' : '') . ' ' . $log['message'] . '
+        	<span style="float: right">' . (!empty($log['logFile']) ? $log['logFile'] : '') . ' : ' . (!empty($log['logLine']) ? $log['logLine'] : '') . '(' . round($log['runtime'] * 1000, 4) . ' ms)</span></div>';
     } elseif ($log['type'] == 'WARNING') {
         $string .= '<div style="' . ($layer == 0 ? 'padding-left: 21px;' : '') . 'font-size: 11pt; background-color:#f39c12;">[' . $log['type'] . ']' . (!empty($log['context']) && is_string($log['context']) ? '<u>[' . $log['context'] . ']</u>' : '') . ' ' . $log['message'] . '
         	<span style="float: right">' . (!empty($log['logFile']) ? $log['logFile'] : '') . ' : ' . (!empty($log['logLine']) ? $log['logLine'] : '') . '(' . round($log['runtime'] * 1000, 4) . ' ms)</span></div>';
