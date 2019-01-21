@@ -33,8 +33,6 @@
  *
  * @version Version 1.2.0
  */
-namespace Application\Library;
-
-class TestAddComponentPath {
-
-}
+return array(
+    'key' => 'value'
+);

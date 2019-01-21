@@ -33,6 +33,12 @@
  *
  * @version Version 1.2.0
  */
-return array(
-		'key' => 'value'
-	);
+
+if ( ! function_exists('testLoadHelperWithAltDirectory'))
+{
+
+    function testLoadHelperWithAltDirectory($someParameter)
+    {
+        return 'SomeResult';
+    }
+}

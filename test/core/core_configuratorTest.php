@@ -63,7 +63,6 @@ class configuratorTest extends CoreTestAbstract
 
     public function tearDown()
     {
-        Core::$appDirs = [dirname(__DIR__) . '/application'];
         Core::$tempDir = dirname(__DIR__) . '/temp';
         Core::$logDir = dirname(__DIR__) . '/temp';
     }
@@ -194,22 +193,6 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testCreateContainer
-     */
-    public function testAddAppDirectory()
-    {
-        // Create mock filesystem
-        vfsStream::setup('testAddAppDirectory');
-
-        // Add the directory
-        $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->addDirectory(vfsStream::url('testAddAppDirectory')));
-
-        // Create container and test if properly set
-        $this->configurator->createContainer();
-        $this->assertEquals(Core::$appDirs, [vfsStream::url('testAddAppDirectory')]);
-    }
-
-    /**
-     * @depends testCreateContainer
      * @depends testAddComponent
      */
     public function testAddComponentDirectory()
@@ -232,7 +215,7 @@ class configuratorTest extends CoreTestAbstract
         $this->assertEquals(5, $container->testaddcomponentdirectory->variable);
 
         // Verify directory is set
-        $this->assertEquals($container->testaddcomponentdirectory->directories, [vfsStream::url('testAddComponentDirectory')]);
+        $this->assertEquals([vfsStream::url('testAddComponentDirectory')], $container->testaddcomponentdirectory->getComponentPaths());
     }
 
     /* ---------------------------------- Deferred Invocation --------------------------------------- */

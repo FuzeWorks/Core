@@ -45,7 +45,7 @@ trait ComponentPathsTrait
      *
      * @var array $componentPaths
      */
-    protected $componentPaths = array();
+    protected $componentPaths = [];
 
     /**
      * Set the directories. Automatically gets invoked if componentPaths are added by FuzeWorks\Configurator.
@@ -54,42 +54,47 @@ trait ComponentPathsTrait
      */
     public function setDirectories(array $componentPaths)
     {
-        $this->componentPaths = array_merge($this->componentPaths, $componentPaths);
+        $this->componentPaths = $componentPaths;
     }
 
     /**
      * Add a path where objects for this component can be found
      *
      * @param string $componentPath
+     * @param int $priority
      */
-    public function addComponentPath($componentPath)
+    public function addComponentPath($componentPath, $priority = Priority::NORMAL)
     {
-        if (!in_array($componentPath, $this->componentPaths))
-        {
-            $this->componentPaths[] = $componentPath;
-        }
+        if (!isset($this->componentPaths[$priority]))
+            $this->componentPaths[$priority] = [];
+
+        if (!in_array($componentPath, $this->componentPaths[$priority]))
+            $this->componentPaths[$priority][] = $componentPath;
     }
 
     /**
      * Remove a path where objects for this component can be found
      *
      * @param string $componentPath
+     * @param int $priority
      */
-    public function removeComponentPath($componentPath)
+    public function removeComponentPath($componentPath, $priority = Priority::NORMAL)
     {
-        if (($key = array_search($componentPath, $this->componentPaths)) !== false)
-        {
-            unset($this->componentPaths[$key]);
-        }
+        if (!isset($this->componentPaths[$priority]))
+            return;
+
+        if (($key = array_search($componentPath, $this->componentPaths[$priority])) !== false)
+            unset($this->componentPaths[$priority][$key]);
     }
 
     /**
      * Get a list of all current componentPaths
      *
+     * @param int $priority
      * @return array of paths where objects for this component can be found
      */
-    public function getComponentPaths(): array
+    public function getComponentPaths($priority = Priority::NORMAL): array
     {
-        return $this->componentPaths;
+        return (isset($this->componentPaths[$priority]) ? $this->componentPaths[$priority] : []);
     }
 }

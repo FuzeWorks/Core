@@ -69,11 +69,6 @@ class Helpers
      */
     protected $helpers = [];
 
-    public function __construct()
-    {
-        $this->componentPaths = Core::$appDirs;
-    }
-
     /**
      * Load a helper.
      *
@@ -81,14 +76,14 @@ class Helpers
      * or from one of the helperPaths (which you can add).
      *
      * @param string $helperName Name of the helper
-     * @param array $helperDirectories
+     * @param array $helperPaths
      * @return bool                     Whether the helper was successfully loaded (true if yes)
      * @throws HelperException
      */
-    public function load(string $helperName, array $helperDirectories = []): bool
+    public function load(string $helperName, array $helperPaths = []): bool
     {
         // Determine what directories should be checked
-        $helperPaths = (empty($helperDirectories) ? $this->componentPaths : $helperDirectories);
+        $helperPaths = (empty($helperPaths) ? $this->componentPaths : [3 => $helperPaths]);
 
         // Check it is already loaded
         if (isset($this->helpers[$helperName]))
@@ -115,27 +110,33 @@ class Helpers
         }
 
         // Iterate over helperPaths and attempt to load if helper exists
-        foreach ($event->helperPaths as $helperPath)
+        for ($i=Priority::getHighestPriority(); $i<=Priority::getLowestPriority(); $i++)
         {
-            $file = $helperPath . DS . $event->helperName . '.php';
-            $subfile = $helperPath . DS . $event->helperName . DS . $event->helperName . '.php';
-            if (file_exists($file))
-            {
-                // Load and register
-                include_once($file);
-                $this->helpers[$event->helperName] = true;
-                Logger::log("Loaded helper '".$event->helperName."'");
-                return true;
-            }
+            if (!isset($event->helperPaths[$i]))
+                continue;
 
-            // If php file not in main directory, check subdirectories
-            elseif (file_exists($subfile))
+            foreach ($event->helperPaths[$i] as $helperPath)
             {
-                // Load and register
-                include_once($subfile);
-                $this->helpers[$event->helperName] = true;
-                Logger::log("Loaded helper '".$event->helperName."''");
-                return true;
+                $file = $helperPath . DS . $event->helperName . '.php';
+                $subfile = $helperPath . DS . $event->helperName . DS . $event->helperName . '.php';
+                if (file_exists($file))
+                {
+                    // Load and register
+                    include_once($file);
+                    $this->helpers[$event->helperName] = true;
+                    Logger::log("Loaded helper '".$event->helperName."'");
+                    return true;
+                }
+
+                // If php file not in main directory, check subdirectories
+                elseif (file_exists($subfile))
+                {
+                    // Load and register
+                    include_once($subfile);
+                    $this->helpers[$event->helperName] = true;
+                    Logger::log("Loaded helper '".$event->helperName."''");
+                    return true;
+                }
             }
         }
 

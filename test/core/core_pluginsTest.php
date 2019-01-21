@@ -180,48 +180,6 @@ class pluginTest extends CoreTestAbstract
         $this->plugins->get('testRunInvalidDirectory');
     }
 
-    public function testAddComponentPath()
-    {
-        // Add the componentPath
-        $this->plugins->addComponentPath('test'.DS.'plugins'.DS.'TestAddComponentPath');
-
-        // And try to load it again
-        $this->plugins->loadHeadersFromPluginPaths();
-        $this->assertInstanceOf('Application\Plugin\ActualPlugin', $this->plugins->get('ActualPlugin'));
-    }
-
-    /**
-     * @depends testAddComponentPath
-     */
-    public function testRemoveComponentPath()
-    {
-        // Test if the path does NOT exist
-        $this->assertFalse(in_array('test'.DS.'plugins'.DS.'testRemoveComponentPath', $this->plugins->getComponentPaths()));
-
-        // Add it
-        $this->plugins->addComponentPath('test'.DS.'plugins'.DS.'testRemoveComponentPath');
-
-        // Assert if it's there
-        $this->assertTrue(in_array('test'.DS.'plugins'.DS.'testRemoveComponentPath', $this->plugins->getComponentPaths()));
-
-        // Remove it
-        $this->plugins->removeComponentPath('test'.DS.'plugins'.DS.'testRemoveComponentPath');
-
-        // And test if it's gone again
-        $this->assertFalse(in_array('test'.DS.'plugins'.DS.'testRemoveComponentPath', $this->plugins->getComponentPaths()));
-    }
-
-    public function testSetDirectories()
-    {
-        // Add the directory
-        $appDir = Core::$appDirs[0];
-        $directory = 'test' . DS . 'helpers';
-        $expected = [$appDir, 'test'.DS.'plugins', $directory];
-        $this->plugins->setDirectories([$directory]);
-
-        $this->assertEquals($expected, $this->plugins->getComponentPaths());
-    }
-
     public function tearDown()
     {
         $factory = Factory::getInstance();

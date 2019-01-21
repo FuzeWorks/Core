@@ -34,6 +34,7 @@
  * @version Version 1.2.0
  */
 namespace FuzeWorks\Component;
+use FuzeWorks\ComponentPathsTrait;
 use FuzeWorks\Configurator;
 use FuzeWorks\Factory;
 use FuzeWorks\iComponent;
@@ -46,7 +47,7 @@ class TestAddComponentDirectoryComponent implements iComponent
         return ['testaddcomponentdirectory' => 'FuzeWorks\Component\TestAddComponentDirectory'];
     }
 
-    public function onAddComponent(Configurator $configurator): Configurator
+    public function onAddComponent(Configurator $configurator)
     {
         return $configurator;
     }
@@ -64,11 +65,7 @@ class TestAddComponentDirectoryComponent implements iComponent
 
 class TestAddComponentDirectory
 {
-    public $variable = 5;
-    public $directories = [];
+    use ComponentPathsTrait;
 
-    public function setDirectories(array $directories)
-    {
-        $this->directories = $directories;
-    }
+    public $variable = 5;
 }

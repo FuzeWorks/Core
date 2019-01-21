@@ -71,8 +71,6 @@ class Core
 
     public static $logDir;
 
-    public static $appDirs = [];
-
     /**
      * The HTTP status code of the current request
      *

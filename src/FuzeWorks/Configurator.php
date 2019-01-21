@@ -75,7 +75,7 @@ class Configurator
      *
      * @var array of directories
      */     
-    protected $directories = ['app' => []];
+    protected $directories = [];
 
     /**
      * Array of ComponentClass methods to be invoked once ComponentClass is loaded
@@ -124,12 +124,20 @@ class Configurator
      * Add a directory to FuzeWorks
      *
      * @param string $directory
-     * @param string $category Optional. Defaults to 'app
+     * @param string $category Optional
+     * @param int $priority
      * @return $this
      */
-    public function addDirectory(string $directory, string $category = 'app'): Configurator
+    public function addDirectory(string $directory, string $category, $priority = Priority::NORMAL): Configurator
     {
-        $this->directories[$category][] = $directory;
+        if (!isset($this->directories[$category]))
+            $this->directories[$category] = [];
+
+        if (!isset($this->directories[$category][$priority]))
+            $this->directories[$category][$priority] = [];
+
+        if (!in_array($directory, $this->directories[$category][$priority]))
+            $this->directories[$category][$priority][] = $directory;
 
         return $this;
     }
@@ -318,7 +326,6 @@ class Configurator
         // First set all the fixed directories
         Core::$tempDir = $this->parameters['tempDir'];
         Core::$logDir = $this->parameters['logDir'];
-        Core::$appDirs = $this->directories['app'];
 
         // Then prepare the debugger
         $debug = ($this->parameters['debugEnabled'] && $this->parameters['debugMatch'] ? true : false);
@@ -366,14 +373,14 @@ class Configurator
             }
         }
 
-        // And add all directories to the components
-        foreach ($this->directories as $component => $directories) {
+        // Add directories to Components
+        foreach ($this->directories as $component => $priorityArray)
+        {
             Logger::logDebug("Adding directories for '" . $component . "'");
-            if ($component == 'app')
-                continue;
-
             if (method_exists($container->{$component}, 'setDirectories'))
-                $container->{$component}->setDirectories($directories);
+            {
+                $container->{$component}->setDirectories($priorityArray);
+            }
         }
 
         $container->init();

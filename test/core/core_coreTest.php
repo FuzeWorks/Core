@@ -48,11 +48,19 @@ class coreTest extends CoreTestAbstract
         // Assert
         $this->assertTrue(class_exists('FuzeWorks\Core'));
         $this->assertTrue(class_exists('FuzeWorks\Config'));
-        $this->assertTrue(class_exists('FuzeWorks\Logger'));
+        $this->assertTrue(class_exists('FuzeWorks\Configurator'));
+        $this->assertTrue(trait_exists('FuzeWorks\ComponentPathsTrait'));
+        $this->assertTrue(class_exists('FuzeWorks\DeferredComponentClass'));
+        $this->assertTrue(class_exists('FuzeWorks\Event'));
         $this->assertTrue(class_exists('FuzeWorks\Events'));
         $this->assertTrue(class_exists('FuzeWorks\Factory'));
         $this->assertTrue(class_exists('FuzeWorks\Helpers'));
+        $this->assertTrue(interface_exists('FuzeWorks\iComponent'));
+        $this->assertTrue(interface_exists('FuzeWorks\iPluginHeader'));
         $this->assertTrue(class_exists('FuzeWorks\Libraries'));
+        $this->assertTrue(class_exists('FuzeWorks\Logger'));
+        $this->assertTrue(class_exists('FuzeWorks\Plugins'));
+        $this->assertTrue(class_exists('FuzeWorks\Priority'));
     }
 
     public function testIsPHP()

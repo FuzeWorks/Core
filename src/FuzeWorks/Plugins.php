@@ -95,7 +95,6 @@ class Plugins
 	public function __construct()
 	{
 		$this->cfg = Factory::getInstance()->config->plugins;
-		$this->componentPaths = Core::$appDirs;
 	}
 
     /**
@@ -104,49 +103,55 @@ class Plugins
 	public function loadHeadersFromPluginPaths()
 	{
 		// Cycle through all pluginPaths
-		foreach ($this->componentPaths as $pluginPath) {
-			
-			// If directory does not exist, skip it
-			if (!file_exists($pluginPath) || !is_dir($pluginPath))
-			{
-				continue;
-			}
+        for ($i=Priority::getHighestPriority(); $i<=Priority::getLowestPriority(); $i++)
+        {
+            if (!isset($this->componentPaths[$i]))
+                continue;
 
-			// Fetch the contents of the path
-			$pluginPathContents = array_diff(scandir($pluginPath), array('..', '.'));
-			
-			// Now go through each entry in the plugin folder
-			foreach ($pluginPathContents as $pluginFolder) {
-			    // @codeCoverageIgnoreStart
-				if (!is_dir($pluginPath . DS . $pluginFolder))
-				{
-					continue;
-				}
-                // @codeCoverageIgnoreEnd
+            foreach ($this->componentPaths[$i] as $pluginPath) {
 
-				// If a header file exists, use it
-				$file = $pluginPath . DS . $pluginFolder . DS . 'header.php';
-				$pluginFolder = ucfirst($pluginFolder);
-				$className = '\FuzeWorks\Plugins\\'.$pluginFolder.'Header';
-				if (file_exists($file))
-				{
-				    // Load the header file
-                    require_once($file);
-                    $header = new $className();
-                    if (!$header instanceof iPluginHeader)
+                // If directory does not exist, skip it
+                if (!file_exists($pluginPath) || !is_dir($pluginPath))
+                {
+                    continue;
+                }
+
+                // Fetch the contents of the path
+                $pluginPathContents = array_diff(scandir($pluginPath), array('..', '.'));
+
+                // Now go through each entry in the plugin folder
+                foreach ($pluginPathContents as $pluginFolder) {
+                    // @codeCoverageIgnoreStart
+                    if (!is_dir($pluginPath . DS . $pluginFolder))
                     {
                         continue;
                     }
+                    // @codeCoverageIgnoreEnd
 
-					// Load the header
-                    $this->loadHeader($header);
-				}
+                    // If a header file exists, use it
+                    $file = $pluginPath . DS . $pluginFolder . DS . 'header.php';
+                    $pluginFolder = ucfirst($pluginFolder);
+                    $className = '\FuzeWorks\Plugins\\'.$pluginFolder.'Header';
+                    if (file_exists($file))
+                    {
+                        // Load the header file
+                        require_once($file);
+                        $header = new $className();
+                        if (!$header instanceof iPluginHeader)
+                        {
+                            continue;
+                        }
 
-				// If it doesn't exist, skip it
-				continue;
-			}
+                        // Load the header
+                        $this->loadHeader($header);
+                    }
 
-		}
+                    // If it doesn't exist, skip it
+                    continue;
+                }
+
+            }
+        }
 	}
 
     /**

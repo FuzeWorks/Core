@@ -64,14 +64,28 @@ class configTest extends CoreTestAbstract
 
 	/**
 	 * @depends testGetConfigClass
+     * @covers \FuzeWorks\Config::getConfig
+     * @covers \FuzeWorks\Config::loadConfigFile
 	 */
 	public function testLoadConfig()
 	{
 		$this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $this->config->getConfig('error'));
 	}
 
+    /**
+     * @depends testLoadConfig
+     * @covers \FuzeWorks\Config::getConfig
+     * @covers \FuzeWorks\Config::loadConfigFile
+     */
+	public function testLoadConfigWithAltDirectory()
+    {
+        $config = $this->config->getConfig('TestLoadConfigWithAltDirectory', ['test'.DS.'config'.DS.'TestLoadConfigWithAltDirectory'.DS.'SubDirectory']);
+        $this->assertEquals('value', $config->key);
+    }
+
 	/**
 	 * @depends testLoadConfig
+     * @covers \FuzeWorks\Config::loadConfigFile
 	 * @expectedException FuzeWorks\Exception\ConfigException
 	 */
 	public function testFileNotFound()
@@ -81,6 +95,7 @@ class configTest extends CoreTestAbstract
 
     /**
      * @depends testLoadConfig
+     * @covers \FuzeWorks\Config::loadConfigFile
      */
 	public function testLoadConfigCancel()
     {
@@ -97,6 +112,7 @@ class configTest extends CoreTestAbstract
 
     /**
      * @depends testLoadConfig
+     * @covers \FuzeWorks\Config::loadConfigFile
      */
     public function testLoadConfigIntercept()
     {
@@ -152,44 +168,8 @@ class configTest extends CoreTestAbstract
     }
 
     /**
-     * @expectedException FuzeWorks\Exception\ConfigException
+     * @covers \FuzeWorks\Config::getConfig
      */
-    public function testAddComponentPathFail()
-    {
-    	// Now test if the config can be loaded (hint: it can not)
-    	$this->config->getConfig('testAddComponentPath');
-    }
-
-    /**
-     * @depends testAddComponentPathFail
-     */
-    public function testaddComponentPath()
-    {
-    	// Add the configPath
-    	$this->config->addComponentPath('test'.DS.'config'.DS.'TestAddComponentPath');
-
-    	// And try to load it again
-    	$this->assertInstanceOf('FuzeWorks\ConfigORM\ConfigORM', $this->config->getConfig('testAddComponentPath'));
-    }
-
-    public function testremoveComponentPath()
-    {
-    	// Test if the path does NOT exist
-    	$this->assertFalse(in_array('test'.DS.'config'.DS.'TestRemoveComponentPath', $this->config->getComponentPaths()));
-
-    	// Add it
-    	$this->config->addComponentPath('test'.DS.'config'.DS.'TestRemoveComponentPath');
-
-    	// Assert if it's there
-    	$this->assertTrue(in_array('test'.DS.'config'.DS.'TestRemoveComponentPath', $this->config->getComponentPaths()));
-
-    	// Remove it
-    	$this->config->removeComponentPath('test'.DS.'config'.DS.'TestRemoveComponentPath');
-
-    	// And test if it's gone again
-    	$this->assertFalse(in_array('test'.DS.'config'.DS.'TestRemoveComponentPath', $this->config->getComponentPaths()));
-    }
-
     public function testSameConfigObject()
     {
         $config = $this->config->getConfig('testsameconfigobject', array('test'.DS.'config'.DS.'TestSameConfigObject'));
@@ -204,17 +184,6 @@ class configTest extends CoreTestAbstract
         // Change it and test if it's different now
         $config->key = 'other_value';
         $this->assertEquals($config2->key, 'other_value');
-    }
-
-    public function testSetDirectories()
-    {
-        // Add the directory
-        $directory = 'test' . DS . 'config';
-        $this->config->setDirectories([$directory]);
-
-        // Assert expectations
-        $expected = array_merge(\FuzeWorks\Core::$appDirs, [$directory]);
-        $this->assertEquals($expected, $this->config->getComponentPaths());
     }
 
 }

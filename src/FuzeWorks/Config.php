@@ -66,11 +66,6 @@ class Config
      */
     public static $configOverrides = [];
 
-    public function __construct()
-    {
-        $this->componentPaths = Core::$appDirs;
-    }
-
     /**
      * Retrieve a config file object
      * 
@@ -81,20 +76,24 @@ class Config
      */
     public function getConfig(string $configName, array $configPaths = []): ConfigORM
     {
-        // First determine what directories to use
-        $directories = (empty($configPaths) ? $this->componentPaths : $configPaths);
-
         // Determine the config name
         $configName = strtolower($configName);
-        
+
         // If it's already loaded, return the existing object
         if (isset($this->cfg[$configName]))
         {
             return $this->cfg[$configName];
         }
 
+        // First determine what directories to use
+        $paths = [];
+        if (!empty($configPaths))
+            $paths[3] = $configPaths;
+        else
+            $paths = $this->componentPaths;
+
         // Otherwise try and load a new one
-        $this->cfg[$configName] = $this->loadConfigFile($configName, $directories);
+        $this->cfg[$configName] = $this->loadConfigFile($configName, $paths);
         return $this->cfg[$configName];
     }
 
@@ -148,29 +147,34 @@ class Config
 
         // If cancelled, load empty config
         if ($event->isCancelled())
-        {
             return new ConfigORM();
-        }
 
-        // Cycle through all directories
-        foreach ($event->configPaths as $configPath)
+        // Cycle through all priorities if they exist
+        for ($i=Priority::getHighestPriority(); $i<=Priority::getLowestPriority(); $i++)
         {
-            // If file exists, load it and break the loop
-            $file = $configPath . DS . 'config.'.strtolower($event->configName).'.php';
-            if (file_exists($file))
+            if (!isset($event->configPaths[$i]))
+                continue;
+
+            // Cycle through all directories
+            foreach ($event->configPaths[$i] as $configPath)
             {
-                // Load object
-                $configORM = (new ConfigORM())->load($file);
-
-                // Override config values if they exist
-                if (isset(self::$configOverrides[$event->configName]))
+                // If file exists, load it and break the loop
+                $file = $configPath . DS . 'config.'.strtolower($event->configName).'.php';
+                if (file_exists($file))
                 {
-                    foreach (self::$configOverrides[$event->configName] as $configKey => $configValue)
-                        $configORM->{$configKey} = $configValue;
-                }
+                    // Load object
+                    $configORM = (new ConfigORM())->load($file);
 
-                // Return object
-                return $configORM;
+                    // Override config values if they exist
+                    if (isset(self::$configOverrides[$event->configName]))
+                    {
+                        foreach (self::$configOverrides[$event->configName] as $configKey => $configValue)
+                            $configORM->{$configKey} = $configValue;
+                    }
+
+                    // Return object
+                    return $configORM;
+                }
             }
         }
 

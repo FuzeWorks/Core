@@ -72,7 +72,6 @@ class Libraries
     public function __construct()
     {
         $this->factory = Factory::getInstance();
-        $this->componentPaths = Core::$appDirs;
     }
 
     /**
@@ -112,11 +111,11 @@ class Libraries
      *
      * @param string $libraryName
      * @param array $parameters
-     * @param array $altDirectories
+     * @param array $libraryPaths
      * @return object
      * @throws LibraryException
      */
-    public function get(string $libraryName, array $parameters = [], array $altDirectories = [])
+    public function get(string $libraryName, array $parameters = [], array $libraryPaths = [])
     {
         // Test for empty string
         if (empty($libraryName))
@@ -136,24 +135,30 @@ class Libraries
             return $this->initLibrary($libraryName, $this->libraryClasses[$libraryNameLowerCase], $parameters);
 
         // Try and load from the alternate directory if provided
-        $paths = (empty($altDirectories) ? $this->componentPaths : $altDirectories);
+        $libraryPaths = (empty($libraryPaths) ? $this->componentPaths : [3 => $libraryPaths]);
 
         // Try and find the library in the libraryPaths
-        foreach ($paths as $path)
+        for ($i=Priority::getHighestPriority(); $i<=Priority::getLowestPriority(); $i++)
         {
-            // First look if a .php file exists in the libraryPath
-            $classFile = $path . DS . $libraryFilename . '.php';
-            if (file_exists($classFile))
-            {
-                require_once($classFile);
-                return $this->initLibrary($libraryName, $libraryClassname);
-            }
+            if (!isset($libraryPaths[$i]))
+                continue;
 
-            $classFile = $path . DS . $libraryFilename . DS . $libraryFilename . '.php';
-            if (file_exists($classFile))
+            foreach ($libraryPaths[$i] as $path)
             {
-                require_once($classFile);
-                return $this->initLibrary($libraryName, $libraryClassname);
+                // First look if a .php file exists in the libraryPath
+                $classFile = $path . DS . $libraryFilename . '.php';
+                if (file_exists($classFile))
+                {
+                    require_once($classFile);
+                    return $this->initLibrary($libraryName, $libraryClassname);
+                }
+
+                $classFile = $path . DS . $libraryFilename . DS . $libraryFilename . '.php';
+                if (file_exists($classFile))
+                {
+                    require_once($classFile);
+                    return $this->initLibrary($libraryName, $libraryClassname);
+                }
             }
         }
 
