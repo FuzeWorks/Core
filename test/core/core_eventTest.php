@@ -41,10 +41,14 @@ use FuzeWorks\Priority;
  * Class EventTest.
  *
  * This test will test the Event class
+ * @coversDefaultClass \FuzeWorks\Event
  */
 class eventTest extends CoreTestAbstract
 {
 
+    /**
+     * @coversNothing
+     */
     public function testFireEvent()
     {
         $event = Events::fireEvent('testEvent');
@@ -52,6 +56,11 @@ class eventTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Event', $event);
     }
 
+    /**
+     * @depends testFireEvent
+     * @covers ::isCancelled
+     * @covers ::setCancelled
+     */
     public function testCancelEvent()
     {
         Events::addListener(array($this, 'listener_cancel'), 'testCancelEvent', Priority::NORMAL);
@@ -60,6 +69,11 @@ class eventTest extends CoreTestAbstract
         $this->assertTrue($event->isCancelled());
     }
 
+    /**
+     * @depends testCancelEvent
+     * @covers ::setCancelled
+     * @covers ::isCancelled
+     */
     public function testUncancelEvent()
     {
         Events::addListener(array($this, 'listener_cancel'), 'testUncancelEvent', Priority::HIGH);

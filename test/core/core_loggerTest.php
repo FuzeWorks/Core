@@ -43,6 +43,7 @@ use FuzeWorks\Exception\LoggerException;
  * Class ModelTest.
  *
  * Will test the FuzeWorks Model System.
+ * @coversDefaultClass \FuzeWorks\Logger
  */
 class loggerTest extends CoreTestAbstract
 {
@@ -56,6 +57,9 @@ class loggerTest extends CoreTestAbstract
         Logger::$logs = array();
     }
 
+    /**
+     * @coversNothing
+     */
     public function testGetLogger()
     {
         $this->assertInstanceOf('FuzeWorks\Logger', new Logger);
@@ -63,6 +67,9 @@ class loggerTest extends CoreTestAbstract
         $this->assertInstanceOf('FuzeWorks\Logger', new Logger);
     }
 
+    /**
+     * @covers ::errorHandler
+     */
     public function testErrorHandler()
     {
         Logger::errorHandler(E_ERROR, 'Example error', __FILE__, 1);
@@ -77,6 +84,8 @@ class loggerTest extends CoreTestAbstract
 
     /**
      * @depends testErrorHandler
+     * @covers ::errorHandler
+     * @covers ::getType
      */
     public function testErrorHandlerTypes()
     {
@@ -114,6 +123,9 @@ class loggerTest extends CoreTestAbstract
         }
     }
 
+    /**
+     * @covers ::exceptionHandler
+     */
     public function testExceptionHandler()
     {
         // Create the exception
@@ -129,6 +141,9 @@ class loggerTest extends CoreTestAbstract
         Logger::exceptionHandler($exception);
     }
 
+    /**
+     * @covers ::log
+     */
     public function testLog()
     {
         // Log the message
@@ -147,6 +162,12 @@ class loggerTest extends CoreTestAbstract
 
     /**
      * @depends testLog
+     * @covers ::newLevel
+     * @covers ::stopLevel
+     * @covers ::logError
+     * @covers ::logWarning
+     * @covers ::logDebug
+     * @covers ::mark
      */
     public function testLogTypes()
     {
@@ -174,6 +195,11 @@ class loggerTest extends CoreTestAbstract
         }
     }
 
+    /**
+     * @covers ::enable
+     * @covers ::disable
+     * @covers ::isEnabled
+     */
     public function testEnableDisable()
     {
         // First enable

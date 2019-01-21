@@ -42,6 +42,7 @@ use FuzeWorks\Libraries;
  * Class LibraryTest.
  *
  * Libraries testing suite, will test basic loading of and management of Libraries
+ * @coversDefaultClass \FuzeWorks\Libraries
  */
 class libraryTest extends CoreTestAbstract
 {
@@ -60,6 +61,9 @@ class libraryTest extends CoreTestAbstract
         $this->libraries->setDirectories([3 => ['test'.DS.'libraries']]);
     }
 
+    /**
+     * @coversNothing
+     */
     public function testLibrariesClass()
     {
         $this->assertInstanceOf('FuzeWorks\Libraries', $this->libraries);
@@ -69,6 +73,8 @@ class libraryTest extends CoreTestAbstract
 
     /**
      * @depends testLibrariesClass
+     * @covers ::get
+     * @covers ::initLibrary
      */
     public function testGetLibraryFromDirectory()
     {
@@ -77,6 +83,8 @@ class libraryTest extends CoreTestAbstract
 
     /**
      * @depends testGetLibraryFromDirectory
+     * @covers ::get
+     * @covers ::initLibrary
      */
     public function testGetLibraryFromSubdirectory()
     {
@@ -88,6 +96,8 @@ class libraryTest extends CoreTestAbstract
 
     /**
      * @depends testGetLibraryFromDirectory
+     * @covers ::get
+     * @covers ::initLibrary
      */
     public function testGetLibraryFromAltDirectory()
     {
@@ -97,6 +107,9 @@ class libraryTest extends CoreTestAbstract
     }
 
     /**
+     * @depends testGetLibraryFromDirectory
+     * @covers ::get
+     * @covers ::initLibrary
      * @expectedException FuzeWorks\Exception\LibraryException
      */
     public function testGetLibraryFail()
@@ -105,6 +118,9 @@ class libraryTest extends CoreTestAbstract
     }
 
     /**
+     * @depends testGetLibraryFromDirectory
+     * @covers ::get
+     * @covers ::initLibrary
      * @expectedException FuzeWorks\Exception\LibraryException
      */
     public function testGetLibraryNoName()
@@ -113,6 +129,9 @@ class libraryTest extends CoreTestAbstract
     }
 
     /**
+     * @depends testGetLibraryFromDirectory
+     * @covers ::get
+     * @covers ::initLibrary
      * @expectedException FuzeWorks\Exception\LibraryException
      */
     public function testGetLibraryNoClass()
@@ -120,6 +139,11 @@ class libraryTest extends CoreTestAbstract
         $this->libraries->get('TestGetLibraryNoClass');
     }
 
+    /**
+     * @depends testGetLibraryFromDirectory
+     * @covers ::get
+     * @covers ::initLibrary
+     */
     public function testGetLibraryParametersFromConfig()
     {
         // Prepare the config file
@@ -137,6 +161,10 @@ class libraryTest extends CoreTestAbstract
 
     /* ---------------------------------- Add libraries --------------------------------------------- */
 
+    /**
+     * @covers ::addLibraryObject
+     * @covers ::get
+     */
     public function testAddLibraryObject()
     {
         $this->libraries->addLibraryObject('TestAddLibraryObject', 5);
@@ -144,6 +172,10 @@ class libraryTest extends CoreTestAbstract
         $this->assertEquals(5, $this->libraries->get('TestAddLibraryObject'));
     }
 
+    /**
+     * @covers ::addLibraryClass
+     * @covers ::get
+     */
     public function testAddLibraryClass()
     {
         require_once('test'.DS.'libraries'.DS.'TestAddLibraryClass'.DS.'TestAddLibraryClass.php');
@@ -155,6 +187,7 @@ class libraryTest extends CoreTestAbstract
 
     /**
      * @depends testAddLibraryClass
+     * @covers ::addLibraryClass
      * @expectedException \FuzeWorks\Exception\LibraryException
      */
     public function testAddLibraryClassFail()

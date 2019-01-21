@@ -116,6 +116,18 @@ abstract class ConfigORMAbstract implements Iterator
     }
 
     /**
+     * Return a value from a config file.
+     *
+     * @param string $name Key of the requested entry
+     * @return mixed Value of the requested entry
+     * @codeCoverageIgnore
+     */
+    public function get($name)
+    {
+        return $this->cfg[$name];
+    }
+
+    /**
      * Sets an entry in the config file.
      *
      * @param string $name  Key of the entry
@@ -123,6 +135,18 @@ abstract class ConfigORMAbstract implements Iterator
      * @codeCoverageIgnore
      */
     public function __set($name, $value)
+    {
+        $this->cfg[$name] = $value;
+    }
+
+    /**
+     * Sets an entry in the config file.
+     *
+     * @param string $name  Key of the entry
+     * @param mixed  $value Value of the entry
+     * @codeCoverageIgnore
+     */
+    public function set($name, $value)
     {
         $this->cfg[$name] = $value;
     }

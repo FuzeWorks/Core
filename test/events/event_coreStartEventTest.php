@@ -52,7 +52,7 @@ class coreStartEventTest extends CoreTestAbstract
 
         Events::addListener(array($mock, 'mockMethod'), 'coreStartEvent', Priority::NORMAL);
         $factory = new Factory;
-        $factory->init();
+        $factory->initFactory();
     }
 }
 

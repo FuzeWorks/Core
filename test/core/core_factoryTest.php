@@ -41,9 +41,14 @@ use FuzeWorks\Exception\FactoryException;
  * Class FactoryTest.
  *
  * Will test the FuzeWorks Factory.
+ * @coversDefaultClass \FuzeWorks\Factory
  */
 class factoryTest extends CoreTestAbstract
 {
+
+    /**
+     * @covers ::getInstance
+     */
     public function testCanLoadFactory()
     {
         $this->assertInstanceOf('FuzeWorks\Factory', Factory::getInstance());
@@ -51,6 +56,7 @@ class factoryTest extends CoreTestAbstract
 
     /**
      * @depends testCanLoadFactory
+     * @covers ::getInstance
      */
     public function testLoadSameInstance()
     {
@@ -59,6 +65,8 @@ class factoryTest extends CoreTestAbstract
 
     /**
      * @depends testCanLoadFactory
+     * @covers ::getInstance
+     * @covers ::cloneInstance
      */
     public function testLoadDifferentInstance()
     {
@@ -71,6 +79,8 @@ class factoryTest extends CoreTestAbstract
 
     /**
      * @depends testCanLoadFactory
+     * @covers ::getInstance
+     * @covers ::setInstance
      */
     public function testObjectsSameInstance()
     {
@@ -97,6 +107,9 @@ class factoryTest extends CoreTestAbstract
 
     /**
      * @depends testObjectsSameInstance
+     * @covers ::getInstance
+     * @covers ::setInstance
+     * @covers ::cloneInstance
      */
     public function testObjectsDifferentInstance()
     {
@@ -117,6 +130,9 @@ class factoryTest extends CoreTestAbstract
         $factory3 = Factory::getInstance(true)->setInstance('Mock', $mock);
         $factory4 = Factory::getInstance(true)->setInstance('Mock', $mock);
 
+        // Should be same for now
+        $this->assertSame($factory3->mock, $factory4->mock);
+
         // Clone the instance in factory4
         $factory4->cloneInstance('Mock');
 
@@ -125,6 +141,8 @@ class factoryTest extends CoreTestAbstract
     }
 
     /**
+     * @depends testCanLoadFactory
+     * @covers ::cloneInstance
      * @expectedException FuzeWorks\Exception\FactoryException
      */
     public function testCloneInstanceWrongClassname()
@@ -136,6 +154,13 @@ class factoryTest extends CoreTestAbstract
         $factory->cloneInstance('fake');
     }
 
+    /**
+     * @depends testCanLoadFactory
+     * @covers ::enableCloneInstances
+     * @covers ::disableCloneInstances
+     * @covers ::cloneInstance
+     * @covers ::getInstance
+     */
     public function testGlobalCloneInstance()
     {
         // First test without global cloning
@@ -154,6 +179,11 @@ class factoryTest extends CoreTestAbstract
         $this->assertSame(Factory::getInstance(), Factory::getInstance());
     }
 
+    /**
+     * @depends testCanLoadFactory
+     * @covers ::getInstance
+     * @covers ::newInstance
+     */
     public function testNewFactoryInstance()
     {
         // Load the different factories
@@ -176,6 +206,8 @@ class factoryTest extends CoreTestAbstract
     }
 
     /**
+     * @depends testNewFactoryInstance
+     * @covers ::newInstance
      * @expectedException FuzeWorks\Exception\FactoryException
      */
     public function testFactoryNewInstanceNotExist()
@@ -188,6 +220,8 @@ class factoryTest extends CoreTestAbstract
     }
 
     /**
+     * @depends testNewFactoryInstance
+     * @covers ::newInstance
      * @expectedException FuzeWorks\Exception\FactoryException
      */
     public function testFactoryNewInstanceWrongNamespace()
@@ -199,6 +233,11 @@ class factoryTest extends CoreTestAbstract
         $factory->newInstance('helpers', 'Test\\');
     }
 
+    /**
+     * @depends testNewFactoryInstance
+     * @covers ::setInstance
+     * @covers ::removeInstance
+     */
     public function testRemoveInstance()
     {
         // Load the factory
@@ -222,6 +261,8 @@ class factoryTest extends CoreTestAbstract
     }
 
     /**
+     * @depends testRemoveInstance
+     * @covers ::removeInstance
      * @expectedException FuzeWorks\Exception\FactoryException
      */
     public function testRemoveInstanceNotExist()
@@ -233,6 +274,11 @@ class factoryTest extends CoreTestAbstract
         $factory->removeInstance('fake');
     }
 
+    /**
+     * @depends testCanLoadFactory
+     * @covers ::instanceIsset
+     * @covers ::setInstance
+     */
     public function testInstanceIsset()
     {
         // Load the factory

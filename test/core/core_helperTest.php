@@ -42,6 +42,7 @@ use FuzeWorks\Helpers;
  * Class HelperTest.
  *
  * Helpers testing suite, will test basic loading of Helpers
+ * @coversDefaultClass \FuzeWorks\Helpers
  */
 class helperTest extends CoreTestAbstract
 {
@@ -58,13 +59,16 @@ class helperTest extends CoreTestAbstract
 		$this->helpers->setDirectories([3 => ['test' . DS . 'helpers']]);
 	}
 
+    /**
+     * @coversNothing
+     */
     public function testGetHelpersClass()
     {
         $this->assertInstanceOf('FuzeWorks\Helpers', $this->helpers);
     }
 
     /**
-     * @covers \FuzeWorks\Helpers::load
+     * @covers ::load
      */
     public function testLoadHelper()
     {
@@ -80,7 +84,7 @@ class helperTest extends CoreTestAbstract
 
     /**
      * @depends testLoadHelper
-     * @covers \FuzeWorks\Helpers::load
+     * @covers ::load
      */
     public function testLoadHelperWithoutSubdirectory()
     {
@@ -96,7 +100,7 @@ class helperTest extends CoreTestAbstract
 
     /**
      * @depends testLoadHelper
-     * @covers \FuzeWorks\Helpers::load
+     * @covers ::load
      */
     public function testLoadHelperWithAltDirectory()
     {
@@ -112,7 +116,7 @@ class helperTest extends CoreTestAbstract
 
     /**
      * @depends testLoadHelper
-     * @covers \FuzeWorks\Helpers::load
+     * @covers ::load
      */
     public function testReloadHelper()
     {
@@ -134,7 +138,7 @@ class helperTest extends CoreTestAbstract
 
     /**
      * @depends testLoadHelper
-     * @covers \FuzeWorks\Helpers::load
+     * @covers ::load
      */
     public function testCancelLoadHelper()
     {
@@ -152,7 +156,7 @@ class helperTest extends CoreTestAbstract
 
     /**
      * @depends testLoadHelper
-     * @covers \FuzeWorks\Helpers::get
+     * @covers ::get
      */
     public function testGetHelper()
     {

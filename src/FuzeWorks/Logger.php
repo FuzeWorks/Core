@@ -112,7 +112,7 @@ class Logger {
 
         // Register the error handler, Untestable
         // @codeCoverageIgnoreStart
-        if ($cfg_error->fuzeworks_error_reporting == true)
+        if ($cfg_error->get('fuzeworks_error_reporting') == true)
         {
             self::enableHandlers();
         }

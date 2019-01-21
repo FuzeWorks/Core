@@ -44,6 +44,7 @@ use FuzeWorks\Logger;
  * Class ConfiguratorTest.
  *
  * This test will test the Configurator class
+ * @coversDefaultClass \FuzeWorks\Configurator
  */
 class configuratorTest extends CoreTestAbstract
 {
@@ -67,11 +68,17 @@ class configuratorTest extends CoreTestAbstract
         Core::$logDir = dirname(__DIR__) . '/temp';
     }
 
+    /**
+     * @coversNothing
+     */
     public function testGetConfiguratorClass()
     {
         $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator);
     }
 
+    /**
+     * @coversNothing
+     */
     public function testCreateContainer()
     {
         $this->assertInstanceOf('FuzeWorks\Factory', $this->configurator->createContainer());
@@ -81,6 +88,8 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testCreateContainer
+     * @covers ::addComponent
+     * @covers ::createContainer
      */
     public function testAddComponent()
     {
@@ -98,6 +107,8 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testAddComponent
+     * @covers ::addComponent
+     * @covers ::createContainer
      */
     public function testAddComponentClassByObject()
     {
@@ -117,6 +128,8 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testAddComponent
+     * @covers ::addComponent
+     * @covers ::createContainer
      * @expectedException FuzeWorks\Exception\ConfiguratorException
      */
     public function testAddComponentFail()
@@ -126,7 +139,7 @@ class configuratorTest extends CoreTestAbstract
         $component = new FuzeWorks\Component\TestAddComponentFailComponent;
         $this->configurator->addComponent($component);
 
-        // Create container
+        // Create container and fail
         $this->configurator->createContainer();
     }
 
@@ -134,6 +147,8 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testCreateContainer
+     * @covers ::setLogDirectory
+     * @covers ::createContainer
      */
     public function testSetLogDirectory()
     {
@@ -157,6 +172,7 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testSetLogDirectory
+     * @covers ::setLogDirectory
      * @expectedException \FuzeWorks\Exception\InvalidArgumentException
      */
     public function testSetLogDirectoryNotDirectory()
@@ -167,6 +183,8 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testCreateContainer
+     * @covers ::setTempDirectory
+     * @covers ::createContainer
      */
     public function testSetTempDirectory()
     {
@@ -183,6 +201,7 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testSetTempDirectory
+     * @covers ::setTempDirectory
      * @expectedException \FuzeWorks\Exception\InvalidArgumentException
      */
     public function testSetTempDirectoryNotDirectory()
@@ -194,6 +213,9 @@ class configuratorTest extends CoreTestAbstract
     /**
      * @depends testCreateContainer
      * @depends testAddComponent
+     * @covers ::addComponent
+     * @covers ::addDirectory
+     * @covers ::createContainer
      */
     public function testAddComponentDirectory()
     {
@@ -222,6 +244,11 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testAddComponent
+     * @covers ::deferComponentClassMethod
+     * @covers ::createContainer
+     * @covers \FuzeWorks\DeferredComponentClass::invoke
+     * @covers \FuzeWorks\DeferredComponentClass::isInvoked
+     * @covers \FuzeWorks\DeferredComponentClass::getResult
      */
     public function testDeferComponentClassMethod()
     {
@@ -251,6 +278,11 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testDeferComponentClassMethod
+     * @covers ::deferComponentClassMethod
+     * @covers ::createContainer
+     * @covers \FuzeWorks\DeferredComponentClass::invoke
+     * @covers \FuzeWorks\DeferredComponentClass::isInvoked
+     * @covers \FuzeWorks\DeferredComponentClass::getResult
      */
     public function testDeferComponentClassMethodWithCallback()
     {
@@ -285,6 +317,7 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testCreateContainer
+     * @covers ::setTimeZone
      */
     public function testSetTimezone()
     {
@@ -298,6 +331,7 @@ class configuratorTest extends CoreTestAbstract
     /**
      * @depends testSetTimezone
      * @expectedException \FuzeWorks\Exception\InvalidArgumentException
+     * @covers ::setTimeZone
      */
     public function testSetTimezoneInvalid()
     {
@@ -306,6 +340,8 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testCreateContainer
+     * @covers ::setParameters
+     * @covers ::createContainer
      */
     public function testSetParameter()
     {
@@ -317,6 +353,11 @@ class configuratorTest extends CoreTestAbstract
         $this->assertEquals('fake_directory', Core::$tempDir);
     }
 
+    /**
+     * @depends testCreateContainer
+     * @covers ::setConfigOverride
+     * @covers ::createContainer
+     */
     public function testSetConfigOverride()
     {
         // Set an override that can be verified
@@ -333,6 +374,9 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testCreateContainer
+     * @covers ::enableDebugMode
+     * @covers ::isDebugMode
+     * @covers ::createContainer
      */
     public function testEnableDebugMode()
     {
@@ -355,6 +399,9 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testEnableDebugMode
+     * @covers ::enableDebugMode
+     * @covers ::isDebugMode
+     * @covers ::createContainer
      */
     public function testDisableDebugMode()
     {
@@ -369,6 +416,9 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testEnableDebugMode
+     * @covers ::setDebugAddress
+     * @covers ::enableDebugMode
+     * @covers ::isDebugMode
      */
     public function testSetDebugAddress()
     {
@@ -422,6 +472,7 @@ class configuratorTest extends CoreTestAbstract
 
     /**
      * @depends testEnableDebugMode
+     * @covers ::setDebugAddress
      * @expectedException \FuzeWorks\Exception\InvalidArgumentException
      */
     public function testSetDebugAddressInvalidArgument()

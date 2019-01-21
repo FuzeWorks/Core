@@ -42,20 +42,26 @@ use FuzeWorks\Priority;
  * Class EventTest.
  *
  * This test will test Events
+ * @coversDefaultClass \FuzeWorks\Events
  */
 class eventsTest extends CoreTestAbstract
 {
+
+    /**
+     * @covers ::fireEvent
+     */
     public function testFireEvent()
     {
-        $mock = $this->getMockBuilder(Observer::class)->setMethods(['mockMethod'])->getMock();
-        $mock->expects($this->once())->method('mockMethod');
+        $mock = $this->getMockBuilder(Observer::class)->setMethods(['mockListener'])->getMock();
+        $mock->expects($this->once())->method('mockListener')->with($this->isInstanceOf('MockEvent'));
 
-        Events::addListener(array($mock, 'mockMethod'), 'mockEvent', Priority::NORMAL);
+        Events::addListener(array($mock, 'mockListener'), 'mockEvent', Priority::NORMAL);
         Events::fireEvent('mockEvent');
     }
 
     /**
      * @depends testFireEvent
+     * @covers ::fireEvent
      */
     public function testObjectEvent()
     {
@@ -70,6 +76,7 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testObjectEvent
+     * @covers ::fireEvent
      */
     public function testVariablePassing()
     {
@@ -86,6 +93,10 @@ class eventsTest extends CoreTestAbstract
         Events::fireEvent($event);
     }
 
+    /**
+     * @depends testFireEvent
+     * @covers ::fireEvent
+     */
     public function testEventArguments()
     {
         // Prepare test argument
@@ -101,6 +112,7 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testVariablePassing
+     * @covers ::fireEvent
      */
     public function testVariableChanging()
     {
@@ -134,6 +146,7 @@ class eventsTest extends CoreTestAbstract
     /**
      * @depends testFireEvent
      * @expectedException FuzeWorks\Exception\EventException
+     * @covers ::fireEvent
      */
     public function testInvalidTypeEvent()
     {
@@ -142,6 +155,7 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testFireEvent
+     * @covers ::fireEvent
      * @expectedException FuzeWorks\Exception\EventException
      */
     public function testInvalidClassEvent()
@@ -151,6 +165,8 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testFireEvent
+     * @covers ::addListener
+     * @covers ::removeListener
      */
     public function testAddAndRemoveListener()
     {
@@ -168,6 +184,7 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testAddAndRemoveListener
+     * @covers ::addListener
      * @expectedException FuzeWorks\Exception\EventException
      */
     public function testAddInvalidPriorityListener()
@@ -177,6 +194,7 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testAddAndRemoveListener
+     * @covers ::addListener
      * @expectedException FuzeWorks\Exception\EventException
      */
     public function testAddInvalidNameListener()
@@ -186,6 +204,7 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testAddAndRemoveListener
+     * @covers ::removeListener
      * @expectedException FuzeWorks\Exception\EventException
      */
     public function testRemoveInvalidPriorityListener()
@@ -195,6 +214,7 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testAddAndRemoveListener
+     * @covers ::removeListener
      */
     public function testRemoveUnsetEventListener()
     {
@@ -203,6 +223,7 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testAddAndRemoveListener
+     * @covers ::removeListener
      */
     public function testRemoveUnsetListener()
     {
@@ -212,6 +233,7 @@ class eventsTest extends CoreTestAbstract
 
     /**
      * @depends testAddAndRemoveListener
+     * @covers ::addListener
      */
     public function testListenerVariablePass()
     {
@@ -228,6 +250,11 @@ class eventsTest extends CoreTestAbstract
         Events::fireEvent($event);
     }
 
+    /**
+     * @depends testFireEvent
+     * @covers ::disable
+     * @covers ::fireEvent
+     */
     public function testDisable()
     {
         // First add the listener, expect it to be never called
@@ -242,6 +269,11 @@ class eventsTest extends CoreTestAbstract
         Events::fireEvent('mockEvent');
     }
 
+    /**
+     * @depends testDisable
+     * @covers ::disable
+     * @covers ::enable
+     */
     public function testReEnable()
     {
         // First add the listener, expect it to be never called

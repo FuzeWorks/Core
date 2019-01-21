@@ -40,11 +40,12 @@ use FuzeWorks\ConfigORM\ConfigORMAbstract;
  * Class ConfigORMAbstractTest
  *
  * Config testing suite, will test the special methods from ConfigORMAbstract
+ * @coversDefaultClass \FuzeWorks\ConfigORM\ConfigORMAbstract
  */
 class ConfigORMAbstractTest extends CoreTestAbstract
 {
     /**
-     * @covers \FuzeWorks\ConfigORM\ConfigORMAbstract::revert
+     * @covers ::revert
      */
     public function testRevert()
     {
@@ -69,7 +70,7 @@ class ConfigORMAbstractTest extends CoreTestAbstract
     }
 
     /**
-     * @covers \FuzeWorks\ConfigORM\ConfigORMAbstract::replace
+     * @covers ::replace
      */
     public function testReplaceWithNewValues()
     {
@@ -97,7 +98,7 @@ class ConfigORMAbstractTest extends CoreTestAbstract
 
     /**
      * @depends testReplaceWithNewValues
-     * @covers \FuzeWorks\ConfigORM\ConfigORMAbstract::replace
+     * @covers ::replace
      */
     public function testReplaceExistingValues()
     {
@@ -125,7 +126,7 @@ class ConfigORMAbstractTest extends CoreTestAbstract
     }
 
     /**
-     * @covers \FuzeWorks\ConfigORM\ConfigORMAbstract::toArray
+     * @covers ::toArray
      */
     public function testToArray()
     {
@@ -144,7 +145,7 @@ class ConfigORMAbstractTest extends CoreTestAbstract
 
     /**
      * @depends testToArray
-     * @covers \FuzeWorks\ConfigORM\ConfigORMAbstract::clear
+     * @covers ::clear
      */
     public function testClear()
     {

@@ -39,10 +39,14 @@ use FuzeWorks\Priority;
  * Class priorityTest.
  *
  * This test will test the Priority class
+ * @coversDefaultClass \FuzeWorks\Priority
  */
 class priorityTest extends CoreTestAbstract
 {
 
+    /**
+     * @coversNothing
+     */
     public function testPriorities()
     {
         $this->assertEquals(Priority::LOWEST, 5);
@@ -53,6 +57,9 @@ class priorityTest extends CoreTestAbstract
         $this->assertEquals(Priority::MONITOR, 0);
     }
 
+    /**
+     * @covers ::getPriority
+     */
     public function testGetPriority()
     {
         $this->assertEquals(Priority::getPriority(5), 'Priority::LOWEST');
@@ -63,16 +70,25 @@ class priorityTest extends CoreTestAbstract
         $this->assertEquals(Priority::getPriority(0), 'Priority::MONITOR');
     }
 
+    /**
+     * @covers ::getPriority
+     */
     public function testGetInvalidPriority()
     {
         $this->assertFalse(Priority::getPriority(99));
     }
 
+    /**
+     * @covers ::getHighestPriority
+     */
     public function testHighestPriority()
     {
         $this->assertEquals(Priority::getHighestPriority(), Priority::MONITOR);
     }
 
+    /**
+     * @covers ::getLowestPriority
+     */
     public function testLowestPriority()
     {
         $this->assertEquals(Priority::getLowestPriority(), Priority::LOWEST);

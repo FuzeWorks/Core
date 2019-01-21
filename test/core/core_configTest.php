@@ -43,6 +43,7 @@ use FuzeWorks\Events;
  * Class ConfigTest.
  *
  * Config testing suite, will test basic config functionality while also testing default ORM's
+ * @coversDefaultClass \FuzeWorks\Config
  */
 class configTest extends CoreTestAbstract
 {
@@ -57,6 +58,9 @@ class configTest extends CoreTestAbstract
 		$this->config = new Config();
 	}
 
+    /**
+     * @coversNothing
+     */
 	public function testGetConfigClass()
 	{
 		$this->assertInstanceOf('FuzeWorks\Config', $this->config);
@@ -64,8 +68,8 @@ class configTest extends CoreTestAbstract
 
 	/**
 	 * @depends testGetConfigClass
-     * @covers \FuzeWorks\Config::getConfig
-     * @covers \FuzeWorks\Config::loadConfigFile
+     * @covers ::getConfig
+     * @covers ::loadConfigFile
 	 */
 	public function testLoadConfig()
 	{
@@ -74,8 +78,8 @@ class configTest extends CoreTestAbstract
 
     /**
      * @depends testLoadConfig
-     * @covers \FuzeWorks\Config::getConfig
-     * @covers \FuzeWorks\Config::loadConfigFile
+     * @covers ::getConfig
+     * @covers ::loadConfigFile
      */
 	public function testLoadConfigWithAltDirectory()
     {
@@ -85,7 +89,7 @@ class configTest extends CoreTestAbstract
 
 	/**
 	 * @depends testLoadConfig
-     * @covers \FuzeWorks\Config::loadConfigFile
+     * @covers ::loadConfigFile
 	 * @expectedException FuzeWorks\Exception\ConfigException
 	 */
 	public function testFileNotFound()
@@ -95,7 +99,7 @@ class configTest extends CoreTestAbstract
 
     /**
      * @depends testLoadConfig
-     * @covers \FuzeWorks\Config::loadConfigFile
+     * @covers ::loadConfigFile
      */
 	public function testLoadConfigCancel()
     {
@@ -112,7 +116,7 @@ class configTest extends CoreTestAbstract
 
     /**
      * @depends testLoadConfig
-     * @covers \FuzeWorks\Config::loadConfigFile
+     * @covers ::loadConfigFile
      */
     public function testLoadConfigIntercept()
     {
@@ -129,8 +133,8 @@ class configTest extends CoreTestAbstract
 
     /**
      * @depends testLoadConfig
-     * @covers \FuzeWorks\Config::overrideConfig
-     * @covers \FuzeWorks\Config::loadConfigFile
+     * @covers ::overrideConfig
+     * @covers ::loadConfigFile
      */
     public function testLoadConfigOverride()
     {
@@ -148,8 +152,8 @@ class configTest extends CoreTestAbstract
 
     /**
      * @depends testLoadConfigOverride
-     * @covers \FuzeWorks\Config::overrideConfig
-     * @covers \FuzeWorks\Config::loadConfigFile
+     * @covers ::overrideConfig
+     * @covers ::loadConfigFile
      */
     public function testLoadConfigCoreOverride()
     {
@@ -168,7 +172,7 @@ class configTest extends CoreTestAbstract
     }
 
     /**
-     * @covers \FuzeWorks\Config::getConfig
+     * @covers ::getConfig
      */
     public function testSameConfigObject()
     {

@@ -91,6 +91,7 @@ class Plugins
      * Called upon creation of the plugins class.
      *
      * @return void
+     * @codeCoverageIgnore
      */
 	public function __construct()
 	{

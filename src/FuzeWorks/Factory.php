@@ -76,7 +76,7 @@ class Factory
 	 * 
 	 * @var bool Clone all Factory instances.
 	 */
-	protected static $cloneInstances = false;
+	private static $cloneInstances = false;
 
     /**
      * Whether the Factory has been initialized or not
@@ -158,7 +158,7 @@ class Factory
      * @return Factory
      * @throws CoreException
      */
-	public function init(): Factory
+	public function initFactory(): Factory
     {
         // If already initialized, cancel
         if ($this->initialized)
@@ -172,7 +172,7 @@ class Factory
         }
 
         // Disable events if requested to do so
-        if (!$cfg->enable_events)
+        if (!$cfg->get('enable_events'))
         {
             Events::disable();
         }

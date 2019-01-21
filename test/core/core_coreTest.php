@@ -40,6 +40,7 @@ use FuzeWorks\Core;
  * Class CoreTest.
  *
  * Core testing suite, will test basic core functionality
+ * @coversDefaultClass \FuzeWorks\Core
  */
 class coreTest extends CoreTestAbstract
 {
@@ -63,6 +64,9 @@ class coreTest extends CoreTestAbstract
         $this->assertTrue(class_exists('FuzeWorks\Priority'));
     }
 
+    /**
+     * @covers ::isPHP
+     */
     public function testIsPHP()
     {
         $this->assertTrue(Core::isPHP('1.2.0'));

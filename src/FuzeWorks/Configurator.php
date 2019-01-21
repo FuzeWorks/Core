@@ -37,7 +37,6 @@
 namespace FuzeWorks;
 use FuzeWorks\Exception\ConfiguratorException;
 use FuzeWorks\Exception\InvalidArgumentException;
-use Tracy\Debugger;
 
 /**
  * Class Configurator.
@@ -383,7 +382,7 @@ class Configurator
             }
         }
 
-        $container->init();
+        $container->initFactory();
         return $container;
     }
 }
