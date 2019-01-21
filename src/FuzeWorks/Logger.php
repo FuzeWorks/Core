@@ -36,6 +36,7 @@
 
 namespace FuzeWorks;
 
+use FuzeWorks\Exception\ConfigException;
 use FuzeWorks\Exception\EventException;
 use FuzeWorks\Exception\Exception;
 
@@ -104,6 +105,7 @@ class Logger {
      * Initiates the Logger.
      *
      * Registers the error and exception handler, when required to do so by configuration
+     * @throws ConfigException
      */
     public function __construct()
     {
@@ -119,15 +121,15 @@ class Logger {
         // @codeCoverageIgnoreEnd
 
         // Set PHP error reporting
-        if ($cfg_error->php_error_reporting)
+        if ($cfg_error->get('php_error_reporting'))
             error_reporting(true);
         else
             error_reporting(false);
 
         // Set the environment variables
-        self::$log_last_request = $cfg_error->log_last_request_to_file;
-        self::$log_errors_to_file = $cfg_error->log_errors_to_file;
-        self::$logger_template = $cfg_error->logger_template;
+        self::$log_last_request = $cfg_error->get('log_last_request_to_file');
+        self::$log_errors_to_file = $cfg_error->get('log_errors_to_file');
+        self::$logger_template = $cfg_error->get('logger_template');
         self::newLevel('Logger Initiated');
     }
 
@@ -185,6 +187,7 @@ class Logger {
      * @codeCoverageIgnore
      *
      * Logs data to screen when requested to do so
+     * @throws EventException
      */
     public static function shutdown()
     {
@@ -289,6 +292,7 @@ class Logger {
     /**
      * Output the entire log to the screen. Used for debugging problems with your code.
      * @codeCoverageIgnore
+     * @throws EventException
      */
     public static function logToScreen()
     {

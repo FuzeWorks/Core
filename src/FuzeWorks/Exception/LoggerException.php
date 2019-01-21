@@ -46,4 +46,3 @@ class LoggerException extends Exception
 {
 }
 
-?>

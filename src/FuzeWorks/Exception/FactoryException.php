@@ -46,4 +46,3 @@ class FactoryException extends Exception
 {
 }
 
-?>

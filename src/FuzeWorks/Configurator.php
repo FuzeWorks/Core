@@ -364,6 +364,7 @@ class Configurator
                 foreach ($deferredComponentClasses as $deferredComponentClass)
                 {
                     Logger::logDebug("Invoking '" . $deferredComponentClass->method . "' on component '" . $deferredComponentClass->componentClass . "'");
+                    /** @var DeferredComponentClass $deferredComponentClass */
                     $deferredComponentClass->invoke(call_user_func_array(
                         array($container->{$deferredComponentClass->componentClass}, $deferredComponentClass->method),
                         $deferredComponentClass->arguments

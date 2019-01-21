@@ -37,6 +37,7 @@
 namespace FuzeWorks;
 use FuzeWorks\ConfigORM\ConfigORM;
 use FuzeWorks\Event\PluginGetEvent;
+use FuzeWorks\Exception\ConfigException;
 use FuzeWorks\Exception\PluginException;
 use ReflectionClass;
 use ReflectionException;
@@ -90,12 +91,12 @@ class Plugins
     /**
      * Called upon creation of the plugins class.
      *
-     * @return void
+     * @throws ConfigException
      * @codeCoverageIgnore
      */
 	public function __construct()
 	{
-		$this->cfg = Factory::getInstance()->config->plugins;
+		$this->cfg = Factory::getInstance()->config->getConfig('plugins');
 	}
 
     /**
@@ -169,7 +170,7 @@ class Plugins
         $pluginName = ucfirst($header->getName());
 
         // Check if the plugin is disabled
-        if (in_array($pluginName, $this->cfg->disabled_plugins))
+        if (in_array($pluginName, $this->cfg->get('disabled_plugins')))
         {
             $this->headers[$pluginName] = 'disabled';
             return false;
@@ -245,7 +246,7 @@ class Plugins
 		}
 
 		// If disabled, don't bother
-		if (in_array($pluginName, $this->cfg->disabled_plugins))
+		if (in_array($pluginName, $this->cfg->get('disabled_plugins')))
 		{
 			throw new PluginException("Could not load plugin. Plugin is disabled", 1);
 		}

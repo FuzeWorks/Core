@@ -46,4 +46,3 @@ class EventException extends Exception
 {
 }
 
-?>

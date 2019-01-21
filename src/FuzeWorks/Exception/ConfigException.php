@@ -46,4 +46,3 @@ class ConfigException extends Exception
 {
 }
 
-?>

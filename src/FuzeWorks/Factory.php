@@ -121,9 +121,10 @@ class Factory
 	 */
 	public $plugins;
 
-	/**
-	 * Factory instance constructor. Should only really be called once
-	 */
+    /**
+     * Factory instance constructor. Should only really be called once
+     * @throws ConfigException
+     */
 	public function __construct()
 	{
 		// If there is no sharedFactoryInstance, prepare it

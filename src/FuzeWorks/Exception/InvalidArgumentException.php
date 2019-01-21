@@ -46,4 +46,3 @@ class InvalidArgumentException extends Exception
 {
 }
 
-?>

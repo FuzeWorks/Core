@@ -35,8 +35,8 @@
  */
 
 namespace FuzeWorks;
-use FuzeWorks\Exception\Exception;
-use FuzeWorks\Exception\CoreException;
+
+use FuzeWorks\Exception\EventException;
 
 /**
  * FuzeWorks Core.
@@ -109,6 +109,7 @@ class Core
      * Stop FuzeWorks and run all shutdown functions.
      *
      * Afterwards run the Logger shutdown function in order to possibly display the log
+     * @throws EventException
      */
     public static function shutdown()
     {
