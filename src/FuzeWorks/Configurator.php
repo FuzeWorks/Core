@@ -151,9 +151,11 @@ class Configurator
      */
     public function addComponent(iComponent $component): Configurator
     {
-        $this->components[] = $component;
-        $component->onAddComponent($this);
+        if (in_array($component, $this->components))
+            return $this;
 
+        $component->onAddComponent($this);
+        $this->components[] = $component;
         return $this;
     }
 
@@ -210,6 +212,18 @@ class Configurator
     {
         Config::overrideConfig($configFileName, $configKey, $configValue);
         return $this;
+    }
+
+    /**
+     * Set the template that FuzeWorks should use to parse debug logs
+     *
+     * @codeCoverageIgnore
+     *
+     * @var string Name of the template file
+     */
+    public static function setLoggerTemplate($templateName)
+    {
+        Logger::setLoggerTemplate($templateName);
     }
 
     /**

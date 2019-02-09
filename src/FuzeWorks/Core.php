@@ -43,7 +43,6 @@ use FuzeWorks\Exception\EventException;
  *
  * Holds all the modules and starts the framework. Allows for starting and managing modules
  *
- * @todo      Test directory priorities in separate components
  * @author    TechFuze <contact@techfuze.net>
  * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
  */
@@ -70,13 +69,6 @@ class Core
     public static $tempDir;
 
     public static $logDir;
-
-    /**
-     * The HTTP status code of the current request
-     *
-     * @var int $http_status_code Status code
-     */
-    public static $http_status_code = 200;
 
     /**
      * Initializes the core.

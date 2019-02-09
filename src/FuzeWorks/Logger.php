@@ -129,7 +129,6 @@ class Logger {
         // Set the environment variables
         self::$log_last_request = $cfg_error->get('log_last_request_to_file');
         self::$log_errors_to_file = $cfg_error->get('log_errors_to_file');
-        self::$logger_template = $cfg_error->get('logger_template');
         self::newLevel('Logger Initiated');
     }
 
@@ -262,8 +261,9 @@ class Logger {
      * Please note that most of the user-defined exceptions will be caught in the router, and handled with the error-controller.
      *
      * @param Exception $exception The occured exception.
+     * @param bool $haltExecution. Defaults to true
      */
-    public static function exceptionHandler($exception) 
+    public static function exceptionHandler($exception, bool $haltExecution = true)
     {
         $LOG = array('type' => 'EXCEPTION',
             'message' => $exception->getMessage(),
@@ -274,7 +274,8 @@ class Logger {
         self::$logs[] = $LOG;
 
         // And return a 500 because this error was fatal
-        self::haltExecution($LOG);
+        if ($haltExecution)
+            self::haltExecution($LOG);
     }
 
     /**
@@ -573,9 +574,9 @@ class Logger {
      *
      * Used for debugging timings in FuzeWorks
      *
-     * @return int Time passed since FuzeWorks init
+     * @return float Time passed since FuzeWorks init
      */
-    private static function getRelativeTime(): int
+    private static function getRelativeTime(): float
     {
         $startTime = STARTTIME;
         $time = microtime(true) - $startTime;

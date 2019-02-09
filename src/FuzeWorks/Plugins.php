@@ -133,7 +133,7 @@ class Plugins
                     // If a header file exists, use it
                     $file = $pluginPath . DS . $pluginFolder . DS . 'header.php';
                     $pluginFolder = ucfirst($pluginFolder);
-                    $className = '\FuzeWorks\Plugins\\'.$pluginFolder.'Header';
+                    $className = '\Application\Plugin\\'.$pluginFolder.'Header';
                     if (file_exists($file))
                     {
                         // Load the header file

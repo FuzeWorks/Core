@@ -44,6 +44,10 @@ foreach ($logs as $log) {
     } elseif ($log['type'] == 'LEVEL_STOP') {
         --$layer;
         $string .= '</div>';
+    } elseif ($log['type'] == 'EXCEPTION') {
+        $string .= '<div style="' . ($layer == 0 ? 'padding-left: 21px;' : '') . 'font-size: 11pt; background-color:#f56954;">[' . $log['type'] . '] ' . $log['message'] . '
+        	<span style="float: right">' . (!empty($log['logFile']) ? $log['logFile'] : '') . ' : ' . (!empty($log['logLine']) ? $log['logLine'] : '') . '(' . round($log['runtime'] * 1000, 4) . ' ms)</span></div>';
+        $string .= '<div style="' . ($layer == 0 ? 'padding-left: 21px;' : '') . 'font-size: 11pt; background-color:#f56954;">' . (!empty($log['context']) && is_string($log['context']) ? '<u>[' . $log['context'] . ']</u>' : '') . '</div>';
     } elseif ($log['type'] == 'ERROR') {
         $string .= '<div style="' . ($layer == 0 ? 'padding-left: 21px;' : '') . 'font-size: 11pt; background-color:#f56954;">[' . $log['type'] . ']' . (!empty($log['context']) && is_string($log['context']) ? '<u>[' . $log['context'] . ']</u>' : '') . ' ' . $log['message'] . '
         	<span style="float: right">' . (!empty($log['logFile']) ? $log['logFile'] : '') . ' : ' . (!empty($log['logLine']) ? $log['logLine'] : '') . '(' . round($log['runtime'] * 1000, 4) . ' ms)</span></div>';
