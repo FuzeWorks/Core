@@ -2,7 +2,7 @@ before_script:
 # Install dependencies
 - set -xe
 - apt-get update -yqq
-- apt-get install git zip inzip -yqq
+- apt-get install git zip unzip -yqq
 
 stages:
   - build
