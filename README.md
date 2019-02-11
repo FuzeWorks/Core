@@ -1,4 +1,4 @@
-FuzeWorks - Readme
+FuzeWorks - Readme [![pipeline status](http://git.i15.nl/fuzeworks/core/badges/development/pipeline.svg)](http://git.i15.nl/fuzeworks/core/commits/development) [![coverage report](http://git.i15.nl/fuzeworks/core/badges/development/coverage.svg)](http://git.i15.nl/fuzeworks/core/commits/development)
 ===================
 
 Version 1.2.0
