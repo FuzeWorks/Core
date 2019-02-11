@@ -93,7 +93,7 @@ class pluginTest extends CoreTestAbstract
     {
         // Load the header object
         require_once('test' . DS . 'plugins' . DS . 'TestLoadHeader'.DS.'loadHeader'.DS.'header.php');
-        $header = new Plugins\TestLoadHeaderHeader();
+        $header = new Application\Plugin\TestLoadHeaderHeader();
 
         // Register the header object
         $this->plugins->addPlugin($header);

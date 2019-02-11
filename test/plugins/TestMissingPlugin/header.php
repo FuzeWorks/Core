@@ -33,7 +33,7 @@
  *
  * @version Version 1.2.0
  */
-namespace FuzeWorks\Plugins;
+namespace Application\Plugin;
 use FuzeWorks\iPluginHeader;
 
 class TestMissingPluginHeader implements iPluginHeader
