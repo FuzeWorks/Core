@@ -393,35 +393,22 @@ class configuratorTest extends CoreTestAbstract
         // Enable debug mode and verify return object
         $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->enableDebugMode());
 
-        // No match has been found yet. Verify that debug is still deactivated
-        $this->assertFalse($this->configurator->isDebugMode());
+        // No match has been requested, so debugMode should be on now.
+        $this->assertTrue($this->configurator->isDebugMode());
 
         // Set a debug address, all in this case; also verify return type
-        $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->setDebugAddress('ALL'));
+        $this->assertInstanceOf('FuzeWorks\Configurator', $this->configurator->setDebugAddress('NONE'));
 
-        // Match should be found. Verify that debug is activated
+        // No match should be found. Verify that debug has been deactivated
+        $this->assertFalse($this->configurator->isDebugMode());
+
+        // Now let's enable it for testing purposes
+        $this->configurator->enableDebugMode()->setDebugAddress('ALL');
         $this->assertTrue($this->configurator->isDebugMode());
 
         // Load the container and verify that tracy runs in debug mode
         $this->configurator->createContainer();
         $this->assertTrue(Logger::isEnabled());
-    }
-
-    /**
-     * @depends testEnableDebugMode
-     * @covers ::enableDebugMode
-     * @covers ::isDebugMode
-     * @covers ::createContainer
-     */
-    public function testDisableDebugMode()
-    {
-        // First enable so we can disable
-        $this->assertFalse($this->configurator->enableDebugMode(false)->isDebugMode());
-
-        // Create the container and verify that tracy debug has been disabled
-        $this->configurator->createContainer();
-
-        // Tracy can't be disabled once it's been enabled. Therefor this won't be tested
     }
 
     /**
