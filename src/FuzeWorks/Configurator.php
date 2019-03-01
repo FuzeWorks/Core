@@ -126,9 +126,13 @@ class Configurator
      * @param string $category Optional
      * @param int $priority
      * @return $this
+     * @throws InvalidArgumentException
      */
     public function addDirectory(string $directory, string $category, $priority = Priority::NORMAL): Configurator
     {
+        if (!file_exists($directory))
+            throw new InvalidArgumentException("Could not add directory. Directory does not exist.");
+
         if (!isset($this->directories[$category]))
             $this->directories[$category] = [];
 
@@ -151,11 +155,11 @@ class Configurator
      */
     public function addComponent(iComponent $component): Configurator
     {
-        if (in_array($component, $this->components))
+        if (isset($this->components[get_class($component)]))
             return $this;
 
         $component->onAddComponent($this);
-        $this->components[] = $component;
+        $this->components[get_class($component)] = $component;
         return $this;
     }
 
@@ -349,7 +353,7 @@ class Configurator
             Logger::enable();
 
         // Load components
-        foreach ($this->components as $component)
+        foreach ($this->components as $componentSuperClass => $component)
         {
             Logger::logInfo("Adding Component: '" . $component->getName() . "'");
             foreach ($component->getClasses() as $componentName => $componentClass)

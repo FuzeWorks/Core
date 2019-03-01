@@ -240,6 +240,16 @@ class configuratorTest extends CoreTestAbstract
         $this->assertEquals([vfsStream::url('testAddComponentDirectory')], $container->testaddcomponentdirectory->getComponentPaths());
     }
 
+    /**
+     * @depends testAddComponentDirectory
+     * @covers ::addDirectory
+     * @expectedException \FuzeWorks\Exception\InvalidArgumentException
+     */
+    public function testAddComponentDirectoryNotExist()
+    {
+        $this->configurator->addDirectory('not_exist', 'irrelevant');
+    }
+
     /* ---------------------------------- Deferred Invocation --------------------------------------- */
 
     /**
