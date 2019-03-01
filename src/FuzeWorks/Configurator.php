@@ -270,7 +270,7 @@ class Configurator
     public function enableDebugMode(): Configurator
     {
         $this->parameters['debugEnabled'] = true;
-        $this->parameters['debugMatch'] = (isset($this->parameters['debugMatch']) ? $this->parameters['debugMatch'] : false);
+        $this->parameters['debugMatch'] = (isset($this->parameters['debugMatch']) ? $this->parameters['debugMatch'] : true);
 
         return $this;
     }
@@ -349,6 +349,7 @@ class Configurator
 
         // Then load the framework
         $container = Core::init();
+        Logger::newLevel("Creating container...");
         if ($debug == true)
             Logger::enable();
 
@@ -402,6 +403,7 @@ class Configurator
         }
 
         $container->initFactory();
+        Logger::stopLevel();
         return $container;
     }
 }

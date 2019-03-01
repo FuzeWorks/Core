@@ -38,7 +38,7 @@ $layer = 0;
 foreach ($logs as $log) {
     if ($log['type'] == 'LEVEL_START') {
         ++$layer;
-        $color = 255 - ($layer * 25);
+        $color = 255 - ($layer * 20);
         $string .= '<div style="background: rgb(188 , 232 ,' . $color . ');border: 1px black solid;margin: 5px 0;padding: 5px 20px;">';
         $string .= '<div style="font-weight: bold; font-size: 11pt;">' . $log['message'] . '<span style="float: right">' . (!empty($log['runtime']) ? '(' . round($log['runtime'] * 1000, 4) . 'ms)' : '') . '</span></div>';
     } elseif ($log['type'] == 'LEVEL_STOP') {

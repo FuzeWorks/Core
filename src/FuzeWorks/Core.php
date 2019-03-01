@@ -109,16 +109,17 @@ class Core
         chdir(self::$cwd);
 
         // Log the shutdown
-        Logger::logInfo("Shutting FuzeWorks down gracefully");
+        Logger::newLevel("Shutting FuzeWorks down gracefully");
 
         // Fire the Shutdown event
         $event = Events::fireEvent('coreShutdownEvent');
-
         if ($event->isCancelled() === false)
         {
             Logger::shutdownError();
             Logger::shutdown();
         }
+
+        Logger::stopLevel();
     }
 
     /**
