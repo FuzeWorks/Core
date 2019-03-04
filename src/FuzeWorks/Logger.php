@@ -67,6 +67,13 @@ class Logger {
     private static $print_to_screen = false;
 
     /**
+     * Whether the Logger has been enabled or not
+     *
+     * @var bool
+     */
+    private static $isEnabled = false;
+
+    /**
      * whether to output the log of the last entire request to a file after FuzeWorks has run.
      *
      * @var bool
@@ -137,7 +144,7 @@ class Logger {
      */
     public static function enable()
     {
-        self::$print_to_screen = true;
+        self::$isEnabled = true;
     }
 
     /**
@@ -145,7 +152,7 @@ class Logger {
      */
     public static function disable()
     {
-        self::$print_to_screen = false;
+        self::$isEnabled = false;
     }
 
     /**
@@ -153,7 +160,24 @@ class Logger {
      */
     public static function isEnabled(): bool
     {
-        return self::$print_to_screen;
+        return self::$isEnabled;
+    }
+
+    /**
+     * Enable outputting the debugger after the request has been processed
+     */
+    public static function enableScreenLog()
+    {
+        if (!Core::isProduction())
+            self::$print_to_screen = true;
+    }
+
+    /**
+     * Disable outputting the debugger after the request has been processed
+     */
+    public static function disableScreenLog()
+    {
+        self::$print_to_screen = false;
     }
 
     /**
@@ -164,8 +188,8 @@ class Logger {
      */
     public static function enableHandlers()
     {
-        set_error_handler(array('\FuzeWorks\Logger', 'errorHandler'), E_ALL);
-        set_exception_handler(array('\FuzeWorks\Logger', 'exceptionHandler'));
+        Core::addErrorHandler(['\FuzeWorks\Logger', 'errorHandler'], Priority::NORMAL);
+        Core::addExceptionHandler(['\FuzeWorks\Logger', 'exceptionHandler'], Priority::NORMAL);
     }
 
     /**
@@ -176,8 +200,8 @@ class Logger {
      */
     public static function disableHandlers()
     {
-        restore_error_handler();
-        restore_exception_handler();
+        Core::removeErrorHandler(['\FuzeWorks\Logger', 'errorHandler'], Priority::NORMAL);
+        Core::removeExceptionHandler(['\FuzeWorks\Logger', 'exceptionHandler'], Priority::NORMAL);
     }
 
     /**

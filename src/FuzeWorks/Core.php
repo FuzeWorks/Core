@@ -71,6 +71,20 @@ class Core
     public static $logDir;
 
     /**
+     * Array of exception handlers, sorted by priority
+     *
+     * @var array
+     */
+    protected static $exceptionHandlers = [];
+
+    /**
+     * Array of error handlers, sorted by priority
+     *
+     * @var array
+     */
+    protected static $errorHandlers = [];
+
+    /**
      * Initializes the core.
      *
      * @throws \Exception
@@ -92,6 +106,8 @@ class Core
         // Load basics
         ignore_user_abort(true);
         register_shutdown_function(array('\FuzeWorks\Core', 'shutdown'));
+        set_error_handler(array('\FuzeWorks\Core', 'errorHandler'), E_ALL);
+        set_exception_handler(array('\FuzeWorks\Core', 'exceptionHandler'));
 
         // Return the Factory
         return new Factory();
@@ -146,6 +162,93 @@ class Core
         return (PHP_SAPI === 'cli' OR defined('STDIN'));
     }
 
+    public static function exceptionHandler()
+    {
+        for ($i = Priority::getHighestPriority(); $i <= Priority::getLowestPriority(); $i++)
+        {
+            if (!isset(self::$exceptionHandlers[$i]))
+                continue;
+
+            foreach (self::$exceptionHandlers[$i] as $handler)
+                call_user_func_array($handler, func_get_args());
+        }
+    }
+
+    public static function errorHandler()
+    {
+        for ($i = Priority::getHighestPriority(); $i <= Priority::getLowestPriority(); $i++)
+        {
+            if (!isset(self::$errorHandlers[$i]))
+                continue;
+
+            foreach (self::$errorHandlers[$i] as $handler)
+                call_user_func_array($handler, func_get_args());
+        }
+    }
+
+
+    /**
+     * Add an exception handler to be called when an exception occurs
+     *
+     * @param callable $callback
+     * @param int $priority
+     */
+    public static function addExceptionHandler(callable $callback, int $priority = Priority::NORMAL)
+    {
+        if (!isset(self::$exceptionHandlers[$priority]))
+            self::$exceptionHandlers[$priority] = [];
+
+        if (!in_array($callback, self::$exceptionHandlers[$priority]))
+            self::$exceptionHandlers[$priority][] = $callback;
+    }
+
+    /**
+     * Remove an exception handler from the list
+     *
+     * @param callable $callback
+     * @param int $priority
+     */
+    public static function removeExceptionHandler(callable $callback, int $priority = Priority::NORMAL)
+    {
+        if (isset(self::$exceptionHandlers[$priority]) && in_array($callback, self::$exceptionHandlers[$priority]))
+        {
+            foreach (self::$exceptionHandlers[$priority] as $i => $_callback)
+                if ($callback == $_callback)
+                    unset(self::$exceptionHandlers[$priority][$i]);
+        }
+    }
+
+    /**
+     * Add an error handler to be called when an error occurs
+     *
+     * @param callable $callback
+     * @param int $priority
+     */
+    public static function addErrorHandler(callable $callback, int $priority = Priority::NORMAL)
+    {
+        if (!isset(self::$errorHandlers[$priority]))
+            self::$errorHandlers[$priority] = [];
+
+        if (!in_array($callback, self::$errorHandlers[$priority]))
+            self::$errorHandlers[$priority][] = $callback;
+    }
+
+    /**
+     * Remove an error handler from the list
+     *
+     * @param callable $callback
+     * @param int $priority
+     */
+    public static function removeErrorHandler(callable $callback, int $priority = Priority::NORMAL)
+    {
+        if (isset(self::$errorHandlers[$priority]) && in_array($callback, self::$errorHandlers[$priority]))
+        {
+            foreach (self::$errorHandlers[$priority] as $i => $_callback)
+                if ($callback == $_callback)
+                    unset(self::$errorHandlers[$priority][$i]);
+        }
+    }
+
     /**
      * Tests for file writability
      *
@@ -188,5 +291,15 @@ class Core
 
         fclose($fp);
         return TRUE;
+    }
+
+    /**
+     * Whether the current environment is a production environment
+     *
+     * @return bool
+     */
+    public static function isProduction(): bool
+    {
+        return (ENVIRONMENT === 'PRODUCTION');
     }
 }

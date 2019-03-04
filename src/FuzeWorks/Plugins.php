@@ -266,7 +266,7 @@ class Plugins
         // @todo Find a more reliable method for determining header directory
         $headerReflection = new ReflectionClass( get_class($header) );
         $directory = dirname($headerReflection->getFileName());
-		$classFile = (isset($header->classFile) ? $directory.DS.$header->classFile : $directory.DS.$pluginName.".php");
+		$classFile = (isset($header->classFile) ? $directory.DS.$header->classFile : $directory.DS.'plugin.'.strtolower($pluginName).".php");
 		$className = (isset($header->className) ? $header->className : '\Application\Plugin\\'.$pluginName);
 
 		// Try to access the file

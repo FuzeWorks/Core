@@ -351,7 +351,13 @@ class Configurator
         $container = Core::init();
         Logger::newLevel("Creating container...");
         if ($debug == true)
+        {
+            define('ENVIRONMENT', 'DEVELOPMENT');
             Logger::enable();
+        }
+        else
+            define('ENVIRONMENT', 'PRODUCTION');
+
 
         // Load components
         foreach ($this->components as $componentSuperClass => $component)
