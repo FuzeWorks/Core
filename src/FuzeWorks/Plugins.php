@@ -89,12 +89,12 @@ class Plugins
 	protected $cfg;
 
     /**
-     * Called upon creation of the plugins class.
+     * Called upon initialization of the Container
      *
      * @throws ConfigException
      * @codeCoverageIgnore
      */
-	public function __construct()
+	public function init()
 	{
 		$this->cfg = Factory::getInstance()->config->getConfig('plugins');
 	}
