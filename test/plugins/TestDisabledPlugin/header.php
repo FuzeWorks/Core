@@ -47,4 +47,19 @@ class TestDisabledPluginHeader implements iPluginHeader
 	public function init()
 	{
 	}
+
+    public function getClassesPrefix(): ?string
+    {
+        return null;
+    }
+
+    public function getSourceDirectory(): ?string
+    {
+        return null;
+    }
+
+    public function getPluginClass(): ?string
+    {
+        return null;
+    }
 }

@@ -71,13 +71,6 @@ class Factory
 	 */
 	private static $sharedFactoryInstance;
 
-	/**
-	 * Whether to clone all Factory instances upon calling Factory::getInstance()
-	 * 
-	 * @var bool Clone all Factory instances.
-	 */
-	private static $cloneInstances = false;
-
     /**
      * Whether the Factory has been initialized or not
      *
@@ -124,6 +117,7 @@ class Factory
     /**
      * Factory instance constructor. Should only really be called once
      * @throws ConfigException
+     * @throws FactoryException
      */
 	public function __construct()
 	{
@@ -174,9 +168,7 @@ class Factory
 
         // Disable events if requested to do so
         if (!$cfg->get('enable_events'))
-        {
             Events::disable();
-        }
 
         // Initialize all components
         foreach ($this as $component)
@@ -201,40 +193,25 @@ class Factory
         return $this;
     }
 
-	/**
-	 * Get a new instance of the Factory class. 
-	 * 
-	 * @param bool $cloneInstance Whether to get a cloned instance (true) or exactly the same instance (false)
-	 * @return Factory Instance
-	 */
-	public static function getInstance($cloneInstance = false): Factory
-	{	
-		if ($cloneInstance === true || self::$cloneInstances === true)
-		{
-			return clone self::$sharedFactoryInstance;
-		}
+    /**
+     * Get an instance of a componentClass.
+     *
+     * @param string|null $instanceName
+     * @return mixed
+     * @throws FactoryException
+     */
+	public static function getInstance(string $instanceName = null)
+    {
+	    if (is_null($instanceName))
+	        return self::$sharedFactoryInstance;
 
-		return self::$sharedFactoryInstance;
-	}
+        // Determine the instance name
+        $instanceName = strtolower($instanceName);
 
-	/**
-	 * Enable cloning all Factory instances upon calling Factory::getInstance()
-	 * 
-	 * @return void
-	 */
-	public static function enableCloneInstances()
-	{
-		self::$cloneInstances = true;
-	}
+	    if (!isset(self::$sharedFactoryInstance->{$instanceName}))
+	        throw new FactoryException("Could not get instance. Instance was not found.");
 
-	/**
-	 * Disable cloning all Factory instances upon calling Factory::getInstance()
-	 * 
-	 * @return void
-	 */
-	public static function disableCloneInstances()
-	{
-		self::$cloneInstances = false;
+	    return self::$sharedFactoryInstance->{$instanceName};
 	}
 
     /**
@@ -275,25 +252,29 @@ class Factory
      * Clone an instance of one of the loaded classes.
      * It clones the class. It does NOT re-create it.
      *
+     * If the $onlyReturn = true is provided, the cloned instance will only be returned, and not set to the factory.
+     *
      * @param string $className The name of the loaded class, WITHOUT the namespace
-     * @return Factory Instance
+     * @param bool $onlyReturn
+     * @return mixed
      * @throws FactoryException
      */
-	public function cloneInstance($className): self
+	public static function cloneInstance(string $className, bool $onlyReturn = false)
 	{
 		// Determine the class to load
 		$instanceName = strtolower($className);
 
-		if (!isset($this->{$instanceName}))
-		{
+		if (!isset(self::$sharedFactoryInstance->{$instanceName}))
 			throw new FactoryException("Could not clone instance of '".$instanceName."'. Instance was not found.", 1);
-		}
+
+		if ($onlyReturn)
+		    return clone self::$sharedFactoryInstance->{$instanceName};
 
 		// Clone the instance
-		$this->{$instanceName} = clone $this->{$instanceName};
+		self::$sharedFactoryInstance->{$instanceName} = clone self::$sharedFactoryInstance->{$instanceName};
 
 		// Return itself
-		return $this;
+		return self::$sharedFactoryInstance->{$instanceName};
 	}
 
 	/**

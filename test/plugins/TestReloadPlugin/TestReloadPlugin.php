@@ -33,7 +33,7 @@
  *
  * @version Version 1.2.0
  */
-namespace Application\Plugin;
+namespace FuzeWorks\UnitTest\Plugins\TestReloadPlugin;
 
 class TestReloadPlugin 
 {

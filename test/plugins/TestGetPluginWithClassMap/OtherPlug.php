@@ -33,9 +33,10 @@
  *
  * @version Version 1.2.0
  */
-namespace Application\Plugin;
 
-class TestLoadPlugin 
+namespace FuzeWorks\UnitTest\Plugins\TestGetPluginWithClassMap;
+
+class OtherPlug
 {
 	
 }

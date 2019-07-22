@@ -43,6 +43,21 @@ class TestLoadHeaderNotIPluginHeaderHeader
         return "TestLoadHeaderNotIPluginHeader";
     }
 
+    public function getClassesPrefix(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestLoadHeaderNotIPluginHeader';
+    }
+
+    public function getSourceDirectory(): ?string
+    {
+        return '';
+    }
+
+    public function getPluginClass(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestLoadHeaderNotIPluginHeader\TestLoadPlugin';
+    }
+
     public function init()
 	{
 	}

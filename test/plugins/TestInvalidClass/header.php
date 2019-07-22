@@ -44,6 +44,21 @@ class TestInvalidClassHeader implements iPluginHeader
         return "TestInvalidClass";
     }
 
+    public function getClassesPrefix(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestInvalidClassHeader';
+    }
+
+    public function getSourceDirectory(): ?string
+    {
+        return '';
+    }
+
+    public function getPluginClass(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestInvalidClassHeader\TestInvalidClass';
+    }
+
 	public function init()
 	{
 	}

@@ -223,9 +223,7 @@ class Logger {
         }
 
         if (self::$log_last_request == true)
-        {
             self::logLastRequest();
-        }
 
         if (self::$log_errors_to_file == true)
             self::logErrorsToFile();
@@ -342,9 +340,8 @@ class Logger {
         require(dirname(__DIR__) . DS . 'Layout' . DS . 'layout.logger_file.php');
         $contents = ob_get_clean();
         $file = Core::$logDir . DS . 'fwlog_request.log';
-        if (is_writable(dirname($file))) {
+        if (is_writable(dirname($file)))
             file_put_contents($file, $contents);
-        }
     }
 
     /**
@@ -357,14 +354,14 @@ class Logger {
         $logs = [];
         foreach (self::$logs as $log)
         {
-            if ($log['type'] === 'ERROR')
+            if ($log['type'] === 'ERROR' || $log['type'] === 'EXCEPTION')
                 $logs[] = $log;
         }
         require(dirname(__DIR__) . DS . 'Layout' . DS . 'layout.logger_file.php');
         $contents = ob_get_clean();
         $file = Core::$logDir . DS . 'fwlog_errors.log';
         if (is_writable(dirname($file)))
-            file_put_contents($file, $contents, FILE_APPEND | LOCK_EX);
+            file_put_contents($file, $contents, FILE_APPEND);
     }
 
     /* =========================================LOGGING METHODS============================================================== */

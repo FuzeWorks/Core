@@ -55,6 +55,7 @@ class pluginTest extends CoreTestAbstract
     public function setUp()
     {
         $this->plugins = new Plugins();
+        $this->plugins->init();
         $this->plugins->addComponentPath('test'.DS.'plugins');
         $this->plugins->loadHeadersFromPluginPaths();
     }
@@ -73,7 +74,7 @@ class pluginTest extends CoreTestAbstract
      */
     public function testLoadPlugin()
     {
-        $this->assertInstanceOf('\Application\Plugin\TestLoadPlugin', $this->plugins->get('testLoadPlugin'));
+        $this->assertInstanceOf('\FuzeWorks\UnitTest\Plugins\TestLoadPlugin\TestLoadPlugin', $this->plugins->get('testLoadPlugin'));
     }
 
     /**
@@ -99,7 +100,7 @@ class pluginTest extends CoreTestAbstract
         $this->plugins->addPlugin($header);
 
         // Assert the plugin
-        $this->assertInstanceOf('Application\Plugin\Plug', $this->plugins->get('Plug'));
+        $this->assertInstanceOf('\FuzeWorks\UnitTest\Plugins\TestLoadHeader\Plug', $this->plugins->get('Plug'));
     }
 
     /**
@@ -125,9 +126,9 @@ class pluginTest extends CoreTestAbstract
      * @depends testLoadPlugin
      * @covers ::get
      */
-    public function testGetPluginWithClassFile()
+    public function testGetPluginWithClassMap()
     {
-        $this->assertInstanceOf('OtherPlug', $this->plugins->get('TestGetPluginWithClassFile'));
+        $this->assertInstanceOf('FuzeWorks\UnitTest\Plugins\TestGetPluginWithClassMap\OtherPlug', $this->plugins->get('TestGetPluginWithClassMap'));
     }
 
     /**

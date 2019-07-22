@@ -44,6 +44,21 @@ class TestReloadPluginHeader implements iPluginHeader
         return "TestReloadPlugin";
     }
 
+    public function getClassesPrefix(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestReloadPlugin';
+    }
+
+    public function getSourceDirectory(): ?string
+    {
+        return '';
+    }
+
+    public function getPluginClass(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestReloadPlugin\TestReloadPlugin';
+    }
+
 	public function init()
 	{
 	}

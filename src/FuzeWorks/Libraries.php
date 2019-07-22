@@ -182,9 +182,7 @@ class Libraries
     {
         // First check to see if the library is already loaded
         if (!class_exists($libraryClass, false))
-        {
             throw new LibraryException("Could not initiate library. Class not found", 1);
-        }
 
         // Determine what parameters to use
         if (empty($parameters))
@@ -199,6 +197,9 @@ class Libraries
 
         // Load the class object
         $classObject = new $libraryClass($parameters);
+
+        // @todo Check if library has all required methods (iLibrary)
+        // @todo Implement autoloading for libraries
 
         // Check if the address is already reserved, if it is, we can presume that a new instance is requested.
         // Otherwise this code would not be reached

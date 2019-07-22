@@ -34,19 +34,16 @@
  * @version Version 1.2.0
  */
 
-$mask = "|%5s |%-95s |\n";
+$mask = "|%5s |%5s |%-90s |\n";
 $id = 1;
 
 if (!empty($logs))
-    printf($mask, $id, '     REQUEST ' . date('Y-m-d H:i') . '-'.substr(sha1(uniqid()), 0, 8).'');
+    printf($mask, $id, 'REQUEST', ' ' . date('Y-m-d H:i') . '-'.substr(sha1(uniqid()), 0, 8).'');
 
 foreach ($logs as $log) {
     $id++;
-
-    $string = '';
-    $string .= '[ERROR]' . ' - ';
-    $string .= $log['message'];
+    printf($mask, $id, $log['type'], $log['message']);
 }
 
 if (!empty($logs))
-    printf($mask, $id, '');
+    printf($mask, $id, 'HALT', '---------------------');
