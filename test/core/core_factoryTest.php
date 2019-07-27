@@ -310,6 +310,8 @@ class factoryTest extends CoreTestAbstract
 
     public function tearDown()
     {
+        parent::tearDown();
+
         $factory = Factory::getInstance();
         if (isset($factory->mock))
            $factory->removeInstance('mock');

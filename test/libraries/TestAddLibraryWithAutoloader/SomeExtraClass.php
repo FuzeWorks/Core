@@ -29,22 +29,15 @@
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 1.2.0
+ * @since Version 0.0.1
  *
  * @version Version 1.2.0
  */
-namespace Application\Library;
-use FuzeWorks\iLibrary;
 
-class TestGetLibraryFromDirectory implements iLibrary {
+namespace FuzeWorks\Test\TestAddLibraryWithAutoloader;
 
-    public function getClassesPrefix(): ?string
-    {
-        return null;
-    }
 
-    public function getSourceDirectory(): ?string
-    {
-        return null;
-    }
+class SomeExtraClass
+{
+
 }

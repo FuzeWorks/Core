@@ -37,7 +37,10 @@
 namespace FuzeWorks;
 
 use FuzeWorks\Exception\ConfigException;
+use FuzeWorks\Exception\CoreException;
 use FuzeWorks\Exception\LibraryException;
+use ReflectionClass;
+use ReflectionException;
 
 class Libraries
 {
@@ -196,12 +199,27 @@ class Libraries
         }
 
         // Load the class object
+        /** @var iLibrary $classObject */
         $classObject = new $libraryClass($parameters);
 
-        // @todo Check if library has all required methods (iLibrary)
-        // @todo Implement autoloading for libraries
+        // If not instance of iLibrary, refuse the library
+        if (!$classObject instanceof iLibrary)
+            throw new LibraryException("Could not initiate library. Library is not instance of iLibrary.");
 
-        // Check if the address is already reserved, if it is, we can presume that a new instance is requested.
+        // Add the library files to the autoloader
+        try {
+            $headerReflection = new ReflectionClass(get_class($classObject));
+            $filePath = dirname($headerReflection->getFileName()) . (!is_null($classObject->getSourceDirectory()) ? DS . $classObject->getSourceDirectory() : '' );
+            $prefix = $classObject->getClassesPrefix();
+            if (!is_null($filePath) && !is_null($prefix))
+                Core::addAutoloadMap($prefix, $filePath);
+        } catch (ReflectionException $e) {
+            throw new LibraryException("Could not initiate library. ReflectionClass threw exception.");
+        } catch (CoreException $e) {
+            throw new LibraryException("Could not initiate library. Failed to add to autoloader.");
+        }
+
+        // @todo Check if the address is already reserved, if it is, we can presume that a new instance is requested.
         // Otherwise this code would not be reached
 
         // Now load the class

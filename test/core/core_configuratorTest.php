@@ -64,6 +64,8 @@ class configuratorTest extends CoreTestAbstract
 
     public function tearDown()
     {
+        parent::tearDown();
+
         Core::$tempDir = dirname(__DIR__) . '/temp';
         Core::$logDir = dirname(__DIR__) . '/temp';
     }

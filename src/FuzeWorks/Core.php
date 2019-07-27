@@ -87,6 +87,13 @@ class Core
     protected static $errorHandlers = [];
 
     /**
+     * Array of all classMaps which can be autoloaded.
+     *
+     * @var array
+     */
+    protected static $autoloadMap = [];
+
+    /**
      * Initializes the core.
      *
      * @throws \Exception
@@ -251,8 +258,6 @@ class Core
         }
     }
 
-    protected static $autoloadMap = [];
-
     /**
      * @param string $nameSpacePrefix
      * @param string $filePath
@@ -290,6 +295,17 @@ class Core
             if (file_exists($filePath) && is_file($filePath))
                 require($filePath);
         }
+    }
+
+    /**
+     * Clears the autoloader to its original state.
+     *
+     * Not intended for use by developer. Only for use during testing
+     * @internal
+     */
+    public static function clearAutoloader()
+    {
+        self::$autoloadMap = [];
     }
 
     /**

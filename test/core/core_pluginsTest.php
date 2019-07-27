@@ -198,6 +198,8 @@ class pluginTest extends CoreTestAbstract
 
     public function tearDown()
     {
+        parent::tearDown();
+
         $factory = Factory::getInstance();
         $factory->config->plugins->revert();
     }

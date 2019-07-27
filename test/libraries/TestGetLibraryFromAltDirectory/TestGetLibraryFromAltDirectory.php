@@ -34,7 +34,16 @@
  * @version Version 1.2.0
  */
 namespace Application\Library;
+use FuzeWorks\iLibrary;
 
-class TestGetLibraryFromAltDirectory {
+class TestGetLibraryFromAltDirectory implements iLibrary {
+    public function getClassesPrefix(): ?string
+    {
+        return null;
+    }
 
+    public function getSourceDirectory(): ?string
+    {
+        return null;
+    }
 }

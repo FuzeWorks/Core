@@ -34,7 +34,16 @@
  * @version Version 1.2.0
  */
 namespace Custom\Spaces;
+use FuzeWorks\iLibrary;
 
-class TestAddLibraryClass {
+class TestAddLibraryClass implements iLibrary {
+    public function getClassesPrefix(): ?string
+    {
+        return null;
+    }
 
+    public function getSourceDirectory(): ?string
+    {
+        return null;
+    }
 }
