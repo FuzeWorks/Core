@@ -167,11 +167,6 @@ class Core
         return $_is_php[$version];
     }
 
-    public static function isCli(): bool
-    {
-        return (PHP_SAPI === 'cli' OR defined('STDIN'));
-    }
-
     public static function exceptionHandler()
     {
         for ($i = Priority::getHighestPriority(); $i <= Priority::getLowestPriority(); $i++)

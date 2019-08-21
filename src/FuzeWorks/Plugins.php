@@ -37,8 +37,8 @@
 namespace FuzeWorks;
 use FuzeWorks\ConfigORM\ConfigORM;
 use FuzeWorks\Event\PluginGetEvent;
-use FuzeWorks\Exception\ConfigException;
 use FuzeWorks\Exception\CoreException;
+use FuzeWorks\Exception\FactoryException;
 use FuzeWorks\Exception\PluginException;
 use ReflectionClass;
 use ReflectionException;
@@ -92,7 +92,7 @@ class Plugins
     /**
      * Called upon initialization of the Container
      *
-     * @throws ConfigException
+     * @throws FactoryException
      * @codeCoverageIgnore
      */
 	public function init()
@@ -245,7 +245,6 @@ class Plugins
 		$header = $this->headers[$pluginName];
 
 		// Add to autoloader
-        // @todo Find a more reliable method for determining header directory
         $headerReflection = new ReflectionClass( get_class($header) );
         $prefix = $header->getClassesPrefix();
         $filePath = dirname($headerReflection->getFileName()) . (!empty($header->getSourceDirectory()) ? DS . $header->getSourceDirectory() : '');

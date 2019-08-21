@@ -184,7 +184,7 @@ class Libraries
     protected function initLibrary(string $libraryName, string $libraryClass, array $parameters = [])
     {
         // First check to see if the library is already loaded
-        if (!class_exists($libraryClass, false))
+        if (!class_exists($libraryClass, true))
             throw new LibraryException("Could not initiate library. Class not found", 1);
 
         // Determine what parameters to use
