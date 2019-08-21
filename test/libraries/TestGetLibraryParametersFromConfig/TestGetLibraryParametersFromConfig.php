@@ -34,8 +34,9 @@
  * @version Version 1.2.0
  */
 namespace Application\Library;
+use FuzeWorks\iLibrary;
 
-class TestGetLibraryParametersFromConfig {
+class TestGetLibraryParametersFromConfig implements iLibrary {
 
 	public $parameters;
 
@@ -43,5 +44,15 @@ class TestGetLibraryParametersFromConfig {
 	{
 		$this->parameters = $parameters;
 	}
+
+    public function getClassesPrefix(): ?string
+    {
+        return null;
+    }
+
+    public function getSourceDirectory(): ?string
+    {
+        return null;
+    }
 
 }

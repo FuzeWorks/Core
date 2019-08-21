@@ -33,18 +33,34 @@
  *
  * @version Version 1.2.0
  */
-namespace Application\Library;
-use FuzeWorks\iLibrary;
+namespace Application\Plugin;
+use FuzeWorks\iPluginHeader;
 
-class TestGetLibraryFromDirectory implements iLibrary {
+class TestGetPluginWithClassMapHeader implements iPluginHeader
+{
+
+    public function getName(): string
+    {
+        return "TestGetPluginWithClassMap";
+    }
 
     public function getClassesPrefix(): ?string
     {
-        return null;
+        return '\FuzeWorks\UnitTest\Plugins\TestGetPluginWithClassMap';
     }
 
     public function getSourceDirectory(): ?string
     {
-        return null;
+        return '';
     }
+
+    public function getPluginClass(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestGetPluginWithClassMap\OtherPlug';
+    }
+
+    public function init()
+	{
+	}
+
 }

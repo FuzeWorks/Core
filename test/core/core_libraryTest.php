@@ -195,8 +195,36 @@ class libraryTest extends CoreTestAbstract
         $this->libraries->addLibraryClass('LibraryClassFail', '\Case\Not\Exist');
     }
 
+    /**
+     * @depends testAddLibraryClass
+     * @covers ::initLibrary
+     */
+    public function testAddLibraryWithAutoloader()
+    {
+        // First assert the extra class can't be autoloaded
+        $this->assertFalse(class_exists('FuzeWorks\Test\TestAddLibraryWithAutoloader\SomeExtraClass', true));
+
+        // Load the library and test the instance type
+        $this->assertInstanceOf('Application\Library\TestAddLibraryWithAutoloader', $this->libraries->get('TestAddLibraryWithAutoloader'));
+
+        // Afterwards test if the loader has been correctly added
+        $this->assertTrue(class_exists('FuzeWorks\Test\TestAddLibraryWithAutoloader\SomeExtraClass', true));
+    }
+
+    /**
+     * @depends testAddLibraryWithAutoloader
+     * @covers ::initLibrary
+     * @expectedException \FuzeWorks\Exception\LibraryException
+     */
+    public function testAddBadAutoloader()
+    {
+        $this->assertInstanceOf('Application\Library\TestAddBadAutoloader', $this->libraries->get('TestAddBadAutoloader'));
+    }
+
     public function tearDown()
     {
+        parent::tearDown();
+
         Factory::getInstance()->config->getConfig('error')->revert();
     }
 

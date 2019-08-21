@@ -39,6 +39,50 @@ namespace FuzeWorks;
 
 interface iPluginHeader
 {
+    /**
+     * Should return the name of the plugin.
+     *
+     * This is the name used to access the plugin when using Plugins::get()
+     * @return string
+     */
     public function getName(): string;
+
+    /**
+     * Should return the namespace prefix of the classes of this plugin.
+     *
+     * Used to autoload classes of this plugin.
+     * @see https://www.php-fig.org/psr/psr-4/
+     *
+     * Invoked upon `FuzeWorks\Plugins::get`. Autoloading plugin classes before that is not possible.
+     *
+     * @return string|null
+     */
+    public function getClassesPrefix(): ?string;
+
+    /**
+     * Should return the directory where the classes of this plugin can be found.
+     *
+     * Only the source directory within the plugin should be returned, e.g:
+     * If the source directory is 'src' within the plugin directory, return 'src'
+     *
+     * @return string|null
+     */
+    public function getSourceDirectory(): ?string;
+
+    /**
+     * Should return the className of the main class of this plugin
+     *
+     * Should only return null if the pluginHeader has the optional getPlugin() method.
+     *
+     * @return string|null
+     */
+    public function getPluginClass(): ?string;
+
+    /**
+     * Initializes the pluginHeader. This method allows the developer to hook into multiple systems of FuzeWorks
+     * upon FuzeWorks initialization. See the FuzeWorks boot process for more information.
+     *
+     * @return mixed
+     */
     public function init();
 }

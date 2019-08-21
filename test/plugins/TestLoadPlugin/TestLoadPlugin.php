@@ -33,8 +33,9 @@
  *
  * @version Version 1.2.0
  */
+namespace FuzeWorks\UnitTest\Plugins\TestLoadPlugin;
 
-class OtherPlug
+class TestLoadPlugin 
 {
 	
 }

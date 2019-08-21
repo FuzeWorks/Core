@@ -55,6 +55,32 @@ class factoryTest extends CoreTestAbstract
     }
 
     /**
+     * @covers ::getInstance
+     */
+    public function testGetInstance()
+    {
+        // Add the mock
+        $mock = $this->getMockBuilder(MockFactory::class)->getMock();
+        Factory::getInstance()->setInstance('Mock', $mock);
+
+        // First test a global getInstance Factory
+        $this->assertInstanceOf('\FuzeWorks\Factory', Factory::getInstance());
+
+        // Second, test retrieving a component
+        $this->assertInstanceOf(get_class($mock), Factory::getInstance('Mock'));
+    }
+
+    /**
+     * @depends testGetInstance
+     * @covers ::getInstance
+     * @expectedException \FuzeWorks\Exception\FactoryException
+     */
+    public function testGetInstanceNotFound()
+    {
+        Factory::getInstance('NotFound');
+    }
+
+    /**
      * @depends testCanLoadFactory
      * @covers ::getInstance
      */
@@ -70,11 +96,23 @@ class factoryTest extends CoreTestAbstract
      */
     public function testLoadDifferentInstance()
     {
+        // Add the mock
+        $mock = $this->getMockBuilder(MockFactory::class)->getMock();
+        Factory::getInstance()->setInstance('Mock', $mock);
+
         // First a situation where one is the shared instance and one is a cloned instance
-        $this->assertNotSame(Factory::getInstance(), Factory::getInstance(true));
+        $a = Factory::getInstance('Mock');
+        $b = Factory::cloneInstance('Mock');
+        $this->assertInstanceOf(get_class($mock), $a);
+        $this->assertInstanceOf(get_class($mock), $b);
+        $this->assertNotSame($a,$b);
 
         // And a situation where both are cloned instances
-        $this->assertNotSame(Factory::getInstance(true), Factory::getInstance(true));
+        $a = Factory::cloneInstance('Mock');
+        $b = Factory::cloneInstance('Mock');
+        $this->assertInstanceOf(get_class($mock), $a);
+        $this->assertInstanceOf(get_class($mock), $b);
+        $this->assertNotSame($a,$b);
     }
 
     /**
@@ -91,6 +129,8 @@ class factoryTest extends CoreTestAbstract
         $this->assertFalse(isset(Factory::getInstance()->mock));
 
         // Same instance factories
+        /** @var Factory $factory1 */
+        /** @var Factory $factory2 */
         $factory1 = Factory::getInstance()->setInstance('Mock', $mock);
         $factory2 = Factory::getInstance()->setInstance('Mock', $mock);
 
@@ -98,8 +138,8 @@ class factoryTest extends CoreTestAbstract
         $this->assertSame($factory1->mock, $factory2->mock);
 
         // Different instance factories
-        $factory3 = Factory::getInstance(true)->setInstance('Mock', $mock);
-        $factory4 = Factory::getInstance(true)->setInstance('Mock', $mock);
+        $factory3 = Factory::getInstance()->setInstance('Mock', $mock);
+        $factory4 = Factory::getInstance()->setInstance('Mock', $mock);
 
         // Return the mocks
         $this->assertSame($factory3->mock, $factory4->mock);
@@ -121,23 +161,23 @@ class factoryTest extends CoreTestAbstract
         $factory2 = Factory::getInstance()->setInstance('Mock', $mock);
 
         // Clone the instance in factory2
-        $factory2->cloneInstance('Mock');
+        $factory2mock = $factory2->cloneInstance('Mock');
 
         // Should be true, since both Factories use the same Mock instance
-        $this->assertSame($factory1->mock, $factory2->mock);
+        $this->assertSame($factory1->mock, $factory2mock);
 
         // Different instance factories
-        $factory3 = Factory::getInstance(true)->setInstance('Mock', $mock);
-        $factory4 = Factory::getInstance(true)->setInstance('Mock', $mock);
+        $factory3 = Factory::getInstance()->setInstance('Mock', $mock);
+        $factory4 = Factory::getInstance()->setInstance('Mock', $mock);
 
         // Should be same for now
         $this->assertSame($factory3->mock, $factory4->mock);
 
         // Clone the instance in factory4
-        $factory4->cloneInstance('Mock');
+        $factory4mock = $factory4->cloneInstance('Mock', true);
 
         // Should be false, since both Factories use a different Mock instance
-        $this->assertNotSame($factory3->mock, $factory4->mock);
+        $this->assertNotSame($factory3->mock, $factory4mock);
     }
 
     /**
@@ -152,31 +192,6 @@ class factoryTest extends CoreTestAbstract
 
         // Attempt
         $factory->cloneInstance('fake');
-    }
-
-    /**
-     * @depends testCanLoadFactory
-     * @covers ::enableCloneInstances
-     * @covers ::disableCloneInstances
-     * @covers ::cloneInstance
-     * @covers ::getInstance
-     */
-    public function testGlobalCloneInstance()
-    {
-        // First test without global cloning
-        $this->assertSame(Factory::getInstance(), Factory::getInstance());
-
-        // Now enable global cloning
-        Factory::enableCloneInstances();
-
-        // Now test without global cloning
-        $this->assertNotSame(Factory::getInstance(), Factory::getInstance());
-
-        // Disable global cloning
-        Factory::disableCloneInstances();
-
-        // And test again without global cloning
-        $this->assertSame(Factory::getInstance(), Factory::getInstance());
     }
 
     /**
@@ -295,13 +310,11 @@ class factoryTest extends CoreTestAbstract
 
     public function tearDown()
     {
-        Factory::disableCloneInstances();
-        
+        parent::tearDown();
+
         $factory = Factory::getInstance();
-        if (isset($factory->Mock))
-        {
-           $factory->removeInstance('Mock'); 
-        }
+        if (isset($factory->mock))
+           $factory->removeInstance('mock');
     }
 
 }

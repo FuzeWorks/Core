@@ -44,6 +44,21 @@ class TestMissingPluginHeader implements iPluginHeader
         return "TestMissingPlugin";
     }
 
+    public function getClassesPrefix(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestMissingPlugin';
+    }
+
+    public function getSourceDirectory(): ?string
+    {
+        return '';
+    }
+
+    public function getPluginClass(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestMissingPluginHeader\TestMissingPlugin';
+    }
+
 	public function init()
 	{
 	}

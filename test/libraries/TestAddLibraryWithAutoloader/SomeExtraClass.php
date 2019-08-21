@@ -29,13 +29,15 @@
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 1.2.0
+ * @since Version 0.0.1
  *
  * @version Version 1.2.0
  */
-namespace Application\Plugin;
 
-class Plug
+namespace FuzeWorks\Test\TestAddLibraryWithAutoloader;
+
+
+class SomeExtraClass
 {
 
 }

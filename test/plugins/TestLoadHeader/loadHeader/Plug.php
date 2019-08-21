@@ -33,21 +33,9 @@
  *
  * @version Version 1.2.0
  */
-namespace Application\Plugin;
-use FuzeWorks\iPluginHeader;
+namespace FuzeWorks\UnitTest\Plugins\TestLoadHeader;
 
-class TestGetPluginWithClassFileHeader implements iPluginHeader
+class Plug
 {
 
-    public $classFile = 'OtherPlugFile.php';
-    public $className = 'OtherPlug';
-
-    public function getName(): string
-    {
-        return "TestGetPluginWithClassFile";
-    }
-
-    public function init()
-	{
-	}
 }

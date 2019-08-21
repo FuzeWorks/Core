@@ -37,7 +37,8 @@
 namespace FuzeWorks;
 use FuzeWorks\ConfigORM\ConfigORM;
 use FuzeWorks\Event\PluginGetEvent;
-use FuzeWorks\Exception\ConfigException;
+use FuzeWorks\Exception\CoreException;
+use FuzeWorks\Exception\FactoryException;
 use FuzeWorks\Exception\PluginException;
 use ReflectionClass;
 use ReflectionException;
@@ -89,12 +90,12 @@ class Plugins
 	protected $cfg;
 
     /**
-     * Called upon creation of the plugins class.
+     * Called upon initialization of the Container
      *
-     * @throws ConfigException
+     * @throws FactoryException
      * @codeCoverageIgnore
      */
-	public function __construct()
+	public function init()
 	{
 		$this->cfg = Factory::getInstance()->config->getConfig('plugins');
 	}
@@ -210,10 +211,8 @@ class Plugins
      */
 	public function get($pluginName, array $parameters = null)
 	{
-		if (empty($pluginName)) 
-		{
+		if (empty($pluginName))
 			throw new PluginException("Could not load plugin. No name provided", 1);
-		}
 
 		// Determine the name of the plugin
 		$pluginName = ucfirst($pluginName);
@@ -222,37 +221,43 @@ class Plugins
         /** @var PluginGetEvent $event */
         $event = Events::fireEvent('pluginGetEvent', $pluginName);
 		if ($event->isCancelled())
-		{
 			return false;
-		}
 		elseif ($event->getPlugin() != null)
-		{
 			return $event->getPlugin();
-		}
 
 		// Otherwise just set the variables
 		$pluginName = $event->pluginName;
 
 		// Check if the plugin is already loaded and return directly
 		if (isset($this->plugins[$pluginName]))
-		{
 			return $this->plugins[$pluginName];
-		}
 
 		// Check if the plugin header exists
 		if (!isset($this->headers[$pluginName]))
-		{
 			throw new PluginException("Could not load plugin. Plugin header does not exist", 1);
-		}
 
 		// If disabled, don't bother
 		if (in_array($pluginName, $this->cfg->get('disabled_plugins')))
-		{
 			throw new PluginException("Could not load plugin. Plugin is disabled", 1);
-		}
 
 		// Determine what file to load
+        /** @var iPluginHeader $header */
 		$header = $this->headers[$pluginName];
+
+		// Add to autoloader
+        $headerReflection = new ReflectionClass( get_class($header) );
+        $prefix = $header->getClassesPrefix();
+        $filePath = dirname($headerReflection->getFileName()) . (!empty($header->getSourceDirectory()) ? DS . $header->getSourceDirectory() : '');
+        $pluginClass = $header->getPluginClass();
+
+        if (!is_null($prefix) && !is_null($filePath))
+        {
+            try {
+                Core::addAutoloadMap($prefix, $filePath);
+            } catch (CoreException $e) {
+                throw new PluginException("Could not load plugin. Autoloader invalid: '".$e->getMessage()."'");
+            }
+        }
 
 		// If a 'getPlugin' method is found in the header, call that instead
 		if (method_exists($header, 'getPlugin'))
@@ -262,26 +267,11 @@ class Plugins
 			return $this->plugins[$pluginName];
 		}
 
-		// Determine class name and file
-        // @todo Find a more reliable method for determining header directory
-        $headerReflection = new ReflectionClass( get_class($header) );
-        $directory = dirname($headerReflection->getFileName());
-		$classFile = (isset($header->classFile) ? $directory.DS.$header->classFile : $directory.DS.'plugin.'.strtolower($pluginName).".php");
-		$className = (isset($header->className) ? $header->className : '\Application\Plugin\\'.$pluginName);
-
-		// Try to access the file
-        if (!file_exists($classFile))
-        {
-            throw new PluginException("Could not load plugin. Class file does not exist", 1);
-        }
-
 		// Attempt to load the plugin
-		require_once($classFile);
-		if (!class_exists($className, false))
-		{
+		if (!class_exists($pluginClass, true))
 			throw new PluginException("Could not load plugin. Class does not exist", 1);
-		}
-		$this->plugins[$pluginName] = new $className($parameters);
+
+		$this->plugins[$pluginName] = new $pluginClass($parameters);
 		Logger::log('Loaded Plugin: \'' . $pluginName . '\'');
 
 		// And return it

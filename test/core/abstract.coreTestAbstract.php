@@ -48,22 +48,23 @@ use FuzeWorks\LoggerTracyBridge;
 abstract class CoreTestAbstract extends TestCase
 {
     /**
-     * Remove all listeners before the next test starts.
-     *
-     * Reset the layout manager
+     * Reset multiple components to their original state before running the next test
      */
     public function tearDown()
     {
         // Clear all events created by tests
-        Events::$listeners = array();
+        Events::$listeners = [];
 
         // Reset all config files
-        Factory::getInstance()->config->discardConfigFiles();
+        Factory::getInstance('config')->discardConfigFiles();
 
         // Re-enable events, in case they have been disabled
         Events::enable();
 
         // Remove Config overrides
         Config::$configOverrides = [];
+
+        // Remove autoloader
+        Core::clearAutoloader();
     }
 }

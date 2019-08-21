@@ -33,18 +33,9 @@
  *
  * @version Version 1.2.0
  */
-namespace Application\Library;
-use FuzeWorks\iLibrary;
+namespace FuzeWorks\UnitTest\Plugins\TestReloadPlugin;
 
-class TestGetLibraryFromDirectory implements iLibrary {
-
-    public function getClassesPrefix(): ?string
-    {
-        return null;
-    }
-
-    public function getSourceDirectory(): ?string
-    {
-        return null;
-    }
+class TestReloadPlugin 
+{
+	
 }

@@ -44,6 +44,21 @@ class TestLoadHeaderHeader implements iPluginHeader
         return "Plug";
     }
 
+    public function getClassesPrefix(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestLoadHeader';
+    }
+
+    public function getSourceDirectory(): ?string
+    {
+        return '';
+    }
+
+    public function getPluginClass(): ?string
+    {
+        return '\FuzeWorks\UnitTest\Plugins\TestLoadHeader\Plug';
+    }
+
     public function init()
     {
     }

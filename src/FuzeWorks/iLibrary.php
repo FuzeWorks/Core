@@ -29,13 +29,36 @@
  * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
- * @since Version 1.2.0
+ * @since Version 0.0.1
  *
  * @version Version 1.2.0
  */
-namespace Application\Plugin;
 
-class TestReloadPlugin 
+namespace FuzeWorks;
+
+
+interface iLibrary
 {
-	
+    /**
+     * Should return the namespace prefix of the classes of this library.
+     *
+     * Used to autoload classes of this library.
+     * @see https://www.php-fig.org/psr/psr-4/
+     *
+     * Invoked upon `FuzeWorks\Libraries:get`. Autoloading library classes before that is not possible.
+     *
+     * @return string|null
+     */
+    public function getClassesPrefix(): ?string;
+
+    /**
+     * Should return the directory where the classes of this library can be found.
+     *
+     * Only the source directory within the library should be returned, e.g:
+     * If the source directory is 'src' within the library directory, return 'src'
+     *
+     * @return string|null
+     */
+    public function getSourceDirectory(): ?string;
+
 }

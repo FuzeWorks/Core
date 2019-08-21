@@ -213,6 +213,8 @@ class loggerTest extends CoreTestAbstract
 
     public function tearDown()
     {
+        parent::tearDown();
+
         Logger::disable();
         Logger::$logs = array();
     }

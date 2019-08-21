@@ -36,6 +36,7 @@
 
 namespace FuzeWorks;
 
+use FuzeWorks\Exception\CoreException;
 use FuzeWorks\Exception\EventException;
 
 /**
@@ -43,6 +44,7 @@ use FuzeWorks\Exception\EventException;
  *
  * Holds all the modules and starts the framework. Allows for starting and managing modules
  *
+ * @todo Implement unit tests for autoloader() methods
  * @author    TechFuze <contact@techfuze.net>
  * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
  */
@@ -53,7 +55,7 @@ class Core
      *
      * @var string Framework version
      */
-    public static $version = '1.0.0';
+    public static $version = '1.2.0';
 
     /**
      * Working directory of the Framework.
@@ -85,6 +87,13 @@ class Core
     protected static $errorHandlers = [];
 
     /**
+     * Array of all classMaps which can be autoloaded.
+     *
+     * @var array
+     */
+    protected static $autoloadMap = [];
+
+    /**
      * Initializes the core.
      *
      * @throws \Exception
@@ -108,6 +117,7 @@ class Core
         register_shutdown_function(array('\FuzeWorks\Core', 'shutdown'));
         set_error_handler(array('\FuzeWorks\Core', 'errorHandler'), E_ALL);
         set_exception_handler(array('\FuzeWorks\Core', 'exceptionHandler'));
+        spl_autoload_register(['\FuzeWorks\Core', 'autoloader'], true,false);
 
         // Return the Factory
         return new Factory();
@@ -157,11 +167,6 @@ class Core
         return $_is_php[$version];
     }
 
-    public static function isCli(): bool
-    {
-        return (PHP_SAPI === 'cli' OR defined('STDIN'));
-    }
-
     public static function exceptionHandler()
     {
         for ($i = Priority::getHighestPriority(); $i <= Priority::getLowestPriority(); $i++)
@@ -185,7 +190,6 @@ class Core
                 call_user_func_array($handler, func_get_args());
         }
     }
-
 
     /**
      * Add an exception handler to be called when an exception occurs
@@ -247,6 +251,56 @@ class Core
                 if ($callback == $_callback)
                     unset(self::$errorHandlers[$priority][$i]);
         }
+    }
+
+    /**
+     * @param string $nameSpacePrefix
+     * @param string $filePath
+     * @throws CoreException
+     */
+    public static function addAutoloadMap(string $nameSpacePrefix, string $filePath)
+    {
+        // Remove leading slashes
+        $nameSpacePrefix = ltrim($nameSpacePrefix, '\\');
+
+        if (isset(self::$autoloadMap[$nameSpacePrefix]))
+            throw new CoreException("Could not add classes to autoloader. ClassMap already exists.");
+
+        if (!file_exists($filePath) && !is_dir($filePath))
+            throw new CoreException("Could not add classes to autoloader. Provided filePath does not exist.");
+
+        self::$autoloadMap[$nameSpacePrefix] = $filePath;
+    }
+
+    public static function autoloader(string $class)
+    {
+        // Remove leading slashes
+        $class = ltrim($class, '\\');
+
+        // First attempt and find if the prefix of the class is in the autoloadMap
+        foreach (self::$autoloadMap as $prefix => $path)
+        {
+            // If not, try next
+            if (strpos($class, $prefix) === false)
+                continue;
+
+            // If it contains the prefix, attempt to find the file
+            $className = substr($class, strlen($prefix) + 1);
+            $filePath = $path . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
+            if (file_exists($filePath) && is_file($filePath))
+                require($filePath);
+        }
+    }
+
+    /**
+     * Clears the autoloader to its original state.
+     *
+     * Not intended for use by developer. Only for use during testing
+     * @internal
+     */
+    public static function clearAutoloader()
+    {
+        self::$autoloadMap = [];
     }
 
     /**

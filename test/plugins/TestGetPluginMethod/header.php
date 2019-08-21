@@ -52,4 +52,19 @@ class TestGetPluginMethodHeader implements iPluginHeader
 	{
 		return 'test_string';
 	}
+
+    public function getClassesPrefix(): ?string
+    {
+        return null;
+    }
+
+    public function getSourceDirectory(): ?string
+    {
+        return null;
+    }
+
+    public function getPluginClass(): ?string
+    {
+        return null;
+    }
 }
