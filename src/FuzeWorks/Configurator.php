@@ -403,9 +403,7 @@ class Configurator
         {
             Logger::logDebug("Adding directories for '" . $component . "'");
             if (method_exists($container->{$component}, 'setDirectories'))
-            {
                 $container->{$component}->setDirectories($priorityArray);
-            }
         }
 
         $container->initFactory();

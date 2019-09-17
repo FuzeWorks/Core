@@ -115,9 +115,7 @@ class Plugins
 
                 // If directory does not exist, skip it
                 if (!file_exists($pluginPath) || !is_dir($pluginPath))
-                {
                     continue;
-                }
 
                 // Fetch the contents of the path
                 $pluginPathContents = array_diff(scandir($pluginPath), array('..', '.'));
@@ -126,9 +124,7 @@ class Plugins
                 foreach ($pluginPathContents as $pluginFolder) {
                     // @codeCoverageIgnoreStart
                     if (!is_dir($pluginPath . DS . $pluginFolder))
-                    {
                         continue;
-                    }
                     // @codeCoverageIgnoreEnd
 
                     // If a header file exists, use it
@@ -141,9 +137,7 @@ class Plugins
                         require_once($file);
                         $header = new $className();
                         if (!$header instanceof iPluginHeader)
-                        {
                             continue;
-                        }
 
                         // Load the header
                         $this->loadHeader($header);
@@ -249,7 +243,6 @@ class Plugins
         $prefix = $header->getClassesPrefix();
         $filePath = dirname($headerReflection->getFileName()) . (!empty($header->getSourceDirectory()) ? DS . $header->getSourceDirectory() : '');
         $pluginClass = $header->getPluginClass();
-
         if (!is_null($prefix) && !is_null($filePath))
         {
             try {
