@@ -1,38 +1,42 @@
 <?php
 /**
- * FuzeWorks.
+ * FuzeWorks Framework Core.
  *
- * The FuzeWorks MVC PHP FrameWork
+ * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2013-2019 TechFuze
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
- * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
+ * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
+ * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 1.0.0
+ * @version Version 1.2.0
  */
 
 namespace FuzeWorks;
+use FuzeWorks\Exception\ConfiguratorException;
 use FuzeWorks\Exception\InvalidArgumentException;
-use Tracy\Debugger;
 
 /**
  * Class Configurator.
@@ -43,86 +47,277 @@ use Tracy\Debugger;
  * that FuzeWorks is loaded accordingly. 
  * 
  * This allows for more flexible startups.
- * @author    Abel Hoogeveen <abel@techfuze.net>
- * @author    David Grudl <https://davidgrudl.com> 
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @author    TechFuze <contact@techfuze.net>
+ * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
  */
 class Configurator
 {
+
     /**
      * The parameters that will be passed to FuzeWorks.
      *
      * @var array
      */ 
-    protected $parameters;
+    protected $parameters = ['debugEnabled' => false];
+
+    /**
+     * Components that have been added to FuzeWorks
+     *
+     * @var iComponent[]
+     */
+    protected $components = [];
+
+    /**
+     * Directories that will be passed to FuzeWorks components. 
+     * 
+     * These are NOT the temp and log directory.
+     *
+     * @var array of directories
+     */     
+    protected $directories = [];
+
+    /**
+     * Array of ComponentClass methods to be invoked once ComponentClass is loaded
+     *
+     * @var DeferredComponentClass[]
+     */
+    protected $deferredComponentClassMethods = [];
 
     const COOKIE_SECRET = 'fuzeworks-debug';
 
-    /**
-     * Constructs the Configurator class. 
-     * 
-     * Loads the default parameters
-     */
-    public function __construct()
-    {
-        $this->parameters = $this->getDefaultParameters();
-    }
+    /* ---------------- Core Directories--------------------- */
 
     /**
-     * @return array
+     * Sets path to temporary directory.
+     *
+     * @param string $path
+     * @return Configurator
+     * @throws InvalidArgumentException
      */
-    protected function getDefaultParameters(): array
+    public function setLogDirectory(string $path): Configurator
     {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        $last = end($trace);
-        $debugMode = static::detectDebugMode();
-        return [
-            'appDir' => isset($trace[1]['file']) ? dirname($trace[1]['file']) : NULL,
-            'wwwDir' => isset($last['file']) ? dirname($last['file']) : NULL,
-            'debugMode' => $debugMode
-        ];
+        if (!is_dir($path))
+            throw new InvalidArgumentException("Could not set log directory. Directory does not exist", 1);
+        $this->parameters['logDir'] = $path;
+
+        return $this;
     }
 
     /**
      * Sets path to temporary directory.
-     * @return self
+     *
+     * @param string $path
+     * @return Configurator
+     * @throws InvalidArgumentException
      */
-    public function setLogDirectory($path): self
+    public function setTempDirectory(string $path): Configurator
     {
-        $this->parameters['logDir'] = $path;
+        if (!is_dir($path))
+            throw new InvalidArgumentException("Could not set temp directory. Directory does not exist", 1);
+        $this->parameters['tempDir'] = $path;
+
         return $this;
+    }
+
+    /**
+     * Add a directory to FuzeWorks
+     *
+     * @param string $directory
+     * @param string $category Optional
+     * @param int $priority
+     * @return $this
+     * @throws InvalidArgumentException
+     */
+    public function addDirectory(string $directory, string $category, $priority = Priority::NORMAL): Configurator
+    {
+        if (!file_exists($directory))
+            throw new InvalidArgumentException("Could not add directory. Directory does not exist.");
+
+        if (!isset($this->directories[$category]))
+            $this->directories[$category] = [];
+
+        if (!isset($this->directories[$category][$priority]))
+            $this->directories[$category][$priority] = [];
+
+        if (!in_array($directory, $this->directories[$category][$priority]))
+            $this->directories[$category][$priority][] = $directory;
+
+        return $this;
+    }
+
+    /* ---------------- Components -------------------------- */
+
+    /**
+     * Registers a component that will be added to the Factory when the container is built
+     *
+     * @param iComponent $component
+     * @return Configurator
+     */
+    public function addComponent(iComponent $component): Configurator
+    {
+        if (isset($this->components[get_class($component)]))
+            return $this;
+
+        $component->onAddComponent($this);
+        $this->components[get_class($component)] = $component;
+        return $this;
+    }
+
+    /**
+     * Invokes a method on a componentClass after the Container has been created.
+     *
+     * @param string $componentClass
+     * @param string $method
+     * @param callable|null $callable
+     * @param   mixed    $parameters,...     Parameters for the method to be invoked
+     * @return DeferredComponentClass
+     */
+    public function deferComponentClassMethod(string $componentClass, string $method, callable $callable = null)
+    {
+        // Retrieve arguments
+        $arguments = (func_num_args() > 3 ? array_slice(func_get_args(), 3) : []);
+
+        // Add component
+        if (!isset($this->deferredComponentClassMethods[$componentClass]))
+            $this->deferredComponentClassMethods[$componentClass] = [];
+
+        $deferredComponentClass = new DeferredComponentClass($componentClass, $method, $arguments, $callable);
+        return $this->deferredComponentClassMethods[$componentClass][] = $deferredComponentClass;
+    }
+
+    /**
+     * Alias for deferComponentClassMethods
+     *
+     * @param string $componentClass
+     * @param string $method
+     * @param callable|null $callable
+     * @param   mixed    $parameters,...     Parameters for the method to be invoked
+     * @return DeferredComponentClass
+     * @codeCoverageIgnore
+     */
+    public function call(string $componentClass, string $method, callable $callable = null)
+    {
+        return call_user_func_array([$this, 'deferComponentClassMethod'], func_get_args());
+    }
+
+    /* ---------------- Other Features ---------------------- */
+
+    /**
+     * Override a config value before FuzeWorks is loaded.
+     *
+     * Allows the user to change any value in config files loaded by FuzeWorks.
+     *
+     * @param string $configFileName
+     * @param string $configKey
+     * @param $configValue
+     * @return Configurator
+     */
+    public function setConfigOverride(string $configFileName, string $configKey, $configValue): Configurator
+    {
+        Config::overrideConfig($configFileName, $configKey, $configValue);
+        return $this;
+    }
+
+    /**
+     * Set the template that FuzeWorks should use to parse debug logs
+     *
+     * @codeCoverageIgnore
+     *
+     * @var string Name of the template file
+     */
+    public static function setLoggerTemplate($templateName)
+    {
+        Logger::setLoggerTemplate($templateName);
     }
 
     /**
      * Sets the default timezone.
-     * @return self
+     * @param string $timezone
+     * @return Configurator
+     * @throws InvalidArgumentException
      */
-    public function setTimeZone($timezone): self
+    public function setTimeZone(string $timezone): Configurator
     {
-        date_default_timezone_set($timezone);
+        if (!in_array($timezone, timezone_identifiers_list()))
+            throw new InvalidArgumentException("Could not set timezone. Invalid timezone provided.", 1);
+
+        @date_default_timezone_set($timezone);
         @ini_set('date.timezone', $timezone); // @ - function may be disabled
+
         return $this;
     }
 
     /**
-     * Adds new parameters. The %params% will be expanded.
-     * @return self
+     * Adds new parameters. Use to quickly set multiple parameters at once
+     * @param array $params
+     * @return Configurator
      */
-    public function setParameters(array $params): self
+    public function setParameters(array $params): Configurator
     {
         foreach ($params as $key => $value) {
             $this->parameters[$key] = $value;
         }
+
+        return $this;
+    }
+
+    /* ---------------- Debug Mode -------------------------- */
+
+    /**
+     * Fully enable or disable debug mode using one variable
+     * @return Configurator
+     */
+    public function enableDebugMode(): Configurator
+    {
+        $this->parameters['debugEnabled'] = true;
+        $this->parameters['debugMatch'] = (isset($this->parameters['debugMatch']) ? $this->parameters['debugMatch'] : true);
+
         return $this;
     }
 
     /**
-     * Sets path to temporary directory.
-     * @return self
+     * Provide a string from where debug mode can be accessed.
+     * Can be the following type of addresses:
+     * @todo
+     * @param string|array $address
+     * @return Configurator
+     * @throws InvalidArgumentException
      */
-    public function setTempDirectory($path): self
+    public function setDebugAddress($address = 'NONE'): Configurator
     {
-        $this->parameters['tempDir'] = $path;
+        // First we fetch the list
+        if (!is_string($address) && !is_array($address))
+            throw new InvalidArgumentException("Can not set debug address. Address must be a string or array",1);
+
+        // Then we test some common cases
+        if (is_string($address) && $address == 'NONE')
+        {
+            $this->parameters['debugMatch'] = false;
+            return $this;
+        }
+        elseif (is_string($address) && $address == 'ALL')
+        {
+            $this->parameters['debugMatch'] = true;
+            return $this;
+        }
+
+        // Otherwise we run the regular detectDebugMode from Tracy
+        $list = is_string($address)
+            ? preg_split('#[,\s]+#', $address)
+            : (array) $address;
+        $addr = isset($_SERVER['REMOTE_ADDR'])
+            ? $_SERVER['REMOTE_ADDR']
+            : php_uname('n');
+        $secret = isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])
+            ? $_COOKIE[self::COOKIE_SECRET]
+            : NULL;
+        if (!isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $list[] = '127.0.0.1';
+            $list[] = '::1';
+        }
+       
+        $this->parameters['debugMatch'] = in_array($addr, $list, TRUE) || in_array("$secret@$addr", $list, TRUE);
+
         return $this;
     }
 
@@ -131,98 +326,88 @@ class Configurator
      */
     public function isDebugMode(): bool
     {
-        return $this->parameters['debugMode'];
-    }
-
-    /**
-     * Set parameter %debugMode%.
-     * @param  bool|string|array
-     * @return self
-     */
-    public function setDebugMode($value): self
-    {
-        if (is_string($value) || is_array($value)) {
-            $value = static::detectDebugMode($value);
-        } elseif (!is_bool($value)) {
-            throw new InvalidArgumentException(sprintf('Value must be either a string, array, or boolean, %s given.', gettype($value)));
-        }
-        $this->parameters['debugMode'] = $value;
-        return $this;
-    }
-
-    /**
-     * Set the email to send logs to from Tracy
-     * @param string
-     */
-    public function setDebugEmail($email): self
-    {
-        $this->parameters['debugEmail'] = $email;
-        return $this;
-    }
-
-    /**
-     * Detects debug mode by IP address.
-     * @param  string|array  IP addresses or computer names whitelist detection
-     * @return bool
-     */
-    public static function detectDebugMode($list = NULL): bool
-    {
-        $addr = isset($_SERVER['REMOTE_ADDR'])
-            ? $_SERVER['REMOTE_ADDR']
-            : php_uname('n');
-        $secret = isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])
-            ? $_COOKIE[self::COOKIE_SECRET]
-            : NULL;
-        $list = is_string($list)
-            ? preg_split('#[,\s]+#', $list)
-            : (array) $list;
-        if (!isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $list[] = '127.0.0.1';
-            $list[] = '::1';
-        }
-        return in_array($addr, $list, TRUE) || in_array("$secret@$addr", $list, TRUE);
+        return $this->parameters['debugEnabled'] && $this->parameters['debugMatch'];
     }
 
     /**
      * Create the container which holds FuzeWorks.
      *
-     * Due to the static nature of FuzeWorks, this is not yet possible. 
-     * When issue #101 is completed, this should be resolved. 
+     * Due to the static nature of FuzeWorks, this is not yet possible.
+     * When issue #101 is completed, this should be resolved.
      *
      * @return Factory
+     * @throws \Exception
      */
     public function createContainer(): Factory
     {
-        // First set all the directories
-        Core::$appDir = $this->parameters['appDir'];
-        Core::$wwwDir = $this->parameters['wwwDir'];
+        // First set all the fixed directories
         Core::$tempDir = $this->parameters['tempDir'];
         Core::$logDir = $this->parameters['logDir'];
 
-        // Then set debug mode
-        if ($this->parameters['debugMode'])
-        {
-            define('ENVIRONMENT', 'DEVELOPMENT');
-        }
-        else
-        {
-            define('ENVIRONMENT', 'PRODUCTION');
-        }
-
-        // And enable Tracy Debugger 
-        if (class_exists('Tracy\Debugger', true))
-        {
-            Debugger::enable(!$this->parameters['debugMode'], realpath($this->parameters['logDir']));
-            if (isset($this->parameters['debugEmail']))
-            {
-                Debugger::$email = $this->parameters['debugEmail'];
-            }
-            Logger::$useTracy = true;
-        }
+        // Then prepare the debugger
+        $debug = ($this->parameters['debugEnabled'] && $this->parameters['debugMatch'] ? true : false);
 
         // Then load the framework
-        Core::init();
+        $container = Core::init();
+        Logger::newLevel("Creating container...");
+        if ($debug == true)
+        {
+            define('ENVIRONMENT', 'DEVELOPMENT');
+            Logger::enable();
+        }
+        else
+            define('ENVIRONMENT', 'PRODUCTION');
 
-        return Factory::getInstance();
+
+        // Load components
+        foreach ($this->components as $componentSuperClass => $component)
+        {
+            Logger::logInfo("Adding Component: '" . $component->getName() . "'");
+            foreach ($component->getClasses() as $componentName => $componentClass)
+            {
+                if (is_object($componentClass))
+                {
+                    $container->setInstance($componentName, $componentClass);
+                }
+                else
+                {
+                    if (!class_exists($componentClass))
+                        throw new ConfiguratorException("Could not load component '".$componentName."'. Class '".$componentClass."' does not exist.", 1);
+
+                    $container->setInstance($componentName, new $componentClass());
+                }
+            }
+
+            $component->onCreateContainer($container);
+        }
+
+        // Invoke deferredComponentClass on FuzeWorks\Core classes
+        foreach ($this->deferredComponentClassMethods as $componentClass => $deferredComponentClasses)
+        {
+            if ($container->instanceIsset($componentClass))
+            {
+                foreach ($deferredComponentClasses as $deferredComponentClass)
+                {
+                    Logger::logDebug("Invoking '" . $deferredComponentClass->method . "' on component '" . $deferredComponentClass->componentClass . "'");
+                    /** @var DeferredComponentClass $deferredComponentClass */
+                    $deferredComponentClass->invoke(call_user_func_array(
+                        array($container->{$deferredComponentClass->componentClass}, $deferredComponentClass->method),
+                        $deferredComponentClass->arguments
+                    ));
+                }
+            }
+        }
+
+        // Add directories to Components
+        foreach ($this->directories as $component => $priorityArray)
+        {
+            Logger::logDebug("Adding directories for '" . $component . "'");
+            if (method_exists($container->{$component}, 'setDirectories'))
+                $container->{$component}->setDirectories($priorityArray);
+        }
+
+        $container->initFactory();
+        Logger::stopLevel();
+        return $container;
     }
 }

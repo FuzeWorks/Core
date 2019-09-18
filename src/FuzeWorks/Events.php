@@ -1,36 +1,41 @@
 <?php
 /**
- * FuzeWorks.
+ * FuzeWorks Framework Core.
  *
- * The FuzeWorks MVC PHP FrameWork
+ * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2015   TechFuze
+ * Copyright (C) 2013-2019 TechFuze
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
- * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
- * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
+ * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
+ * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
  * @since Version 0.0.1
  *
- * @version Version 1.0.0
+ * @version Version 1.2.0
  */
 
 namespace FuzeWorks;
+use FuzeWorks\Event\NotifierEvent;
 use FuzeWorks\Exception\EventException;
 
 /**
@@ -42,7 +47,7 @@ use FuzeWorks\Exception\EventException;
  * If we want to add the current time at the end of each page title, we need to hook to the corresponding event. Those events are found in the 'events' directory in the system directory.
  * The event that will be fired when the title is changing is called layoutSetTitleEvent. So if we want our module to hook to that event, we add the following to the constructor:
  *
- * Events::addListener(array($this, "onLayoutSetTitleEvent"), "layoutSetTitleEvent", EventPriority::NORMAL);
+ * Events::addListener(array($this, "onLayoutSetTitleEvent"), "layoutSetTitleEvent", Priority::NORMAL);
  *
  * This will add the function "onLayoutSetTitleEvent" of our current class ($this) to the list of listeners with priority NORMAL. So we need to add
  * a method called onLayoutSetTitleEvent($event) it is very important to add the pointer-reference (&) or return the event, otherwise it doesn't change the event variables.
@@ -51,8 +56,8 @@ use FuzeWorks\Exception\EventException;
  *
  * $event->title = date('H:i:s ').$event->title;
  *
- * @author    Abel Hoogeveen <abel@techfuze.net>
- * @copyright Copyright (c) 2013 - 2016, Techfuze. (http://techfuze.net)
+ * @author    TechFuze <contact@techfuze.net>
+ * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
  */
 class Events
 {
@@ -73,25 +78,20 @@ class Events
     /**
      * Adds a function as listener.
      *
-     * @param   mixed   $callback           The callback when the events get fired, see {@link http://php.net/manual/en/language.types.callable.php PHP.net}
-     * @param   string  $eventName          The name of the event
-     * @param   int     $priority           The priority, even though integers are valid, please use EventPriority (for example EventPriority::Lowest)
-     * @param   mixed   $parameters,...     Parameters for the listener
+     * @param   callable $callback           The callback when the events get fired, see {@link http://php.net/manual/en/language.types.callable.php PHP.net}
+     * @param   string   $eventName          The name of the event
+     * @param   int      $priority           The priority, even though integers are valid, please use Priority (for example Priority::Lowest)
+     * @param   mixed    $parameters,...     Parameters for the listener
      *
-     * @see EventPriority
+     * @see Priority
      *
      * @throws EventException
      */
-    public static function addListener($callback, $eventName, $priority = EventPriority::NORMAL)
+    public static function addListener(callable $callback, string $eventName, int $priority = Priority::NORMAL)
     {
         // Perform multiple checks
-        if (EventPriority::getPriority($priority) == false) {
+        if (Priority::getPriority($priority) == false) {
             throw new EventException('Can not add listener: Unknown priority '.$priority, 1);
-        }
-
-        if (!is_callable($callback))
-        {
-            throw new EventException("Can not add listener: Callback is not callable", 1);
         }
 
         if (empty($eventName))
@@ -123,15 +123,15 @@ class Events
      *
      * @param mixed callback The callback when the events get fired, see {@link http://php.net/manual/en/language.types.callable.php PHP.net}
      * @param string $eventName The name of the event
-     * @param int    $priority  The priority, even though integers are valid, please use EventPriority (for example EventPriority::Lowest)
+     * @param int    $priority  The priority, even though integers are valid, please use Priority (for example Priority::Lowest)
      *
-     * @see EventPriority
+     * @see Priority
      *
      * @throws EventException
      */
-    public static function removeListener($callback, $eventName, $priority = EventPriority::NORMAL)
+    public static function removeListener(callable $callback, string $eventName, $priority = Priority::NORMAL)
     {
-        if (EventPriority::getPriority($priority) == false) {
+        if (Priority::getPriority($priority) == false) {
             throw new EventException('Unknown priority '.$priority);
         }
 
@@ -153,12 +153,11 @@ class Events
      *
      * The Event gets created, passed around and then returned to the issuer.
      *
-     * @param   mixed $input            Object for direct event, string for system event or notifierEvent
-     * @param   mixed $parameters,...   Parameters for the event
-     * @todo    Implement Application Events
-     * @todo    Implement Directory input for Events from other locations (like Modules)
+     * @param   mixed $input Object for direct event, string for system event or notifierEvent
+     * @param   mixed $parameters,... Parameters for the event
      *
      * @return Event The Event
+     * @throws EventException
      */
     public static function fireEvent($input): Event
     {
@@ -192,8 +191,7 @@ class Events
             // Try a notifier event
             elseif (func_num_args() == 1)
             {
-                $class = "\FuzeWorks\Event\NotifierEvent";
-                $event = new $class();
+                $event = new NotifierEvent();
             }
 
             // Or throw an exception on failure
@@ -207,11 +205,6 @@ class Events
             throw new EventException('Event could not be loaded. Invalid variable provided.', 1);
         }
 
-        if (self::$enabled)
-        {
-            Logger::newLevel("Firing Event: '".$eventName."'");           
-        }
-
         if (func_num_args() > 1) {
             call_user_func_array(array($event, 'init'), array_slice(func_get_args(), 1));
         }
@@ -221,16 +214,17 @@ class Events
             return $event;
         }
 
-        Logger::log('Checking for Listeners');
-
         //There are listeners for this event
         if (isset(self::$listeners[$eventName])) {
+            // Event with listeners found. Log it.
+            Logger::newLevel("Firing Event: '".$eventName."'. Found listeners: ");
+
             //Loop from the highest priority to the lowest
-            for ($priority = EventPriority::getHighestPriority(); $priority <= EventPriority::getLowestPriority(); ++$priority) {
+            for ($priority = Priority::getHighestPriority(); $priority <= Priority::getLowestPriority(); ++$priority) {
                 //Check for listeners in this priority
                 if (isset(self::$listeners[$eventName][$priority])) {
                     $listeners = self::$listeners[$eventName][$priority];
-                    Logger::newLevel('Found listeners with priority '.EventPriority::getPriority($priority));
+                    Logger::newLevel('Found listeners with priority '.Priority::getPriority($priority));
                     //Fire the event to each listener
                     foreach ($listeners as $callbackArray) {
                         // @codeCoverageIgnoreStart
@@ -244,6 +238,7 @@ class Events
                         }
                         // @codeCoverageIgnoreEnd
 
+                        // Merge arguments and call listener
                         $args = array_merge(array($event), $callbackArray[1]);
                         call_user_func_array($callback, $args);
                         Logger::stopLevel();
@@ -252,9 +247,9 @@ class Events
                     Logger::stopLevel();
                 }
             }
-        }
 
-        Logger::stopLevel();
+            Logger::stopLevel();
+        }
 
         return $event;
     }

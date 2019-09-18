@@ -1,1 +1,0 @@
-Smarty Template Check

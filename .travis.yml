@@ -2,10 +2,11 @@ language: php
 
 php:
   - 7.1
-  - 7
+  - 7.2
+  - 7.3
 
 script:
-  - php vendor/bin/phpunit -v -c tests/phpunit.xml --coverage-text
+  - php vendor/bin/phpunit -v -c test/phpunit.xml --coverage-text
 
 before_script:
   - composer install

@@ -1,37 +1,47 @@
 <?php
 /**
- * FuzeWorks.
+ * FuzeWorks Framework Core.
  *
- * The FuzeWorks MVC PHP FrameWork
+ * The FuzeWorks PHP FrameWork
  *
- * Copyright (C) 2018   TechFuze
+ * Copyright (C) 2013-2019 TechFuze
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  * @author    TechFuze
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
- * @copyright Copyright (c) 1996 - 2015, Free Software Foundation, Inc. (http://www.fsf.org/)
- * @license   http://opensource.org/licenses/GPL-3.0 GPLv3 License
+ * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
+ * @license   https://opensource.org/licenses/MIT MIT License
  *
  * @link  http://techfuze.net/fuzeworks
  * @since Version 1.1.4
  *
- * @version Version 1.1.4
+ * @version Version 1.2.0
  */
 
 namespace FuzeWorks;
+use FuzeWorks\ConfigORM\ConfigORM;
+use FuzeWorks\Event\PluginGetEvent;
+use FuzeWorks\Exception\CoreException;
+use FuzeWorks\Exception\FactoryException;
 use FuzeWorks\Exception\PluginException;
+use ReflectionClass;
+use ReflectionException;
 
 /**
  * Plugins Class.
@@ -44,23 +54,17 @@ use FuzeWorks\Exception\PluginException;
  * 
  * To create the plugin, create a directory (with the name of the plugin) in the Plugin folder, inside the Application environment. Next you should add a header.php file in this directory. 
  * This file needs to be in the FuzeWorks\Plugins namespace, and be named *PluginName*Header. For example: TestHeader. 
- * It is recommended that this header file implements the FuzeWorks\PluginInterface. All headers must have the init() method. This method will run upon starting FuzeWorks. 
+ * It is required that this header file implements the FuzeWorks\iPluginHeader. All headers must have the init() method. This method will run upon starting FuzeWorks.
  * 
  * Next a plugin class should be created. This file should be named the same as the folder, and be in the Application\Plugin namespace. An alternative classname can be set in the header, by creating a public $className variable. This plugin can be called using the $plugins->get() method.
  *
- * @todo 	  Implement events
- * @author    Abel Hoogeveen <abel@techfuze.net>
- * @copyright Copyright (c) 2013 - 2018, Techfuze. (http://techfuze.net)
+ * @todo      Add methods to enable and disable plugins
+ * @author    TechFuze <contact@techfuze.net>
+ * @copyright Copyright (c) 2013 - 2019, TechFuze. (http://techfuze.net)
  */
 class Plugins
 {
-
-	/**
-	 * Array of all the paths where plugins can be found
-	 * 
-	 * @var array Plugin paths
-	 */
-	protected $pluginPaths = array();
+    use ComponentPathsTrait;
 
 	/**
 	 * Array of loaded Plugins, so that they won't be reloaded
@@ -86,203 +90,184 @@ class Plugins
 	protected $cfg;
 
     /**
-     * Called upon creation of the plugins class.
-     * 
-     * @param string $directory The directory
-     * @return void
+     * Called upon initialization of the Container
+     *
+     * @throws FactoryException
+     * @codeCoverageIgnore
      */
-	public function __construct()
+	public function init()
 	{
-		$this->pluginPaths[] = Core::$appDir . DS . 'Plugins';
-		$this->cfg = Factory::getInstance()->config->plugins;
+		$this->cfg = Factory::getInstance()->config->getConfig('plugins');
 	}
 
     /**
      * Load the header files of all plugins. 
      */
-	public function loadHeaders()
+	public function loadHeadersFromPluginPaths()
 	{
 		// Cycle through all pluginPaths
-		$this->headers = array();
-		foreach ($this->pluginPaths as $pluginPath) {
-			
-			// If directory does not exist, skip it
-			if (!file_exists($pluginPath) || !is_dir($pluginPath))
-			{
-				continue;
-			}
+        for ($i=Priority::getHighestPriority(); $i<=Priority::getLowestPriority(); $i++)
+        {
+            if (!isset($this->componentPaths[$i]))
+                continue;
 
-			// Fetch the contents of the path
-			$pluginPathContents = array_diff(scandir($pluginPath), array('..', '.'));
-			
-			// Now go through each entry in the plugin folder
-			foreach ($pluginPathContents as $pluginFolder) {
-				if (!is_dir($pluginPath . DS . $pluginFolder))
-				{
-					continue;
-				}
+            foreach ($this->componentPaths[$i] as $pluginPath) {
 
-				// If a header file exists, use it
-				$file = $pluginPath . DS . $pluginFolder . DS . 'header.php';
-				$pluginName = ucfirst($pluginFolder);
-				$className = '\FuzeWorks\Plugins\\'.$pluginName.'Header'; 
-				if (file_exists($file))
-				{
-					// And load it
-					if (in_array($pluginName, $this->cfg->disabled_plugins))
-					{
-						$this->headers[$pluginName] = 'disabled';
-					}
-					else
-					{
-						require_once($file);
-						$header = new $className();
-						$this->headers[$pluginName] = $header;
-						$this->headers[$pluginName]->init();
-						Factory::getInstance()->logger->log('Loaded Plugin Header: \'' . $pluginName . '\'');
-					}
+                // If directory does not exist, skip it
+                if (!file_exists($pluginPath) || !is_dir($pluginPath))
+                    continue;
 
-				}
+                // Fetch the contents of the path
+                $pluginPathContents = array_diff(scandir($pluginPath), array('..', '.'));
 
-				// If it doesn't exist, skip it
-				continue;
-			}
+                // Now go through each entry in the plugin folder
+                foreach ($pluginPathContents as $pluginFolder) {
+                    // @codeCoverageIgnoreStart
+                    if (!is_dir($pluginPath . DS . $pluginFolder))
+                        continue;
+                    // @codeCoverageIgnoreEnd
 
-		}
+                    // If a header file exists, use it
+                    $file = $pluginPath . DS . $pluginFolder . DS . 'header.php';
+                    $pluginFolder = ucfirst($pluginFolder);
+                    $className = '\Application\Plugin\\'.$pluginFolder.'Header';
+                    if (file_exists($file))
+                    {
+                        // Load the header file
+                        require_once($file);
+                        $header = new $className();
+                        if (!$header instanceof iPluginHeader)
+                            continue;
+
+                        // Load the header
+                        $this->loadHeader($header);
+                    }
+
+                    // If it doesn't exist, skip it
+                    continue;
+                }
+
+            }
+        }
 	}
 
     /**
-     * Get a plugin. 
-     * 
-     * @param string 	$pluginName 	Name of the plugin
-     * @param array 	$parameters 	Parameters to send to the __construct() method
-     * @param array 	$directory 		Directory to search for plugins in
-     * @return object 					Plugin
+     * Load a header object.
+     *
+     * The provided header will be loaded into the header registry and initialized.
+     *
+     * @param iPluginHeader $header
+     * @return bool
      */
-	public function get($pluginName, array $parameters = null, array $directory = null)
-	{
-		if (empty($pluginName)) 
-		{
-			throw new PluginException("Could not load plugin. No name provided", 1);
-		}
+	protected function loadHeader(iPluginHeader $header): bool
+    {
+        // Fetch the name
+        $pluginName = ucfirst($header->getName());
 
-		// First get the directories where the plugin can be located
-		$directories = (is_null($directory) ? $this->pluginPaths : $directory);
+        // Check if the plugin is disabled
+        if (in_array($pluginName, $this->cfg->get('disabled_plugins')))
+        {
+            $this->headers[$pluginName] = 'disabled';
+            return false;
+        }
+
+        // Initialize it
+        $h = $this->headers[$pluginName] = $header;
+        $h->init();
+
+        // And log it
+        Logger::log('Loaded Plugin Header: \'' . $pluginName . '\'');
+        return true;
+    }
+
+    /**
+     * Add a Plugin to FuzeWorks
+     *
+     * The provided plugin header will be loaded into the registry and initialized
+     *
+     * @param iPluginHeader $header
+     * @return bool
+     */
+    public function addPlugin(iPluginHeader $header): bool
+    {
+        return $this->loadHeader($header);
+    }
+
+    /**
+     * Get a plugin.
+     *
+     * @param string $pluginName Name of the plugin
+     * @param array $parameters Parameters to send to the __construct() method
+     * @return mixed Plugin on success, bool on cancellation
+     * @throws Exception\EventException
+     * @throws PluginException
+     * @throws ReflectionException
+     */
+	public function get($pluginName, array $parameters = null)
+	{
+		if (empty($pluginName))
+			throw new PluginException("Could not load plugin. No name provided", 1);
 
 		// Determine the name of the plugin
-		$pluginFolder = $pluginName;
 		$pluginName = ucfirst($pluginName);
 
 		// Fire pluginGetEvent, and cancel or return custom plugin if required
-		$event = Events::fireEvent('pluginGetEvent', $pluginName, $directories);
+        /** @var PluginGetEvent $event */
+        $event = Events::fireEvent('pluginGetEvent', $pluginName);
 		if ($event->isCancelled())
-		{
 			return false;
-		}
 		elseif ($event->getPlugin() != null)
-		{
 			return $event->getPlugin();
-		}
 
 		// Otherwise just set the variables
 		$pluginName = $event->pluginName;
-		$directories = $event->directories;
 
 		// Check if the plugin is already loaded and return directly
 		if (isset($this->plugins[$pluginName]))
-		{
 			return $this->plugins[$pluginName];
-		}
 
 		// Check if the plugin header exists
 		if (!isset($this->headers[$pluginName]))
-		{
 			throw new PluginException("Could not load plugin. Plugin header does not exist", 1);
-		}
 
 		// If disabled, don't bother
-		if (in_array($pluginName, $this->cfg->disabled_plugins))
-		{
+		if (in_array($pluginName, $this->cfg->get('disabled_plugins')))
 			throw new PluginException("Could not load plugin. Plugin is disabled", 1);
-		}
 
 		// Determine what file to load
+        /** @var iPluginHeader $header */
 		$header = $this->headers[$pluginName];
+
+		// Add to autoloader
+        $headerReflection = new ReflectionClass( get_class($header) );
+        $prefix = $header->getClassesPrefix();
+        $filePath = dirname($headerReflection->getFileName()) . (!empty($header->getSourceDirectory()) ? DS . $header->getSourceDirectory() : '');
+        $pluginClass = $header->getPluginClass();
+        if (!is_null($prefix) && !is_null($filePath))
+        {
+            try {
+                Core::addAutoloadMap($prefix, $filePath);
+            } catch (CoreException $e) {
+                throw new PluginException("Could not load plugin. Autoloader invalid: '".$e->getMessage()."'");
+            }
+        }
+
+		// If a 'getPlugin' method is found in the header, call that instead
 		if (method_exists($header, 'getPlugin'))
 		{
 			$this->plugins[$pluginName] = $header->getPlugin();
-			Factory::getInstance()->logger->log('Loaded Plugin: \'' . $pluginName . '\'');
+			Logger::log('Loaded Plugin: \'' . $pluginName . '\'');
 			return $this->plugins[$pluginName];
 		}
 
-		$classFile = (isset($header->classFile) ? $header->classFile : $pluginName.".php");
-		$className = (isset($header->className) ? $header->className : '\Application\Plugin\\'.$pluginName);
-
-		// Find the correct file
-		$pluginFile = '';
-		foreach ($directories as $pluginPath) {
-			$file = $pluginPath . DS . $pluginFolder . DS . $classFile;
-			if (file_exists($file))
-			{
-				$pluginFile = $file;
-				break;
-			}
-		}
-
-		// If not found, throw exception
-		if (empty($pluginFile))
-		{
-			throw new PluginException("Could not load plugin. Class file does not exist", 1);
-		}
-
 		// Attempt to load the plugin
-		require_once($pluginFile);
-		if (!class_exists($className, false))
-		{
+		if (!class_exists($pluginClass, true))
 			throw new PluginException("Could not load plugin. Class does not exist", 1);
-		}
-		$this->plugins[$pluginName] = new $className($parameters);
-		Factory::getInstance()->logger->log('Loaded Plugin: \'' . $pluginName . '\'');
+
+		$this->plugins[$pluginName] = new $pluginClass($parameters);
+		Logger::log('Loaded Plugin: \'' . $pluginName . '\'');
 
 		// And return it
 		return $this->plugins[$pluginName];
-	}
-
-    /**
-     * Add a path where plugins can be found
-     * 
-     * @param string $directory The directory
-     * @return void
-     */
-	public function addPluginPath($directory)
-	{
-		if (!in_array($directory, $this->pluginPaths))
-		{
-			$this->pluginPaths[] = $directory;
-		}
-	}
-
-    /**
-     * Remove a path where plugins can be found
-     * 
-     * @param string $directory The directory
-     * @return void
-     */  
-	public function removePluginPath($directory)
-	{
-		if (($key = array_search($directory, $this->pluginPaths)) !== false) 
-		{
-		    unset($this->pluginPaths[$key]);
-		}
-	}
-
-    /**
-     * Get a list of all current pluginPaths
-     * 
-     * @return array Array of paths where plugins can be found
-     */
-	public function getPluginPaths(): array
-	{
-		return $this->pluginPaths;
 	}
 }

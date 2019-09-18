@@ -1,7 +1,7 @@
-FuzeWorks - Readme [![build status](http://10.0.0.32/fuzeworks/core/badges/master/build.svg)](http://10.0.0.32/fuzeworks/core/commits/master)
+FuzeWorks - Readme [![pipeline status](http://git.i15.nl/fuzeworks/core/badges/development/pipeline.svg)](http://git.i15.nl/fuzeworks/core/commits/development) [![coverage report](http://git.i15.nl/fuzeworks/core/badges/development/coverage.svg)](http://git.i15.nl/fuzeworks/core/commits/development)
 ===================
 
-Version 1.0.0-DEV
+Version 1.2.0
 
 A versatile PHP Framework built to perform.
 
@@ -27,24 +27,32 @@ For full copyright information, please see ./doc/copyright.html
 License
 -------
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License version 3, as published by the
-Free Software Foundation.
+MIT License
 
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-details.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 Licensing of current contributions
 ----------------------------------
 
-Beginning on 2015-08-26, new contributions to this codebase are all licensed
-under terms compatible with GPLv3-or-later.  FuzeWorks is currently
-transitioning older code to GPLv3-or-later, but work is not yet complete.
+Beginning on 2018-04-17, new contributions to this codebase are all licensed
+under terms compatible with the MIT license.  FuzeWorks is currently
+transitioning older code to the MIT License, but work is not yet complete.
 
 Enjoy!
 ------
